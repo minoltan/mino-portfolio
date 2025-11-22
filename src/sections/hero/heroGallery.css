@@ -1,0 +1,126 @@
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+    .techStackOne {
+        width: 20%;
+    }
+
+    .techStackTwo {
+        width: 10%;
+    }
+
+    .techStackThree {
+        width: 12%;
+    }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+    .techStackOne {
+        width: 20%;
+    }
+
+    .techStackTwo {
+        width: 10%;
+    }
+
+    .techStackThree {
+        width: 12%;
+    }
+}
+
+/* Large devices (laptops/desktops, 900px and up) */
+@media only screen and (min-width: 900px) {
+    .techStackOne {
+        width: 17%;
+    }
+
+    .techStackTwo {
+        width: 10%;
+    }
+
+    .techStackThree {
+        width: 12%;
+    }
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+    .techStackOne {
+        width: 12%;
+    }
+
+    .techStackTwo {
+        width: 10%;
+    }
+
+    .techStackThree {
+        width: 15%;
+    }
+}
+
+/* Typewriter Animation */
+.typewriter h1 {
+    overflow: hidden;
+    /* Ensures the content is not revealed until the animation */
+    border-right: .15em solid orange;
+    /* The typwriter cursor */
+    white-space: nowrap;
+    /* Keeps the content on a single line */
+    margin: 0 auto;
+    /* Gives that scrolling effect as the typing happens */
+    letter-spacing: .15em;
+    /* Adjust as needed */
+    animation:
+        typing 3.5s steps(40, end),
+        blink-caret .75s step-end infinite;
+}
+
+/* The typing effect */
+@keyframes typing {
+    from {
+        width: 0
+    }
+
+    to {
+        width: 100%
+    }
+}
+
+/* The typewriter cursor effect */
+@keyframes blink-caret {
+
+    from,
+    to {
+        border-color: transparent
+    }
+
+    50% {
+        border-color: orange;
+    }
+}
+
+@keyframes rotateAnimation {
+    50% {
+        rotate: -30deg;
+    }
+
+    100% {
+        rotate: 30deg;
+    }
+}
+
+@keyframes bounceAnimation {
+    50% {
+        scale: 1.25
+    }
+
+    100% {
+        scale: 1
+    }
+}
+
+@keyframes translateAnimation {
+    100% {
+        transform: rotate(360deg);
+    }
+}

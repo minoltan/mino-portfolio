@@ -1,0 +1,73 @@
+import { useEffect, useRef, useState } from "react";
+import { Avatar, IconButton, Stack, Tooltip } from "@mui/material";
+import content from '../../data/profile.json';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
+const minLogoSize = 20;
+const maxLogoSize = 70;
+
+const ConnectWithMeLogos = ({ ...other }) => {
+    const [logoSizeOffset, setLogoSizeOffset] = useState(0);
+
+    useEffect(() => {
+        AOS.init({ duration: 1000 });
+    }, []);
+
+    useEffect(() => {
+        if (content) {
+            setLogoSizeOffset((maxLogoSize - minLogoSize) / content.connect_me.length);
+        }
+    }, [content]);
+
+    const getLogos = (label, src, width, link) =>
+        <IconButton
+            aria-label={label}
+            onClick={() => {
+                window.open(link, '_blank');
+            }}
+            className="onMouseOver"
+            data-aos="flip-right"
+        >
+            <Tooltip title={label}>
+                <Avatar
+                    alt={label}
+                    src={src}
+                    sx={{
+                        width: width,
+                        height: width,
+                        boxShadow: '0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19);',
+                        bgcolor: 'white',
+                        p: { xs: 1, md: 1.5 }
+                    }}
+                />
+            </Tooltip>
+        </IconButton>
+
+    return (
+        <>
+            <Stack
+                direction='row'
+                justifyContent='start'
+                alignItems='center'
+                spacing={0.75}
+                className="hideScrollBar"
+                sx={{
+                    overflowX: 'visible',
+                    width: 'auto'
+                }}
+                {...other}
+            >
+                {
+                    content.connect_me.map((item, index) => {
+                        return <div key={index}>
+                            {getLogos(item.label, `${process.env.PUBLIC_URL}/${item.path}`, 50, item.link)}
+                        </div>
+                    })
+                }
+            </Stack>
+        </>
+    );
+}
+
+export default ConnectWithMeLogos;

@@ -1,0 +1,70 @@
+{
+    "top_navigation": {
+        "home": "Home",
+        "projects": "Projects",
+        "contact": "Contact Me"
+    },
+    "hero": {
+        "welcome": "Hy! I Am",
+        "hireMe": "Hire Me",
+        "job_role": "Profession",
+        "degree": "Academic"
+    },
+    "connect_with_me": "My Online Footprint",
+    "about_me": "My Professional Summary",
+    "academic": "My Academic Career",
+    "expertise": "My Expertise",
+    "work_experience": "My Work Experience",
+    "projects": {
+        "featured_projects": "My Featured Projects",
+        "see_all": "See All Projects",
+        "start_new_project": "Let's start a Project",
+        "projectDetails": {
+            "breadcrumb": {
+                "home": "Home",
+                "projects": "Projects"
+            },
+            "associated": "Associated With",
+            "completion": "Completion Date",
+            "about": "About this Project",
+            "features": "Features",
+            "available": "Available On",
+            "tech_stacks": "Technology Stacks",
+            "platforms": {
+                "playstore": "Playstore",
+                "appstore": "Appstore",
+                "webURL": "Web",
+                "other": "Others"
+            },
+            "client": "Client"
+        }
+    },
+    "languages": "Languages",
+    "soft_skills": "My Soft Skills",
+    "publications": "Publications",
+    "errors": {
+        "project_not_found": {
+            "title": "Project Not Found",
+            "description": "Sorry, the project you’re looking for doesn’t exist or may have been removed. Please check the URL or return to the Projects page to explore my other work.",
+            "action": "Check other Projects"
+        },
+        "page_not_found": {
+            "title": "Page Not Found",
+            "description": "Oops! The page you’re looking for doesn’t exist or has been moved. Please check the URL or go back to the homepage.",
+            "action": "Back to Home"
+        },
+        "general": {
+            "title": "Something went wrong",
+            "description": "Oops! Something went wrong on our end. Please refresh and try again.",
+            "action": "Back to Home"
+        },
+        "youtube_video": {
+            "invalid": "Invalid video ID or URL",
+            "player_error": "HTML5 player error. The requested content cannot be played in an HTML5 player",
+            "not_found": "Video not found. It may have been removed or set to private",
+            "restricted": "The video owner has restricted playback on certain sites",
+            "unknown": "An unknown error occurred"
+        },
+        "unknown": "Unknown"
+    }
+}

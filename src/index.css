@@ -1,0 +1,58 @@
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.layoutMarginX {
+  margin-left: 100px;
+  margin-right: 100px;
+}
+
+@media only screen and (max-width: 900px) {
+  .layoutMarginX {
+    margin-left: 30px;
+    margin-right: 30px;
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  .layoutLeft {
+    padding-left: 0px;
+  }
+
+  .layoutPaddingX {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
+  .layoutPaddingTop {
+    padding-top: 50px;
+  }
+}
+
+@media only screen and (min-width: 900px) {
+  .layoutLeft {
+    padding-left: 40px;
+  }
+
+  .layoutPaddingX {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .layoutPaddingTop {
+    padding-top: 80px;
+  }
+}
+
+.onMouseOver:hover {
+  transform: scale(1.1);
+}
+
+.hideScrollBar {
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* Internet Explorer 10+ */
+}
