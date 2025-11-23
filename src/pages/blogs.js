@@ -3,7 +3,6 @@ import { Helmet } from "react-helmet";
 import TopNavigationLayout from "../sections/topNavigation/topNavigationLayout";
 import BlogsHero from "../sections/blogs/blogsHero";
 import BlogsList from "../sections/blogs/blogsList";
-import FooterLayout from "../sections/footer/footerLayout";
 import SpeedScroll from "../components/speedScroll";
 
 const BlogsPage = () => {

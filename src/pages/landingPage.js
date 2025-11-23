@@ -10,7 +10,6 @@ import FeaturedProjectsLayout from "../sections/projects/featuredProjects/featur
 import SoftSkillsNLanguagesLayout from "../sections/softSkillsNLanguages/softSkillsNLanguagesLayout";
 import ReviewsNPublicationsLayout from "../sections/reviewsNPublications/reviewsNPublicationsLayout";
 import TheEnd from "../sections/theEnd/theEndLayout";
-import FooterLayout from "../sections/footer/footerLayout";
 import content from '../data/profile.json';
 import { getFeaturedProjects } from "../utils/utils";
 import SpeedScroll from "../components/speedScroll";
@@ -80,7 +79,7 @@ const LandingPage = () => {
 
             <TheEnd />
 
-            <FooterLayout />
+
 
             <SpeedScroll />
         </>

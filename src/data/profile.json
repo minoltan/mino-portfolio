@@ -54,6 +54,11 @@
             "path": "images/connect me/dev-to.svg"
         },
         {
+            "label": "LeetCode",
+            "link": "https://leetcode.com/u/issackpaul95",
+            "path": "images/connect me/leetcode.svg"
+        },
+        {
             "label": "Linkedin",
             "link": "https://linkedin.com/in/minoltan/",
             "path": "images/connect me/linkedin.png"

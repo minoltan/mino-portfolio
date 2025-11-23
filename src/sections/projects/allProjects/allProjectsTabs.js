@@ -4,30 +4,30 @@ import content from '../../../data/profile.json';
 import AllProjectsList from "./allProjectsList";
 
 function CustomTabPanel(props) {
-  const { children, value, index, ...other } = props;
+    const { children, value, index, ...other } = props;
 
-  return (
-    <div
-        role="tabpanel"
-        hidden={value !== index}
-        id={`simple-tabpanel-${index}`}
-        aria-labelledby={`simple-tab-${index}`}
-        {...other}
-    >
-        {
-            value === index && <Box 
-                className="layoutMarginX"
-                sx={{ 
-                    pt: 2,
-                    pb: 5,
-                    backgroundColor: 'white'
-                }}
-            >
-                {children}
-            </Box>
-        }
-    </div>
-  );
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`simple-tabpanel-${index}`}
+            aria-labelledby={`simple-tab-${index}`}
+            {...other}
+        >
+            {
+                value === index && <Box
+                    className="layoutMarginX"
+                    sx={{
+                        pt: 2,
+                        pb: 5,
+                        bgcolor: 'background.default'
+                    }}
+                >
+                    {children}
+                </Box>
+            }
+        </div>
+    );
 }
 
 const AllProjectsTabs = () => {
@@ -41,9 +41,9 @@ const AllProjectsTabs = () => {
 
     return (
         <>
-            <Box 
-                sx={{ 
-                    maxWidth: '100%', 
+            <Box
+                sx={{
+                    maxWidth: '100%',
                     backgroundColor: theme.palette.secondary.main,
                     pt: 8
                 }}
@@ -60,7 +60,7 @@ const AllProjectsTabs = () => {
                 >
                     {
                         content.projects.map((item, index) => {
-                            return <Tab 
+                            return <Tab
                                 key={index}
                                 label={`${item.area} (${content.projects[index].list.length})`}
                                 value={index}
@@ -72,12 +72,12 @@ const AllProjectsTabs = () => {
 
             {
                 content.projects.map((item, index) => {
-                    return  <CustomTabPanel 
+                    return <CustomTabPanel
                         key={index}
-                        value={value} 
+                        value={value}
                         index={index}
                     >
-                        <AllProjectsList 
+                        <AllProjectsList
                             area={item.area}
                             imgList={item.list}
                         />

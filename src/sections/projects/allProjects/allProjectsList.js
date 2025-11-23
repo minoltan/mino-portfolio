@@ -1,29 +1,36 @@
 import { useEffect } from "react";
-import { ImageList, ImageListItem, ImageListItemBar } from "@mui/material";
+import { ImageList, ImageListItem, ImageListItemBar, useTheme, useMediaQuery } from "@mui/material";
 import { Link } from "react-router-dom";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-const AllProjectsList = ({area, imgList}) => {
+const AllProjectsList = ({ area, imgList }) => {
     useEffect(() => {
         AOS.init({ duration: 500 });
     }, []);
 
+    const theme = useTheme();
+    const matchDownMd = useMediaQuery(theme.breakpoints.down('md'));
+    const matchDownSm = useMediaQuery(theme.breakpoints.down('sm'));
+
+    const cols = matchDownSm ? 1 : matchDownMd ? 2 : 4;
+
     return (
         <>
             <ImageList
-                sx={{ width: '100%' }}
+                sx={{ width: '100%', padding: '16px' }}
                 variant="quilted"
-                cols={imgList.length > 1 ? 2 : 1}
-                rowHeight={window.innerWidth < 600 ? 200 : 400}
+                cols={cols}
+                gap={16}
+                rowHeight={matchDownSm ? 200 : 350}
             >
                 {
                     imgList.map((item, index) => (
-                        <Link 
+                        <Link
                             to={`/project/${area}/${index + 1}`}
-                            key={index} 
+                            key={index}
                         >
-                            <ImageListItem 
+                            <ImageListItem
                                 data-aos="zoom-in"
                                 data-aos-once={true}
                             >
