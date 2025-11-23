@@ -9,19 +9,19 @@ const AboutMeInfo = () => {
         <>
             <Box
                 sx={{
-                    bgcolor: theme.palette.secondary.main,
-                    width: {xs: '100%', md: '75%'},
+                    bgcolor: theme.palette.background.card,
+                    width: { xs: '100%', md: '75%' },
                     borderRadius: 4
                 }}
             >
                 <Stack
                     direction='column'
                     spacing={2}
-                    p={{xs: 3, md: 5}}
+                    p={{ xs: 3, md: 5 }}
                 >
                     {
                         content.about_me.info.map((item, index) => {
-                            return <AboutMeInfoCard 
+                            return <AboutMeInfoCard
                                 key={index}
                                 label={item.label}
                                 value={item.value}

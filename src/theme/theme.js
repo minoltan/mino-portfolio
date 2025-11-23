@@ -15,7 +15,8 @@ const getTheme = (mode) => createTheme({
         },
         background: {
           default: "#f5f5f5",
-          paper: "#ffffff"
+          paper: "#ffffff",
+          card: "#fdf0ed"
         },
         text: {
           primary: "#121212",
@@ -41,7 +42,8 @@ const getTheme = (mode) => createTheme({
         },
         background: {
           default: "#1e1e1e",
-          paper: "#1e1e1e"
+          paper: "#1e1e1e",
+          card: "#fdf0ed"
         },
         text: {
           primary: "#ffffff",

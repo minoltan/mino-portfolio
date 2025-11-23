@@ -1,4 +1,4 @@
-import { Box, Drawer, IconButton, List, ListItem, ListItemButton, Stack, Typography } from "@mui/material";
+import { Box, Drawer, IconButton, List, ListItem, ListItemButton, Stack, Typography, useTheme } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import ButtonComponent from "../../components/buttonComponent";
 import { useTranslation } from "react-i18next";
@@ -9,6 +9,7 @@ import ThemeToggle from '../../components/ThemeToggle';
 
 const TopNavigationBar = () => {
     const { t } = useTranslation();
+    const theme = useTheme();
     const topNavigationLocale = "top_navigation";
 
     const navOptions = [
@@ -19,8 +20,25 @@ const TopNavigationBar = () => {
     const [drawerState, setDrawerState] = useState(false);
 
     const [activePage, setActivePage] = useState('/');
+    const [scrolled, setScrolled] = useState(false);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 900) {
+                setScrolled(true);
+            } else {
+                setScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
 
     useEffect(() => {
         const location = window.location.href;
@@ -61,7 +79,7 @@ const TopNavigationBar = () => {
                     direction='row'
                     justifyContent='space-between'
                     alignItems='center'
-                    bgcolor='background.paper'
+                    bgcolor={scrolled ? theme.palette.secondary.main : 'background.paper'}
                     py={1}
                     px={2}
                     borderRadius={5}
