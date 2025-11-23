@@ -1,5 +1,6 @@
 import { Box, Container, Grid, Typography, Link, Stack, IconButton, useTheme } from "@mui/material";
-import { GitHub, Email, LinkedIn, ArrowUpward } from "@mui/icons-material";
+import { ArrowUpward } from "@mui/icons-material";
+import ConnectWithMeLogos from "../connectWithMe/connectWithMeLogos";
 
 const FooterLayout = () => {
     const theme = useTheme();
@@ -22,9 +23,18 @@ const FooterLayout = () => {
             }}
         >
             <Container maxWidth="lg" sx={{ bgcolor: 'transparent' }}>
-                <Grid container spacing={4}>
-                    {/* Brand Section */}
-                    <Grid item xs={12} md={4}>
+                <Grid sx={{
+                    borderTop: '0px solid rgba(255,255,255,0.1)',
+                    mt: 5,
+                    pt: 3,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'left',
+                    flexWrap: 'wrap'
+                }}>
+
+                    {/* Row 1: Brand & Quick Links */}
+                    <Grid item xs={6} md={10}>
                         <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ color: theme.palette.primary.main }}>
                             DIGITAL PORTFOLIO
                         </Typography>
@@ -36,10 +46,9 @@ const FooterLayout = () => {
                         </Typography>
                     </Grid>
 
-                    {/* Quick Links */}
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={6} md={2}>
                         <Typography variant="h6" fontWeight="bold" gutterBottom>
-                            Quick Links
+                            Click Quick Links
                         </Typography>
                         <Stack spacing={1}>
                             {['Home', 'About', 'Projects', 'Experience'].map((text) => (
@@ -59,52 +68,51 @@ const FooterLayout = () => {
                         </Stack>
                     </Grid>
 
-                    {/* Connect Section */}
-                    <Grid item xs={12} md={4}>
+
+                </Grid>
+
+                <Grid sx={{
+                    borderTop: '0px solid rgba(255,255,255,0.1)',
+                    mt: 5,
+                    pt: 3,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'left',
+                    flexWrap: 'wrap'
+                }}>
+
+                    {/* Row 2: Connect & AWS Skill Builder */}
+                    <Grid item xs={12} md={10}>
                         <Typography variant="h6" fontWeight="bold" gutterBottom>
                             Connect
                         </Typography>
                         <Typography variant="body2" sx={{ color: '#b0b0b0', mb: 2 }}>
                             Feel free to reach out for collaborations or just a friendly hello.
                         </Typography>
-                        <Stack direction="row" spacing={2}>
-                            <IconButton
-                                component={Link}
-                                href="https://github.com/prasanthse/digital-portfolio.git"
-                                target="_blank"
-                                sx={{
-                                    color: 'white',
-                                    bgcolor: 'rgba(255,255,255,0.1)',
-                                    '&:hover': { bgcolor: theme.palette.primary.main }
-                                }}
-                            >
-                                <GitHub />
-                            </IconButton>
-                            <IconButton
-                                component={Link}
-                                href="mailto:prasanth@techserw.com"
-                                sx={{
-                                    color: 'white',
-                                    bgcolor: 'rgba(255,255,255,0.1)',
-                                    '&:hover': { bgcolor: theme.palette.primary.main }
-                                }}
-                            >
-                                <Email />
-                            </IconButton>
-                            {/* Placeholder for LinkedIn if not found, but adding it for completeness */}
-                            <IconButton
-                                component={Link}
-                                href="#"
-                                sx={{
-                                    color: 'white',
-                                    bgcolor: 'rgba(255,255,255,0.1)',
-                                    '&:hover': { bgcolor: theme.palette.primary.main }
-                                }}
-                            >
-                                <LinkedIn />
-                            </IconButton>
+                        <Stack direction="row" justifyContent="start" alignItems="center">
+                            <ConnectWithMeLogos />
                         </Stack>
                     </Grid>
+
+                    <Grid item xs={12} md={2}>
+                        <Typography variant="h6" fontWeight="bold" gutterBottom>
+                            AWS Skill Builder
+                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+                            <Box
+                                component="img"
+                                src={`${process.env.PUBLIC_URL}/images/connect me/aws-skill-builder.png`}
+                                alt="AWS Skill Builder QR"
+                                sx={{
+                                    width: '80px',
+                                    height: '80px',
+                                    borderRadius: 1,
+                                    border: '2px solid white'
+                                }}
+                            />
+                        </Box>
+                    </Grid>
+
                 </Grid>
 
                 {/* Copyright Bar */}

@@ -19,13 +19,13 @@
             "tertiary": "images/icons/aws.webp"
         }
     },
-    "hire_me": "mailto:abc@gmail.com",
+    "hire_me": "mailto:issackpaul95@gmail.com",
     "contact_me": "https://wa.link/ateauh",
     "lets_start_a_project": "https://wa.link/ateauh",
     "connect_me": [
         {
             "label": "Email",
-            "link": "mailto:abc@gmail.com",
+            "link": "mailto:issackpaul95@gmail.com",
             "path": "images/connect me/gmail.png"
         },
         {
@@ -40,33 +40,23 @@
         },
         {
             "label": "Github",
-            "link": "https://github.com",
+            "link": "https://github.com/minoltan",
             "path": "images/connect me/github.png"
         },
         {
             "label": "Medium",
-            "link": "https://medium.com",
+            "link": "https://medium.com/@issackpaul95",
             "path": "images/connect me/medium.png"
         },
         {
             "label": "Linkedin",
-            "link": "https://linkedin.com",
+            "link": "https://linkedin.com/in/minoltan/",
             "path": "images/connect me/linkedin.png"
         }
     ],
     "about_me": {
         "description": "A results-driven Software Engineer with expertise in architecting and developing scalable backend systems using AWS Serverless and Java. Proficient in cloud-native solutions and enterprise-grade applications, with a strong foundation in software engineering. Holds a B.Sc. (Hons) from the University of Kelaniya. Passionate about AI/ML and actively contributes to research and innovation.",
         "info": [
-            {
-                "label": "Gender",
-                "value": "Male",
-                "path": "images/icons/gender.png"
-            },
-            {
-                "label": "Date of Birth",
-                "value": "1990/01/01",
-                "path": "images/icons/birthday.png"
-            },
             {
                 "label": "Address",
                 "value": "22/50, Main Street, Negombo, Sri Lanka",
@@ -198,7 +188,11 @@
             "duration": "September 2022 - February 2024",
             "company": {
                 "name": "Creative Minds. New York. USA",
-                "images": [],
+                "images": [
+                    "images/work/1.png",
+                    "images/work/2.png",
+                    "images/work/3.png"
+                ],
                 "link": "https://techserw.com"
             },
             "description": "Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit.",

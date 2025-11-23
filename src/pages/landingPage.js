@@ -28,7 +28,7 @@ const LandingPage = () => {
 
 
 
-            <AboutMeLayout />
+            {/* <AboutMeLayout /> */}
 
             {
                 content.academic.length > 0
