@@ -120,7 +120,7 @@ const FooterLayout = () => {
                     }}
                 >
                     <Typography variant="body2" sx={{ color: '#808080' }}>
-                        © {new Date().getFullYear()} Sivakumar Prasanth. All rights reserved.
+                        © {new Date().getFullYear()} Minoltan Issack. All rights reserved.
                     </Typography>
 
                     <Stack direction="row" alignItems="center" spacing={1}>

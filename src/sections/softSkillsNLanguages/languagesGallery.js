@@ -16,28 +16,29 @@ const LanguagesGallery = () => {
                 position='relative'
             >
                 {/* My Image */}
-                <img 
+                <img
                     src={`${process.env.PUBLIC_URL}/${content.my_images.languages_section}`}
                     alt="My image"
                     style={{
-                        width: '100%'
+                        marginLeft: '25%',
+                        width: '80%'
                     }}
                 />
 
                 {/* Language */}
-                <LanguagesCard 
+                <LanguagesCard
                     logo={`${process.env.PUBLIC_URL}/images/icons/languages.png`}
                     label={t(`languages`)}
                     list={content.languages}
                     cardSX={{
                         position: 'absolute',
                         bottom: 50,
-                        left: {xs: '5%', md: '-60px', lg: '-20px'},
+                        left: { xs: '5%', md: '-60px', lg: '150px' },
                         animation: 'languageAnimation 1s infinite'
                     }}
                 />
 
-                <Box
+                {/* <Box
                     sx={{
                         width: '100%',
                         height: 100,
@@ -46,7 +47,7 @@ const LanguagesGallery = () => {
                         bottom: 0,
                         zIndex: -1
                     }}
-                />
+                /> */}
             </Stack>
         </>
     );

@@ -1,4 +1,4 @@
-import { Box, Drawer, IconButton, List, ListItem, ListItemButton, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Drawer, IconButton, List, ListItem, ListItemButton, Stack, Typography, useTheme, alpha } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import ButtonComponent from "../../components/buttonComponent";
 import { useTranslation } from "react-i18next";
@@ -79,7 +79,12 @@ const TopNavigationBar = () => {
                     direction='row'
                     justifyContent='space-between'
                     alignItems='center'
-                    bgcolor={scrolled ? theme.palette.secondary.main : 'background.paper'}
+                    sx={{
+                        backgroundColor: alpha(theme.palette.background.paper, 0.8),
+                        backdropFilter: 'blur(10px)',
+                        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                        boxShadow: theme.shadows[1]
+                    }}
                     py={1}
                     px={2}
                     borderRadius={5}

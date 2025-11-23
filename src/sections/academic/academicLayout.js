@@ -1,5 +1,5 @@
 import { Stack, useTheme } from "@mui/material";
-import { VerticalTimeline }  from 'react-vertical-timeline-component';
+import { VerticalTimeline } from 'react-vertical-timeline-component';
 import 'react-vertical-timeline-component/style.min.css';
 import TitleComponent from "../../components/titleComponent";
 import { useTranslation } from "react-i18next";
@@ -7,7 +7,7 @@ import AcademicTimelineElement from "./academicTimelineElement";
 import content from '../../data/profile.json';
 
 const AcademicLayout = () => {
-    const {t} = useTranslation();
+    const { t } = useTranslation();
 
     const theme = useTheme();
 
@@ -16,7 +16,7 @@ const AcademicLayout = () => {
             <div className="layoutPaddingTop"></div>
 
             <Stack
-                pt={{xs: 5, md: 10}}
+                pt={{ xs: 5, md: 10 }}
                 pb={5}
                 className="layoutMarginX"
                 borderRadius={8}
@@ -24,14 +24,14 @@ const AcademicLayout = () => {
                     backgroundColor: theme.components.MuiContainer.styleOverrides.root.backgroundColor
                 }}
             >
-                <TitleComponent 
+                <TitleComponent
                     title={t('academic')}
-                    richText={false}
+                    richText={true}
                     px={1}
                 />
 
                 <Stack
-                    mt={{xs: 0, md: 5}}
+                    mt={{ xs: 0, md: 5 }}
                 >
                     <VerticalTimeline
                         lineColor='white'
@@ -39,7 +39,7 @@ const AcademicLayout = () => {
                     >
                         {
                             content.academic.map((item, index) => {
-                                return <AcademicTimelineElement 
+                                return <AcademicTimelineElement
                                     key={index}
                                     date={item.date}
                                     major={item.major}

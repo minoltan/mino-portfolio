@@ -7,7 +7,7 @@ const SoftSkillsNLanguagesLayout = () => {
     return (
         <>
             <Grid
-                direction={{xs: 'column-reverse', md: 'row'}}
+                direction={{ xs: 'column-reverse', md: 'row' }}
                 justifyContent='center'
                 alignItems='center'
                 container
@@ -15,30 +15,30 @@ const SoftSkillsNLanguagesLayout = () => {
             >
                 {
                     content.languages.length > 0 && content.soft_skills.list.length > 0
-                    ?
-                    <>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <SoftSkills />
-                        </Grid>
+                        ?
+                        <>
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <LanguagesGallery />
+                            </Grid>
 
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <LanguagesGallery />
-                        </Grid>
-                    </>
-                    :
-                    content.languages.length > 0 && content.soft_skills.list.length === 0
-                    ?
-                    <>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <LanguagesGallery />
-                        </Grid>
-                    </>
-                    :
-                    <>
-                        <Grid size={{ xs: 12 }}>
-                            <SoftSkills />
-                        </Grid>
-                    </>
+                            <Grid size={{ xs: 12, md: 6 }}>
+                                <SoftSkills />
+                            </Grid>
+                        </>
+                        :
+                        content.languages.length > 0 && content.soft_skills.list.length === 0
+                            ?
+                            <>
+                                <Grid size={{ xs: 12, md: 6 }}>
+                                    <LanguagesGallery />
+                                </Grid>
+                            </>
+                            :
+                            <>
+                                <Grid size={{ xs: 12 }}>
+                                    <SoftSkills />
+                                </Grid>
+                            </>
                 }
             </Grid>
         </>

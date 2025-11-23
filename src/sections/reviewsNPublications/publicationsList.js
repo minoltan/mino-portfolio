@@ -5,19 +5,19 @@ import TitleComponent from '../../components/titleComponent';
 import { useTranslation } from "react-i18next";
 
 const PublicationsList = () => {
-    const {t} = useTranslation();
+    const { t } = useTranslation();
 
     return (
         <>
             {/* Title */}
-            <TitleComponent 
+            <TitleComponent
                 title={t('publications')}
                 pb={4}
                 textAlign="left"
-                richText={false}
+                richText={true}
                 pt={2}
             />
-            
+
             <List
                 className="hideScrollBar"
                 sx={{
@@ -33,7 +33,7 @@ const PublicationsList = () => {
                     content.publications.map((item, index) => (
                         <li key={index}>
                             <ul>
-                                <PublicationCard item={item}/>
+                                <PublicationCard item={item} />
                             </ul>
                         </li>
                     ))

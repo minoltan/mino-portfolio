@@ -14,9 +14,9 @@
         ],
         "degree": "B.Sc in Software Engineering",
         "tech_stacks": {
-            "primary": "images/icons/gcp.png",
+            "primary": "images/icons/aws.webp",
             "secondary": "images/icons/spring.webp",
-            "tertiary": "images/icons/aws.webp"
+            "tertiary": "images/icons/gcp.png"
         }
     },
     "hire_me": "mailto:abc@gmail.com",
