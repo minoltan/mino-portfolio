@@ -49,6 +49,11 @@
             "path": "images/connect me/medium.png"
         },
         {
+            "label": "Dev.to",
+            "link": "https://dev.to/minoltan",
+            "path": "images/connect me/dev-to.svg"
+        },
+        {
             "label": "Linkedin",
             "link": "https://linkedin.com/in/minoltan/",
             "path": "images/connect me/linkedin.png"
