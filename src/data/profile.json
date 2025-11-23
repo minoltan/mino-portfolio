@@ -71,22 +71,16 @@
     },
     "academic": [
         {
-            "major": "M.Sc in Information Technology",
-            "school": "University of Colombo",
-            "date": "2025/01/01",
-            "description": "Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+            "major": "B.Sc in Software Engineering",
+            "school": "University of Kelaniya",
+            "date": "2017 - 2021",
+            "description": "I earned my B.Sc. (Hons) in Software Engineering from the University of Kelaniya, a recognized state university governed by the University Grants Commission of Sri Lanka. During my studies, I actively engaged in academic and extracurricular activities, including hackathons and tech events. For my final-year research, I developed a machine learning model that predicts and assigns a quantitative score for parking slot availability, combining practical problem-solving with AI techniques."
         },
         {
-            "major": "B.Sc in Information Technology",
-            "school": "University of Moratuwa",
-            "date": "2020/06/12",
-            "description": "Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-        },
-        {
-            "major": "Advanced level in Physical science",
-            "school": "Colombo Hindu Collage",
-            "date": "2020/09/14",
-            "description": "Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+            "major": "Primary to Advanced Level (A/L)",
+            "school": "St. Xavier's Boys' National School",
+            "date": "2001 - 2014",
+            "description": "Highly motivated and detail-oriented individual with a robust foundation in Physical Sciences (Combined Mathematics, Physics, and Chemistry) and demonstrated leadership capacity, notably as a School Prefect. My diverse extracurricular engagement includes competing at the National Level in Chess and playing Cricket at the Provincial Level. I am currently leveraging this academic rigor and competitive drive in the pursuit of a B.Sc. (Honors) degree in Software Engineering at the University of Kelaniya."
         }
     ],
     "expertise": [
@@ -134,17 +128,17 @@
     "work_experience": [
         {
             "role": "Senior Software Engineer",
-            "duration": "February 2024 - Present",
+            "duration": "October 2023 - Present",
             "company": {
-                "name": "Creative Minds. New York. USA",
+                "name": "Arimac Lanka Pvt. Ltd. Colombo. Sri Lanka",
                 "images": [
                     "images/work/1.png",
                     "images/work/2.png",
                     "images/work/3.png"
                 ],
-                "link": "https://techserw.com"
+                "link": "https://arimac.digital"
             },
-            "description": "Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "description": "As a Senior Software Engineer at Arimac, Sri Lanka’s premier digital solutions provider, I specialize in architecting and developing scalable, serverless, cloud-native solutions using event-driven and microservice architectures across AWS, Azure, and Google Cloud. I possess deep proficiency in backend development with Node.js and Spring Boot (Java), leveraging containerization (Docker, Kubernetes) and managing diverse databases like MySQL, MongoDB, and DynamoDB. My robust workflow adheres to Test-Driven Development (TDD) using tools like JUnit and SonarQube, and I ensure streamlined deployments through CI/CD pipelines (GitHub, GitLab, Bitbucket), actively contributing to DevOps practices via Infrastructure-as-Code (Terraform, AWS CDK). Furthermore, I play a key leadership role in multiple Agile projects, consistently ensuring timely delivery, which has led to internal recognition for my commitment to engineering best practices and problem-solving excellence.",
             "teck_stacks": [
                 {
                     "label": "Unity",
@@ -189,18 +183,46 @@
             ]
         },
         {
-            "role": "Associate Software Engineer",
-            "duration": "September 2022 - February 2024",
+            "role": "Software Engineer",
+            "duration": "August 2021 - September 2023",
             "company": {
-                "name": "Creative Minds. New York. USA",
+                "name": "Arimac Lanka Pvt. Ltd. Colombo. Sri Lanka",
                 "images": [
                     "images/work/1.png",
                     "images/work/2.png",
                     "images/work/3.png"
                 ],
-                "link": "https://techserw.com"
+                "link": "https://arimac.digital/"
             },
-            "description": "Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "description": "As a Software Engineer, I collaborated closely with cross-functional teams to develop both monolithic and microservice-based applications, integrating RESTful and SOAP APIs. I was responsible for backend development using Java (Spring Boot) and also contributed to frontend development using React.js. I consistently applied Object-Oriented Programming (OOP) and SOLID principles to produce clean, modular, and maintainable code. I implemented authentication and authorization mechanisms using OAuth2, Spring Security, and Keycloak, along with encryption techniques to ensure secure data handling. Working in Agile environments, I practiced effective version control using Git, actively participated in code reviews, and contributed to design discussions and stakeholder presentations.",
+            "teck_stacks": [
+                {
+                    "label": "HTML",
+                    "path": "images/tech-stacks/html.png"
+                },
+                {
+                    "label": "Java",
+                    "path": "images/tech-stacks/java.png"
+                },
+                {
+                    "label": "C++",
+                    "path": "images/tech-stacks/c++.png"
+                }
+            ]
+        },
+        {
+            "role": "Associate Software Engineer",
+            "duration": "March 2021 - July 2021",
+            "company": {
+                "name": "HCL Tech Pvt. Ltd. Colombo. Sri Lanka",
+                "images": [
+                    "images/work/1.png",
+                    "images/work/2.png",
+                    "images/work/3.png"
+                ],
+                "link": "https://arimac.digital/"
+            },
+            "description": "As a Associate Software Engineer, I specialized in monitoring and ensuring the reliability of critical transaction pipelines for a major US-based insurance system. My core responsibilities included the proactive identification and debugging of pipeline failures, requiring swift analysis and implementation of effective technical fixes to maintain system continuity. This role significantly expanded my technical skill set, establishing strong proficiency in MySQL database management and expertise in data integration processes utilizing the Informatica toolset",
             "teck_stacks": [
                 {
                     "label": "HTML",
@@ -218,19 +240,23 @@
         },
         {
             "role": "Intern Software Engineer",
-            "duration": "February 2022 - August 2022",
+            "duration": "February 2019 - March 2020",
             "company": {
-                "name": "Creative Minds. New York. USA",
+                "name": "SenzMate Pvt. Ltd. Colombo. Sri Lanka",
                 "images": [
                     "images/work/1.png"
                 ],
-                "link": ""
+                "link": "https://senzmate.com/"
             },
-            "description": "Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "description": "During my internship at SenzMate, I contributed to web and mobile application development using React.js and Spring Boot as part of a cross-functional team. I engaged in full-stack development tasks, including UI implementation, API integration, and backend service development. Through real-world projects, I gained hands-on experience in building AI- and IoT-integrated applications. I participated in a structured intern training program, which significantly enhanced my practical skills and supported my final-year academic success. Throughout the internship, I followed best practices in version control, code quality, and Agile workflows.",
             "teck_stacks": [
                 {
-                    "label": "Javascript",
-                    "path": "images/tech-stacks/javascript.png"
+                    "label": "ReactJS",
+                    "path": "images/tech-stacks/reactjs.png"
+                },
+                {
+                    "label": "Spring Boot",
+                    "path": "images/tech-stacks/spring-boot.png"
                 }
             ]
         }

@@ -149,7 +149,7 @@ const FooterLayout = () => {
                         mt: 5,
                         pt: 3,
                         display: 'flex',
-                        justifyContent: 'space-between',
+                        justifyContent: 'center',
                         alignItems: 'center',
                         flexWrap: 'wrap'
                     }}
@@ -158,7 +158,7 @@ const FooterLayout = () => {
                         © {new Date().getFullYear()} Minoltan Issack. All rights reserved.
                     </Typography>
 
-                    <Stack direction="row" alignItems="center" spacing={1}>
+                    {/* <Stack direction="row" alignItems="center" spacing={1}>
                         <Typography variant="body2" sx={{ color: '#808080' }}>
                             Back to Top
                         </Typography>
@@ -172,7 +172,7 @@ const FooterLayout = () => {
                         >
                             <ArrowUpward fontSize="small" />
                         </IconButton>
-                    </Stack>
+                    </Stack> */}
                 </Box>
             </Container>
         </Box>
