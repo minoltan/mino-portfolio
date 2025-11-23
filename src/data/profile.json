@@ -14,9 +14,9 @@
         ],
         "degree": "B.Sc in Software Engineering",
         "tech_stacks": {
-            "primary": "images/icons/aws.webp",
-            "secondary": "images/icons/spring.webp",
-            "tertiary": "images/icons/gcp.png"
+            "primary": "images/icons/spring.webp",
+            "secondary": "images/icons/tech-stack-02.png",
+            "tertiary": "images/icons/aws.webp"
         }
     },
     "hire_me": "mailto:abc@gmail.com",
@@ -786,6 +786,32 @@
                     }
                 }
             ]
+        }
+    ],
+    "blogs": [
+        {
+            "title": "Understanding React Hooks",
+            "description": "A comprehensive guide to using React Hooks for state management and side effects.",
+            "date": "2025-01-15",
+            "link": "https://medium.com",
+            "thumbnail": "images/projects/project-01/thumbnail.png",
+            "category": "Other"
+        },
+        {
+            "title": "The Future of Web Development",
+            "description": "Exploring upcoming trends and technologies in the web development landscape.",
+            "date": "2024-12-20",
+            "link": "https://medium.com",
+            "thumbnail": "images/projects/project-02/thumbnail.png",
+            "category": "AWS"
+        },
+        {
+            "title": "Mastering CSS Grid",
+            "description": "Learn how to create complex layouts with ease using CSS Grid.",
+            "date": "2024-11-10",
+            "link": "https://medium.com",
+            "thumbnail": "images/projects/project-03/thumbnail.png",
+            "category": "ML/AI"
         }
     ],
     "languages": [

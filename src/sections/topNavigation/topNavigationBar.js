@@ -1,4 +1,4 @@
-import { Box, Drawer, IconButton, List, ListItem, ListItemButton, Stack, Typography, useTheme, alpha } from "@mui/material";
+import { Box, Drawer, IconButton, List, ListItem, ListItemButton, Stack, Typography, useTheme, alpha, Badge } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import ButtonComponent from "../../components/buttonComponent";
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,8 @@ const TopNavigationBar = () => {
 
     const navOptions = [
         { label: 'home', to: '/' },
-        { label: 'projects', to: '/project' }
+        { label: 'projects', to: '/project' },
+        { label: 'blogs', to: '/blogs' },
     ];
 
     const [drawerState, setDrawerState] = useState(false);
@@ -46,6 +47,10 @@ const TopNavigationBar = () => {
         // Projects page
         if (location.endsWith('/project')) {
             setActivePage(navOptions[1].to);
+        }
+        // Blogs page
+        else if (location.endsWith('/blogs')) {
+            setActivePage(navOptions[2].to);
         }
         // Landing page
         else {
@@ -138,16 +143,27 @@ const TopNavigationBar = () => {
                                             color: 'inherit'
                                         }}
                                     >
-                                        <Typography
-                                            px={3}
-                                            className="onMouseOver"
-                                            fontWeight={activePage == item.to ? 600 : 300}
-                                            style={{
-                                                cursor: 'pointer'
+                                        <Badge
+                                            badgeContent={item.label === 'blogs' ? 'New' : 0}
+                                            color="primary"
+                                            sx={{
+                                                '& .MuiBadge-badge': {
+                                                    right: 10,
+                                                    top: 5
+                                                }
                                             }}
                                         >
-                                            {t(`${topNavigationLocale}.${item.label}`)}
-                                        </Typography>
+                                            <Typography
+                                                px={3}
+                                                className="onMouseOver"
+                                                fontWeight={activePage == item.to ? 600 : 300}
+                                                style={{
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                {t(`${topNavigationLocale}.${item.label}`)}
+                                            </Typography>
+                                        </Badge>
                                     </Link>
                                 })
                             }
@@ -187,18 +203,31 @@ const TopNavigationBar = () => {
                                         <ListItemButton
                                             onClick={() => selectNavOptionInMobile(item.to)}
                                         >
-                                            <Typography
-                                                py={2}
-                                                px={5}
-                                                className="onMouseOver"
-                                                fontWeight={activePage == item.to ? 600 : 300}
-                                                textAlign='center'
-                                                style={{
-                                                    cursor: 'pointer'
+                                            <Badge
+                                                badgeContent={item.label === 'blogs' ? 'New' : 0}
+                                                color="primary"
+                                                sx={{
+                                                    width: '100%',
+                                                    '& .MuiBadge-badge': {
+                                                        right: 40,
+                                                        top: 15
+                                                    }
                                                 }}
                                             >
-                                                {t(`${topNavigationLocale}.${item.label}`)}
-                                            </Typography>
+                                                <Typography
+                                                    py={2}
+                                                    px={5}
+                                                    className="onMouseOver"
+                                                    fontWeight={activePage == item.to ? 600 : 300}
+                                                    textAlign='center'
+                                                    width='100%'
+                                                    style={{
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    {t(`${topNavigationLocale}.${item.label}`)}
+                                                </Typography>
+                                            </Badge>
                                         </ListItemButton>
                                     </ListItem>
                                 })

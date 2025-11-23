@@ -21,8 +21,8 @@ const HeroGallery = () => {
                     className="techStackOne"
                     style={{
                         position: 'absolute',
-                        left: '25%',
-                        top: '7%',
+                        left: '30%',
+                        top: '10%',
                         rotate: '30deg',
                         animation: 'rotateAnimation 2s infinite'
                     }}
@@ -35,8 +35,8 @@ const HeroGallery = () => {
                     className="techStackTwo"
                     style={{
                         position: 'absolute',
-                        top: '30%',
-                        right: '25%',
+                        top: '32%',
+                        right: '28%',
                         animation: 'translateAnimation 3s infinite linear'
                     }}
                 />
@@ -49,7 +49,7 @@ const HeroGallery = () => {
                     style={{
                         position: 'absolute',
                         top: '30%',
-                        left: '15%',
+                        left: '20%',
                         animation: 'bounceAnimation 1s infinite'
                     }}
                 />

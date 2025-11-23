@@ -46,11 +46,11 @@
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
     .techStackOne {
-        width: 15%;
+        width: 9%;
     }
 
     .techStackTwo {
-        width: 10%;
+        width: 9%;
     }
 
     .techStackThree {

@@ -2,7 +2,8 @@
     "top_navigation": {
         "home": "Home",
         "projects": "Projects",
-        "contact": "Contact Me"
+        "contact": "Contact Me",
+        "blogs": "Blogs"
     },
     "hero": {
         "welcome": "Hy! I Am",
