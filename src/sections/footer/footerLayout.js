@@ -1,9 +1,11 @@
-import { Box, Container, Grid, Typography, Link, Stack, IconButton, useTheme } from "@mui/material";
+import { Box, Container, Grid, Typography, Link, Stack, IconButton, useTheme, Dialog } from "@mui/material";
 import { ArrowUpward } from "@mui/icons-material";
+import { useState } from "react";
 import ConnectWithMeLogos from "../connectWithMe/connectWithMeLogos";
 
 const FooterLayout = () => {
     const theme = useTheme();
+    const [openQR, setOpenQR] = useState(false);
 
     const scrollToTop = () => {
         window.scrollTo({
@@ -103,17 +105,42 @@ const FooterLayout = () => {
                                 component="img"
                                 src={`${process.env.PUBLIC_URL}/images/connect me/aws-skill-builder.png`}
                                 alt="AWS Skill Builder QR"
+                                onClick={() => setOpenQR(true)}
                                 sx={{
                                     width: '80px',
                                     height: '80px',
                                     borderRadius: 1,
-                                    border: '2px solid white'
+                                    border: '2px solid white',
+                                    cursor: 'pointer',
+                                    transition: 'transform 0.2s',
+                                    '&:hover': {
+                                        transform: 'scale(1.05)'
+                                    }
                                 }}
                             />
                         </Box>
                     </Grid>
 
                 </Grid>
+
+                {/* QR Code Dialog */}
+                <Dialog
+                    open={openQR}
+                    onClose={() => setOpenQR(false)}
+                    maxWidth="md"
+                >
+                    <Box
+                        component="img"
+                        src={`${process.env.PUBLIC_URL}/images/connect me/aws-skill-builder.png`}
+                        alt="AWS Skill Builder QR Enlarged"
+                        sx={{
+                            width: '100%',
+                            maxWidth: '500px',
+                            height: 'auto',
+                            display: 'block'
+                        }}
+                    />
+                </Dialog>
 
                 {/* Copyright Bar */}
                 <Box
