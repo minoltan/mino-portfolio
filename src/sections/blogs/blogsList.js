@@ -29,7 +29,7 @@ const BlogsList = ({ selectedCategory }) => {
                         >
                             <CardMedia
                                 component="img"
-                                height="200"
+                                height="300"
                                 image={`${process.env.PUBLIC_URL}/${blog.thumbnail}`}
                                 alt={blog.title}
                             />

@@ -8,10 +8,10 @@ import { useNavigate } from "react-router-dom";
 
 const BreadCrumbText = (text) => {
     return <Typography
-        sx={{ 
+        sx={{
             color: "black",
             fontWeight: 300,
-            fontSize: {xs: 10, md: 14, lg: 14},
+            fontSize: { xs: 10, md: 14, lg: 14 },
             textAlign: 'left'
         }}
     >
@@ -20,7 +20,7 @@ const BreadCrumbText = (text) => {
 }
 
 const BreadCrumbLink = (action, text) => {
-    return <ButtonComponent 
+    return <ButtonComponent
         label={text}
         variant="text"
         onClick={action}
@@ -34,12 +34,12 @@ const BreadCrumbLink = (action, text) => {
     />
 }
 
-const ProjectsDetailsHero = ({title, area, tagLine}) => {
+const ProjectsDetailsHero = ({ title, area, tagLine }) => {
     const theme = useTheme();
 
     const navigate = useNavigate();
 
-    const {t} = useTranslation();
+    const { t } = useTranslation();
 
     useEffect(() => {
         AOS.init({ duration: 1000 });
@@ -49,7 +49,7 @@ const ProjectsDetailsHero = ({title, area, tagLine}) => {
         const lastWordIndex = title.lastIndexOf(' ');
         return title.substring(0, lastWordIndex);
     }, [title]);
-    
+
     const getTitleSuffix = useCallback(() => {
         const lastWordIndex = title.lastIndexOf(' ');
         return title.substring(lastWordIndex);
@@ -67,25 +67,25 @@ const ProjectsDetailsHero = ({title, area, tagLine}) => {
                     direction='column'
                     justifyContent='center'
                     alignItems='center'
-                    py={{xs: 4, md: 6}}
+                    py={{ xs: 4, md: 6 }}
                     className="layoutMarginX"
                 >
                     {/* Title */}
                     <Typography
                         fontWeight={700}
-                        fontSize={{xs: 40, md: 60, lg: 90}}
+                        fontSize={{ xs: 40, md: 60, lg: 90 }}
                         lineHeight={1}
                         textAlign="center"
                         data-aos="zoom-in"
                     >
-                        {getTitlePrefix()} <span style={{color: theme.palette.primary.main}}>{getTitleSuffix()}</span>
+                        {getTitlePrefix()} <span style={{ color: theme.palette.primary.main }}>{getTitleSuffix()}</span>
                     </Typography>
 
                     {/* Description */}
                     <Typography
-                        color="#222222"
+                        color={theme.palette.primary.main}
                         fontWeight={300}
-                        fontSize={{xs: 14, md: 12, lg: 14}}
+                        fontSize={{ xs: 14, md: 12, lg: 14 }}
                         lineHeight={2}
                         textAlign='center'
                         pt={2}
@@ -94,17 +94,17 @@ const ProjectsDetailsHero = ({title, area, tagLine}) => {
                     </Typography>
 
                     {/* BreadCrumbs */}
-                    <Breadcrumbs 
-                        aria-label="breadcrumb" 
+                    <Breadcrumbs
+                        aria-label="breadcrumb"
                         separator="›"
                         sx={{
-                            mt: {xs: 2, md: 4}
+                            mt: { xs: 2, md: 4 }
                         }}
                     >
                         {BreadCrumbLink(() => navigate("/"), t(`projects.projectDetails.breadcrumb.home`))}
 
                         {BreadCrumbLink(() => navigate("/project"), t(`projects.projectDetails.breadcrumb.projects`))}
-                        
+
                         {BreadCrumbText(area)}
                     </Breadcrumbs>
                 </Stack>

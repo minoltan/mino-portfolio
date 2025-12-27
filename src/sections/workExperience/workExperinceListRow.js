@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Avatar, AvatarGroup, Box, Divider, Drawer, IconButton, Stack, Tooltip, Typography, useTheme } from "@mui/material";
+import { Avatar, AvatarGroup, Box, Divider, Drawer, IconButton, Stack, Tooltip, Typography, useTheme, alpha } from "@mui/material";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import LaunchIcon from '@mui/icons-material/Launch';
+
 
 const carouselSettings = {
     dots: true,
@@ -24,7 +25,7 @@ const carouselSettings = {
 
 const WorkExperienceListRow = ({ item, lastItem }) => {
     const theme = useTheme();
-
+    const isSenior = (item) => /Senior/i.test(item.role);
     const groupRef = useRef(null);
 
     const [drawerState, setDrawerState] = useState(false);
@@ -99,7 +100,7 @@ const WorkExperienceListRow = ({ item, lastItem }) => {
                                 backgroundColor: 'white',
                                 color: theme.palette.primary.main,
                                 fontWeight: 'bold',
-                                "&: hover": {
+                                "&:hover": {
                                     cursor: 'pointer',
                                     transform: 'scale(1.1)'
                                 }
@@ -120,7 +121,8 @@ const WorkExperienceListRow = ({ item, lastItem }) => {
                                             alt={logoItem.label}
                                             style={{
                                                 width: '70%',
-                                                borderRadius: '50%'
+                                                height: '70%',
+                                                objectFit: 'contain'
                                             }}
                                         />
                                     </Avatar>
@@ -156,16 +158,24 @@ const WorkExperienceListRow = ({ item, lastItem }) => {
                                             item.company.images.length === 1
                                                 ?
                                                 <Box
-                                                    width={250}
-                                                    height={141}
+                                                    width={isSenior(item) ? 300 : 250}
+                                                    height={isSenior(item) ? 170 : 141}
                                                     my={3}
+                                                    sx={{
+                                                        overflow: 'hidden',
+                                                        borderRadius: '16px'
+                                                    }}
                                                 >
                                                     <img
                                                         alt='Working still'
                                                         src={`${process.env.PUBLIC_URL}/${item.company.images[0]}`}
-                                                        width='100%'
                                                         style={{
-                                                            borderRadius: '16px'
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            objectFit: 'cover',
+                                                            objectPosition: 'center',
+                                                            borderRadius: '16px',
+                                                            display: 'block'
                                                         }}
                                                     />
                                                 </Box>
@@ -173,22 +183,43 @@ const WorkExperienceListRow = ({ item, lastItem }) => {
                                                 <Box
                                                     my={3}
                                                     sx={{
-                                                        width: 250,
-                                                        height: 141
+                                                        width: isSenior(item) ? 300 : 250,
+                                                        height: isSenior(item) ? 170 : 141,
+                                                        overflow: 'hidden',
+                                                        borderRadius: '16px',
+                                                        '& .slick-slider': {
+                                                            height: '100%'
+                                                        },
+                                                        '& .slick-list': {
+                                                            height: '100%'
+                                                        },
+                                                        '& .slick-track': {
+                                                            height: '100%'
+                                                        },
+                                                        '& .slick-slide': {
+                                                            height: isSenior(item) ? '170px' : '141px'
+                                                        },
+                                                        '& .slick-slide > div': {
+                                                            height: '100%'
+                                                        }
                                                     }}
                                                 >
-                                                    <div className="slider-container">
+                                                    <div className="slider-container" style={{ height: '100%' }}>
                                                         <Slider {...carouselSettings}>
                                                             {
                                                                 item.company.images.map((companyImg, index) => {
-                                                                    return <div key={index}>
-                                                                        <Box>
+                                                                    return <div key={index} style={{ height: '100%' }}>
+                                                                        <Box sx={{ height: '100%', width: '100%' }}>
                                                                             <img
-                                                                                alt={`Working still ` + index}
+                                                                                alt={`Working still ${index}`}
                                                                                 src={`${process.env.PUBLIC_URL}/${companyImg}`}
-                                                                                width='100%'
                                                                                 style={{
-                                                                                    borderRadius: '16px'
+                                                                                    width: '100%',
+                                                                                    height: '100%',
+                                                                                    objectFit: 'cover',
+                                                                                    objectPosition: 'center',
+                                                                                    borderRadius: '16px',
+                                                                                    display: 'block'
                                                                                 }}
                                                                             />
                                                                         </Box>
@@ -278,7 +309,7 @@ const WorkExperienceListRow = ({ item, lastItem }) => {
                         elevation: 10,
                         square: false,
                         style: {
-                            borderRadius: '32px',
+                            borderRadius: '20px',
                             bottom: 10,
                             marginLeft: 10,
                             marginRight: 10,
@@ -292,10 +323,16 @@ const WorkExperienceListRow = ({ item, lastItem }) => {
                     justifyContent={{ xs: 'start', md: 'center' }}
                     alignItems='center'
                     width='100%'
+                    py={2}
                     px={2}
                     spacing={2}
+                    borderRadius={5}
                     sx={{
-                        overflowX: 'scroll'
+                        backgroundColor: alpha(theme.palette.background.paper, 0.8),
+                        backdropFilter: 'blur(10px)',
+                        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                        overflowX: 'scroll',
+                        boxShadow: theme.shadows[1]
                     }}
                     className="hideScrollBar"
                 >
@@ -305,17 +342,19 @@ const WorkExperienceListRow = ({ item, lastItem }) => {
                                 <Avatar
                                     sx={{
                                         backgroundColor: 'white',
-                                        width: { xs: 50, md: 70, lg: 100 },
-                                        height: { xs: 50, md: 70, lg: 100 },
-                                        py: 3
+                                        width: { xs: 40, md: 60, lg: 80 },
+                                        height: { xs: 40, md: 60, lg: 80 },
+                                        padding: 1
                                     }}
                                 >
                                     <img
                                         src={`${process.env.PUBLIC_URL}/${logoItem.path}`}
                                         alt={logoItem.label}
                                         style={{
-                                            width: '70%',
-                                            borderRadius: '50%'
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'contain',
+                                            objectPosition: 'center'
                                         }}
                                     />
                                 </Avatar>

@@ -30,6 +30,15 @@ const LandingPage = () => {
             {/* <AboutMeLayout /> */}
 
             {
+                getFeaturedProjects(content.projects).length > 0
+                    ?
+                    <FeaturedProjectsLayout />
+                    :
+                    <></>
+            }
+
+
+            {
                 content.academic.length > 0
                     ?
                     <AcademicLayout />
@@ -37,13 +46,6 @@ const LandingPage = () => {
                     <></>
             }
 
-            {
-                content.expertise.length > 0
-                    ?
-                    <ExpertiseLayout />
-                    :
-                    <></>
-            }
 
             {
                 content.work_experience.length > 0
@@ -53,13 +55,17 @@ const LandingPage = () => {
                     <></>
             }
 
+
+
             {
-                getFeaturedProjects(content.projects).length > 0
+                content.expertise.length > 0
                     ?
-                    <FeaturedProjectsLayout />
+                    <ExpertiseLayout />
                     :
                     <></>
             }
+
+
 
             {
                 content.languages.length > 0 || content.soft_skills.list.length > 0

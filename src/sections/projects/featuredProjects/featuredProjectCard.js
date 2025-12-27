@@ -1,13 +1,13 @@
 import { Box } from "@mui/material";
 import { Link } from "react-router-dom";
 
-const FeaturedProjectCard = ({item}) => {
-    return(
+const FeaturedProjectCard = ({ item }) => {
+    return (
         <>
             <Link to={`/project/${item.area}/${item.id + 1}`}>
-                <Box 
+                <Box
                     sx={{
-                        backgroundImage:`url(${process.env.PUBLIC_URL}/${item.thumbnail})`,
+                        backgroundImage: `url(${item.thumbnail})`,
                         backgroundRepeat: "no-repeat",
                         backgroundSize: "cover",
                         width: "100%",
