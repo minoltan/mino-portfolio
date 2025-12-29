@@ -1,15 +1,28 @@
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
     .techStackOne {
-        width: 20%;
+        width: 10%;
+        position: absolute;
+        left: 30%;
+        top: 5%;
+        rotate: 30deg;
+        animation: rotateAnimation 2s infinite;
     }
 
     .techStackTwo {
-        width: 10%;
+        width: 8%;
+        position: absolute;
+        top: 32%;
+        right: 28%;
+        animation: translateAnimation 3s infinite linear;
     }
 
     .techStackThree {
-        width: 12%;
+        width: 10%;
+        position: absolute;
+        top: 28%;
+        left: 22%;
+        animation: bounceAnimation 1s infinite;
     }
 }
 
@@ -32,14 +45,27 @@
 @media only screen and (min-width: 900px) {
     .techStackOne {
         width: 17%;
+        position: absolute;
+        left: 30%;
+        top: 10%;
+        rotate: 30deg;
+        animation: rotateAnimation 2s infinite;
     }
 
     .techStackTwo {
         width: 10%;
+        position: absolute;
+        top: 32%;
+        right: 28%;
+        animation: translateAnimation 3s infinite linear;
     }
 
     .techStackThree {
         width: 12%;
+        position: absolute;
+        top: 28%;
+        left: 22%;
+        animation: bounceAnimation 1s infinite;
     }
 }
 

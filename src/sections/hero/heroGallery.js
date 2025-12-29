@@ -19,13 +19,6 @@ const HeroGallery = () => {
                     src={`${process.env.PUBLIC_URL}/${content.hero.tech_stacks.primary}`}
                     alt="Tech stack"
                     className="techStackOne"
-                    style={{
-                        position: 'absolute',
-                        left: '30%',
-                        top: '10%',
-                        rotate: '30deg',
-                        animation: 'rotateAnimation 2s infinite'
-                    }}
                 />
 
                 {/* Tech stack 02 */}
@@ -33,12 +26,6 @@ const HeroGallery = () => {
                     src={`${process.env.PUBLIC_URL}/${content.hero.tech_stacks.secondary}`}
                     alt="Tech stack"
                     className="techStackTwo"
-                    style={{
-                        position: 'absolute',
-                        top: '32%',
-                        right: '28%',
-                        animation: 'translateAnimation 3s infinite linear'
-                    }}
                 />
 
                 {/* Tech stack 03 */}
@@ -46,12 +33,7 @@ const HeroGallery = () => {
                     src={`${process.env.PUBLIC_URL}/${content.hero.tech_stacks.tertiary}`}
                     alt="Tech stack"
                     className="techStackThree"
-                    style={{
-                        position: 'absolute',
-                        top: '30%',
-                        left: '20%',
-                        animation: 'bounceAnimation 1s infinite'
-                    }}
+
                 />
 
                 {/* My Image */}
