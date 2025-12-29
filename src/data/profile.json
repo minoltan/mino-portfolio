@@ -16,7 +16,8 @@
         "tech_stacks": {
             "primary": "images/icons/spring.webp",
             "secondary": "images/icons/tech-stack-02.png",
-            "tertiary": "images/tech-stacks/aws-1.png"
+            "tertiary": "images/tech-stacks/aws-1.png",
+            "tertiary_light": "images/tech-stacks/aws.webp"
         }
     },
     "hire_me": "mailto:issackpaul95@gmail.com",

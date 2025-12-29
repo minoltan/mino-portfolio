@@ -1,4 +1,4 @@
-import { Stack } from "@mui/material";
+import { Stack, useTheme } from "@mui/material";
 import './heroGallery.css';
 import HeroCard from "./heroCard";
 import { useTranslation } from "react-i18next";
@@ -6,7 +6,13 @@ import content from '../../data/profile.json';
 
 const HeroGallery = () => {
     const { t } = useTranslation();
+    const theme = useTheme();
     const heroLocale = "hero";
+
+    const isLightMode = theme.palette.mode === 'light';
+    const tertiaryImg = isLightMode
+        ? content.hero.tech_stacks.tertiary_light
+        : content.hero.tech_stacks.tertiary;
 
     return (
         <>
@@ -30,7 +36,7 @@ const HeroGallery = () => {
 
                 {/* Tech stack 03 */}
                 <img
-                    src={`${process.env.PUBLIC_URL}/${content.hero.tech_stacks.tertiary}`}
+                    src={`${process.env.PUBLIC_URL}/${tertiaryImg}`}
                     alt="Tech stack"
                     className="techStackThree"
 
