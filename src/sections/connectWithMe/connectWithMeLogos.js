@@ -53,8 +53,11 @@ const ConnectWithMeLogos = ({ ...other }) => {
                 spacing={0.75}
                 className="hideScrollBar"
                 sx={{
-                    overflowX: 'visible',
-                    width: 'auto'
+                    overflowX: 'scroll',
+                    width: '100%',
+                    maxWidth: '100vw',
+                    mt: { xs: 5, md: 10, lg: 2 },
+                    mb: { xs: 5, md: 5, lg: 5 }
                 }}
                 {...other}
             >

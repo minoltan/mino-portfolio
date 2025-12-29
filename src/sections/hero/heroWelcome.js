@@ -65,6 +65,7 @@ const HeroWelcome = () => {
                 <div className="typewriter">
                     <Typography
                         component="h1"
+                        textAlign='left'
                         fontWeight={600}
                         fontSize={{ xs: 20, md: 24, lg: 30 }}
                         lineHeight={1}
@@ -98,13 +99,7 @@ const HeroWelcome = () => {
                 />
 
                 {/* Connect Logos */}
-                <ConnectWithMeLogos
-                    sx={{
-                        mt: { xs: 5, md: 10, lg: 2 },
-                        mb: { xs: 5, md: 5, lg: 5 },
-                        width: 'auto'
-                    }}
-                />
+                <ConnectWithMeLogos />
             </Stack>
         </>
     );

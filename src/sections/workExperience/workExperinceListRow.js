@@ -158,8 +158,8 @@ const WorkExperienceListRow = ({ item, lastItem }) => {
                                             item.company.images.length === 1
                                                 ?
                                                 <Box
-                                                    width={isSenior(item) ? 300 : 250}
-                                                    height={isSenior(item) ? 170 : 141}
+                                                    width={250}
+                                                    height={150}
                                                     my={3}
                                                     sx={{
                                                         overflow: 'hidden',
@@ -183,8 +183,8 @@ const WorkExperienceListRow = ({ item, lastItem }) => {
                                                 <Box
                                                     my={3}
                                                     sx={{
-                                                        width: isSenior(item) ? 300 : 250,
-                                                        height: isSenior(item) ? 170 : 141,
+                                                        width: 250,
+                                                        height: 150,
                                                         overflow: 'hidden',
                                                         borderRadius: '16px',
                                                         '& .slick-slider': {
@@ -197,7 +197,7 @@ const WorkExperienceListRow = ({ item, lastItem }) => {
                                                             height: '100%'
                                                         },
                                                         '& .slick-slide': {
-                                                            height: isSenior(item) ? '170px' : '141px'
+                                                            height: '150px'
                                                         },
                                                         '& .slick-slide > div': {
                                                             height: '100%'

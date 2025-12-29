@@ -38,10 +38,10 @@ const getTheme = (mode) => createTheme({
           contrastText: "#ffffff"
         },
         secondary: {
-          main: "#ffcc80"
+          main: "#333333ff"  //  #ffcc80
         },
         background: {
-          default: "#1e1e1e",
+          default: "#28282b",
           paper: "#1e1e1e",
           card: "#fdf0ed"
         },
