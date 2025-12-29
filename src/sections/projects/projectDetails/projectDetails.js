@@ -264,6 +264,7 @@ const ProjectDetails = ({ project }) => {
                                                 zIndex: 1,
                                                 backgroundColor: 'white',
                                                 boxShadow: 10,
+                                                color: 'black',
                                                 "&:hover": {
                                                     backgroundColor: 'white',
                                                     transform: 'scale(1.1)'
@@ -283,6 +284,7 @@ const ProjectDetails = ({ project }) => {
                                                 zIndex: 1,
                                                 backgroundColor: 'white',
                                                 boxShadow: 10,
+                                                color: 'black',
                                                 "&:hover": {
                                                     backgroundColor: 'white',
                                                     transform: 'scale(1.1)'

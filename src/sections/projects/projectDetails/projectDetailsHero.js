@@ -7,9 +7,11 @@ import ButtonComponent from "../../../components/buttonComponent";
 import { useNavigate } from "react-router-dom";
 
 const BreadCrumbText = (text) => {
+    const theme = useTheme();
+
     return <Typography
         sx={{
-            color: "black",
+            color: theme.palette.text.secondary,
             fontWeight: 300,
             fontSize: { xs: 10, md: 14, lg: 14 },
             textAlign: 'left'
@@ -83,7 +85,7 @@ const ProjectsDetailsHero = ({ title, area, tagLine }) => {
 
                     {/* Description */}
                     <Typography
-                        color={theme.palette.primary.main}
+                        color={theme.palette.text.secondary}
                         fontWeight={300}
                         fontSize={{ xs: 14, md: 12, lg: 14 }}
                         lineHeight={2}

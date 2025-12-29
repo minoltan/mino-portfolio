@@ -63,7 +63,7 @@ const ProjectsHero = () => {
 
                     {/* Description */}
                     <Typography
-                        color="#222222"
+                        color={theme.palette.text.secondary}
                         fontWeight={300}
                         fontSize={{ xs: 14, md: 12, lg: 14 }}
                         lineHeight={2}
@@ -108,7 +108,7 @@ const ProjectsHero = () => {
                                 >
                                     {/* Value */}
                                     <Typography
-                                        color="black"
+                                        color={theme.palette.text.primary}
                                         fontWeight={700}
                                         fontSize={{ xs: 20, md: 24, lg: 32 }}
                                         textAlign='center'
@@ -118,7 +118,7 @@ const ProjectsHero = () => {
 
                                     {/* Label */}
                                     <Typography
-                                        color="#222222"
+                                        color={theme.palette.text.secondary}
                                         fontWeight={300}
                                         fontSize={{ xs: 14, md: 12, lg: 14 }}
                                         textAlign='center'

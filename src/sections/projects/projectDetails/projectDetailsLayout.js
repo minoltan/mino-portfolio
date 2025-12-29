@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ProjectsDetailsHero from "./projectDetailsHero";
 
-const ProjectDetailsLayout = ({area, projectID}) => {
-    const {t} = useTranslation();
+const ProjectDetailsLayout = ({ area, projectID }) => {
+    const { t } = useTranslation();
 
     const [projectDetails, setProjectDetails] = useState({
         loading: true,
@@ -17,14 +17,14 @@ const ProjectDetailsLayout = ({area, projectID}) => {
     const getProjectDetails = useCallback(() => {
         let project = null;
 
-        for(let i = 0; i < content.projects.length; i++){
-            if(content.projects[i].area === area){
+        for (let i = 0; i < content.projects.length; i++) {
+            if (content.projects[i].area === area) {
                 const index = projectID - 1;
-                
-                if(index < content.projects[i].list.length){
+
+                if (index < content.projects[i].list.length) {
                     project = content.projects[i].list[index];
                 }
-                
+
                 break;
             }
         }
@@ -43,11 +43,11 @@ const ProjectDetailsLayout = ({area, projectID}) => {
 
     let body;
 
-    if(projectDetails.loading){
+    if (projectDetails.loading) {
         body = <></>
     }
-    else if(!projectDetails.project) {
-        body = <ErrorView 
+    else if (!projectDetails.project) {
+        body = <ErrorView
             icon={`${process.env.PUBLIC_URL}/images/utils/item-not-found.png`}
             errorTitle={t(`errors.project_not_found.title`)}
             errorDescription={t(`errors.project_not_found.description`)}
@@ -55,9 +55,9 @@ const ProjectDetailsLayout = ({area, projectID}) => {
             action={() => navigate('/project')}
         />
     }
-    else{
+    else {
         body = <>
-            <ProjectsDetailsHero 
+            <ProjectsDetailsHero
                 title={projectDetails.project.title}
                 area={area}
                 tagLine={projectDetails.project.tag_line}
