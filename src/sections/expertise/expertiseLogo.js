@@ -12,10 +12,10 @@ const ExpertiseLogo = ({
                 alignItems='center'
                 height={150}
             >
-                <img 
-                    src={logo} 
-                    alt={label} 
-                    width={80}
+                <img
+                    src={logo}
+                    alt={label}
+                    width={50}
                 />
 
                 <Typography

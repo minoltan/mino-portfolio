@@ -7,6 +7,12 @@ import SpeedScroll from "../components/speedScroll";
 
 const BlogsPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('All');
+    const [selectedSubCategory, setSelectedSubCategory] = useState('All');
+
+    const handleCategoryChange = (category) => {
+        setSelectedCategory(category);
+        setSelectedSubCategory('All');
+    };
 
     return (
         <>
@@ -18,10 +24,15 @@ const BlogsPage = () => {
 
             <BlogsHero
                 selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
+                setSelectedCategory={handleCategoryChange}
+                selectedSubCategory={selectedSubCategory}
+                setSelectedSubCategory={setSelectedSubCategory}
             />
 
-            <BlogsList selectedCategory={selectedCategory} />
+            <BlogsList
+                selectedCategory={selectedCategory}
+                selectedSubCategory={selectedSubCategory}
+            />
 
             <SpeedScroll />
         </>

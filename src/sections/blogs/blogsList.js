@@ -1,12 +1,18 @@
 import { Box, Card, CardContent, CardMedia, Grid, Typography, Button, useTheme, Stack } from "@mui/material";
 import content from '../../data/profile.json';
 
-const BlogsList = ({ selectedCategory }) => {
+const BlogsList = ({ selectedCategory, selectedSubCategory = 'All' }) => {
     const theme = useTheme();
 
-    const filteredBlogs = selectedCategory === 'All'
-        ? content.blogs
-        : content.blogs.filter(blog => blog.category === selectedCategory);
+    const filteredBlogs = content.blogs.filter(blog => {
+        const categoryMatch = selectedCategory === 'All' || blog.category === selectedCategory;
+
+        if (selectedCategory === 'AWS' && selectedSubCategory !== 'All') {
+            return categoryMatch && blog.sub_category && blog.sub_category.includes(selectedSubCategory);
+        }
+
+        return categoryMatch;
+    });
 
     return (
         <Box className="layoutMarginX" sx={{ py: 8 }}>

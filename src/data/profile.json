@@ -406,7 +406,7 @@
                     }
                 },
                 {
-                    "thumbnail": "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/dialog-mega-games/dialog-mega-games.jpg",
+                    "thumbnail": "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/dialog-mega-games/dialog-mega-games-1.jpg",
                     "title": "Dialog Mega Games",
                     "tag_line": "Hyper casual game",
                     "featured": true,
@@ -416,18 +416,19 @@
                         "hyper-casual gaming portal designed to bring a new level of fun",
                         "Secured Authorization and Authentication using Keycloak"
                     ],
-                    "associated_with": "Techserw Labs (Pvt) Ltd",
+                    "associated_with": "Dialog",
                     "released_date": "March 2025",
                     "gallery": {
                         "youtube_link": "",
                         "images": [
-                            "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/dialog-mega-games/dialog-mega-games.jpg"
+                            "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/dialog-mega-games/dialog-mega-games-1.jpg",
+                            "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/dialog-mega-games/dialog-mega-games-2.jpg"
                         ]
                     },
                     "links": {
                         "webURL": "https://www.dialog.lk/",
                         "playstore": "",
-                        "appstore": "https://apps.apple.com/in/app/techiesays-kids-language-app/id6474207562",
+                        "appstore": "",
                         "other": ""
                     },
                     "tech_stacks": [
@@ -716,7 +717,11 @@
             "date": "2024-09-04",
             "link": "https://issackpaul95.medium.com/aws-use-cases-spin-wheel-how-big-companies-manage-prize-giveaways-and-prevent-duplication-at-3f4c7dde64ff",
             "thumbnail": "images/blogs/blog2/spin.png",
-            "category": "AWS"
+            "category": "AWS",
+            "sub_category": [
+                "Use Cases",
+                "Hot News"
+            ]
         },
         {
             "title": "Enhanced Streak System for Game Portal with Leaderboards & Rewards",
@@ -724,7 +729,10 @@
             "date": "2024-08-02",
             "link": "https://issackpaul95.medium.com/aws-use-cases-enhanced-streak-system-for-game-portal-with-leaderboards-rewards-9188b1f2cd59?postPublishedType=repub",
             "thumbnail": "images/blogs/blog3/streak.png",
-            "category": "AWS"
+            "category": "AWS",
+            "sub_category": [
+                "Use Cases"
+            ]
         }
     ],
     "languages": [

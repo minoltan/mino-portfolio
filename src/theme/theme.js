@@ -35,7 +35,7 @@ const getTheme = (mode) => createTheme({
         // Dark Mode Palette
         primary: {
           main: "#e76715",
-          contrastText: "#ffffff"
+          contrastText: "#333333ff"
         },
         secondary: {
           main: "#333333ff"  //  #ffcc80

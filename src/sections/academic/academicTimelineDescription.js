@@ -1,15 +1,18 @@
-import { Card, Stack, useTheme } from "@mui/material";
+import { Card, Stack, useTheme, Button, useMediaQuery } from "@mui/material";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const AcademicTimelineDescription = ({
     major,
     school,
     description,
+    date,
     index
 }) => {
     const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const [isExpanded, setIsExpanded] = useState(false);
 
     useEffect(() => {
         AOS.init({ duration: 1000 });
@@ -39,6 +42,21 @@ const AcademicTimelineDescription = ({
                         {major}
                     </h3>
 
+                    {
+                        date &&
+                        <h4
+                            style={{
+                                fontFamily: theme.typography.fontFamily,
+                                fontWeight: 500,
+                                fontSize: 13,
+                                color: theme.palette.primary.main,
+                                marginTop: -15
+                            }}
+                        >
+                            {date}
+                        </h4>
+                    }
+
                     <h4
                         style={{
                             fontFamily: theme.typography.fontFamily,
@@ -62,8 +80,28 @@ const AcademicTimelineDescription = ({
                             marginTop: 1
                         }}
                     >
-                        {description}
+                        {
+                            isMobile && !isExpanded ?
+                                (description.split(' ').length > 20 ? description.split(' ').slice(0, 20).join(' ') + '...' : description)
+                                :
+                                description
+                        }
                     </p>
+                    {
+                        isMobile && description.split(' ').length > 20 &&
+                        <Button
+                            onClick={() => setIsExpanded(!isExpanded)}
+                            sx={{
+                                p: 0,
+                                minWidth: 0,
+                                textTransform: 'none',
+                                mt: 1,
+                                color: theme.palette.primary.main
+                            }}
+                        >
+                            {isExpanded ? "View Less" : "View More"}
+                        </Button>
+                    }
                 </Stack>
             </Card>
         </>

@@ -4,9 +4,11 @@ import { useTranslation } from "react-i18next";
 import { TypeAnimation } from "react-type-animation";
 import content from '../../data/profile.json';
 
-const BlogsHero = ({ selectedCategory, setSelectedCategory }) => {
+const BlogsHero = ({ selectedCategory, setSelectedCategory, selectedSubCategory, setSelectedSubCategory }) => {
     const { t } = useTranslation();
     const theme = useTheme();
+
+    const subCategories = ['All', 'Hot News', 'SAA C3 Exam', 'Cloud Practitioner Exam', 'AI', 'Use Cases'];
 
     return (
         <Box
@@ -62,6 +64,31 @@ const BlogsHero = ({ selectedCategory, setSelectedCategory }) => {
                                 />
                             ))}
                         </Stack>
+
+                        {selectedCategory === 'AWS' && (
+                            <Stack direction="row" spacing={1} mt={1} flexWrap="wrap" rowGap={1}>
+                                {subCategories.map((subCategory, index) => (
+                                    <Chip
+                                        key={index}
+                                        label={subCategory}
+                                        variant={selectedSubCategory === subCategory ? "filled" : "outlined"}
+                                        color="secondary"
+                                        onClick={() => setSelectedSubCategory(subCategory)}
+                                        sx={{
+                                            fontWeight: 400,
+                                            cursor: 'pointer',
+                                            height: '28px',
+                                            border: selectedSubCategory === subCategory ? 'none' : `1px solid ${theme.palette.text.secondary}`,
+                                            color: selectedSubCategory === subCategory ? theme.palette.primary.contrastText : theme.palette.text.secondary,
+                                            backgroundColor: selectedSubCategory === subCategory ? theme.palette.text.primary : 'transparent',
+                                            '&:hover': {
+                                                backgroundColor: selectedSubCategory === subCategory ? theme.palette.text.primary : alpha(theme.palette.text.primary, 0.1),
+                                            }
+                                        }}
+                                    />
+                                ))}
+                            </Stack>
+                        )}
                     </Stack>
                 </Grid>
 
