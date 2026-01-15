@@ -118,14 +118,20 @@ const ProjectDetails = ({ project }) => {
         setYoutubeVideoError(errorMessage);
     }, []);
 
-    const hasYoutubeVideo = useCallback(() => {
+    const hasVideo = useCallback(() => {
         const url = project.gallery.youtube_link;
-
         return url != undefined && url.trim().length > 0;
+    }, [project]);
+
+    const isMp4Video = useCallback(() => {
+        const url = project.gallery.youtube_link;
+        return url && (url.toLowerCase().endsWith('.mp4') || url.toLowerCase().includes('.mp4'));
     }, [project]);
 
     const getYoutubeVideoID = useCallback(() => {
         const url = project.gallery.youtube_link;
+
+        if (isMp4Video()) return null;
 
         var regExp = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)[\w\-]{11}(?:[&?][^\s]*)?$/;
         var match = url.match(regExp);
@@ -139,7 +145,7 @@ const ProjectDetails = ({ project }) => {
 
             return null;
         }
-    }, [project]);
+    }, [project, isMp4Video, t]);
 
     const scrollRef = useRef(null);
 
@@ -173,38 +179,57 @@ const ProjectDetails = ({ project }) => {
                     width='100%'
                     pb={10}
                 >
-                    {/* Youtube */}
+                    {/* Video Section */}
                     {
-                        hasYoutubeVideo()
+                        hasVideo()
                             ?
                             <Box width='100%'>
                                 {
-                                    youtubeVideoError
+                                    isMp4Video()
                                         ?
-                                        <Box width='100%' py={10}>
-                                            <ErrorView
-                                                errorDescription={youtubeVideoError}
-                                                height="fit-content"
-                                                needAnimations={false}
-                                            />
+                                        <Box width='100%' sx={{ backgroundColor: 'black', display: 'flex', justifyContent: 'center' }}>
+                                            <video
+                                                width="100%"
+                                                height={window.innerWidth < 600 ? 250 : 500}
+                                                controls
+                                                autoPlay={false}
+                                                style={{ maxHeight: '500px', objectFit: 'contain' }}
+                                            >
+                                                <source src={project.gallery.youtube_link} type="video/mp4" />
+                                                Your browser does not support the video tag.
+                                            </video>
                                         </Box>
                                         :
-                                        <Box width='100%' sx={{ backgroundColor: 'black' }}>
-                                            <YouTube
-                                                videoId={getYoutubeVideoID()}
-                                                opts={{
-                                                    width: '100%',
-                                                    height: window.innerWidth < 600 ? 250 : 500,
-                                                    playerVars: {
-                                                        // https://developers.google.com/youtube/player_parameters
-                                                        autoplay: 0,
-                                                        color: 'white'
-                                                    }
-                                                }}
-                                                onError={OnYoutubeError}
-                                                onReady={() => setYoutubeVideoError(null)}
-                                            />
-                                        </Box>
+                                        <>
+                                            {
+                                                youtubeVideoError
+                                                    ?
+                                                    <Box width='100%' py={10}>
+                                                        <ErrorView
+                                                            errorDescription={youtubeVideoError}
+                                                            height="fit-content"
+                                                            needAnimations={false}
+                                                        />
+                                                    </Box>
+                                                    :
+                                                    <Box width='100%' sx={{ backgroundColor: 'black' }}>
+                                                        <YouTube
+                                                            videoId={getYoutubeVideoID()}
+                                                            opts={{
+                                                                width: '100%',
+                                                                height: window.innerWidth < 600 ? 250 : 500,
+                                                                playerVars: {
+                                                                    // https://developers.google.com/youtube/player_parameters
+                                                                    autoplay: 0,
+                                                                    color: 'white'
+                                                                }
+                                                            }}
+                                                            onError={OnYoutubeError}
+                                                            onReady={() => setYoutubeVideoError(null)}
+                                                        />
+                                                    </Box>
+                                            }
+                                        </>
                                 }
                             </Box>
                             :
@@ -652,7 +677,7 @@ const ProjectDetails = ({ project }) => {
                                                         >
                                                             <Typography
                                                                 fontSize={{ xs: 12, md: 12, lg: 14 }}
-                                                                color="black"
+                                                                color={theme.palette.mode === 'dark' ? 'white' : 'black'}
                                                                 width='100%'
                                                                 textAlign='justify'
                                                                 fontWeight={600}
@@ -669,7 +694,7 @@ const ProjectDetails = ({ project }) => {
                                                         :
                                                         <Typography
                                                             fontSize={{ xs: 12, md: 12, lg: 14 }}
-                                                            color="black"
+                                                            color={theme.palette.mode === 'dark' ? 'white' : 'black'}
                                                             width='100%'
                                                             textAlign='justify'
                                                             fontWeight={600}

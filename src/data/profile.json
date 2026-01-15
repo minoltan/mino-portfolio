@@ -355,7 +355,7 @@
             "area": "Mobile Application Development",
             "list": [
                 {
-                    "thumbnail": "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/keells-millionaire/keells-millionaire.jpg",
+                    "thumbnail": "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/keells-millionaire/keells-millionaire-2.jpg",
                     "title": "Keells Millionaire",
                     "tag_line": "Mobile Application",
                     "featured": false,
@@ -370,18 +370,14 @@
                     "associated_with": "John Keells",
                     "released_date": "June 2023",
                     "gallery": {
-                        "youtube_link": "https://www.youtube.com/watch?v=vJ5hpFGY2Ao",
+                        "youtube_link": "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/keells-millionaire/keells-millionaire.mp4",
                         "images": [
-                            "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/keells-millionaire/keells-millionaire.jpg",
-                            "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/keells-millionaire/keells-millionaire.jpg",
-                            "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/keells-millionaire/keells-millionaire.jpg"
+                            "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/keells-millionaire/keells-millionaire-2.jpg",
+                            "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/keells-millionaire/keells-millionaire-1.jpg"
                         ]
                     },
                     "links": {
-                        "webURL": "https://d17rte4wzq4huz.cloudfront.net/case-study/keells-millionaire/",
-                        "playstore": "https://play.google.com/store/apps/details?id=com.techserw.omi",
-                        "appstore": "https://apps.apple.com/in/app/techiesays-kids-language-app/id6474207562",
-                        "other": "https://google.com"
+                        "webURL": "https://d17rte4wzq4huz.cloudfront.net/case-study/keells-millionaire/"
                     },
                     "tech_stacks": [
                         {
@@ -399,10 +395,10 @@
                     ],
                     "client": {
                         "name": "John Keells",
-                        "avatar": "images/reviewers/reviewer-01.png",
+                        "avatar": "images/reviewers/keells.jpg",
                         "link": "https://johnkeells.com",
-                        "review": "Lorem ipsum dummy text are usually use print and website industry. So l used their also Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                        "rating": 4
+                        "review": "Happy to work with IMI Games. They are a great team and delivered the project on time.",
+                        "rating": 4.5
                     }
                 },
                 {
@@ -419,16 +415,16 @@
                     "associated_with": "Dialog",
                     "released_date": "March 2025",
                     "gallery": {
-                        "youtube_link": "",
+                        "youtube_link": "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/dialog-mega-games/dialog-mega-games.mp4",
                         "images": [
                             "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/dialog-mega-games/dialog-mega-games-1.jpg",
                             "https://d17rte4wzq4huz.cloudfront.net/assets/images/pages/study/dialog-mega-games/dialog-mega-games-2.jpg"
                         ]
                     },
                     "links": {
-                        "webURL": "https://www.dialog.lk/",
-                        "playstore": "",
-                        "appstore": "",
+                        "webURL": "https://www.dialog.lk/news/dialogs-wow-superapp-redefines-digital-lifestyle-with-advanced-user-experience",
+                        "playstore": "https://play.google.com/store/apps/details?id=com.woway.mobile&hl=en_US&pli=1",
+                        "appstore": "https://apps.apple.com/lk/app/wow-superapp/id1612236170",
                         "other": ""
                     },
                     "tech_stacks": [
@@ -437,8 +433,8 @@
                             "path": "images/tech-stacks/flutter.png"
                         },
                         {
-                            "label": "HTML",
-                            "path": "images/tech-stacks/html.png"
+                            "label": "Springboot",
+                            "path": "images/tech-stacks/spring.webp"
                         }
                     ],
                     "client": {
@@ -704,12 +700,34 @@
     ],
     "blogs": [
         {
+            "title": "Your 2026 Serverless Strategy: Top 10 re:Invent 2025 Features You Can’t Afford to Miss",
+            "description": "re:Invent 2025 highlights for 2026 include Lambda Durable Functions, 1MB async payloads, native tenant isolation, CloudFront flat rates, and API Gateway streaming to boost serverless efficiency.",
+            "date": "2025-12-09",
+            "link": "https://medium.com/@issackpaul95/your-2026-serverless-strategy-top-10-re-invent-2025-features-you-cant-afford-to-miss-30a84a2f31ac",
+            "thumbnail": "images/blogs/blog4/serverless.png",
+            "category": [
+                "AWS"
+            ],
+            "sub_category": [
+                "Hot News",
+                "Serverless"
+            ]
+        },
+        {
             "title": "S3 Vector Buckets: The Game-Changer for Building Cost-Effective GenAI Applications",
             "description": "This restaurant chat app leverages AWS S3 Vector Buckets and Amazon Bedrock to provide a cost-effective AI chef bot that delivers instant, accurate answers based on proprietary restaurant recipes and manuals.",
             "date": "2025-12-01",
             "link": "https://issackpaul95.medium.com/aws-use-case-s3-vector-buckets-the-game-changer-for-building-cost-effective-genai-applications-f2ac26ea3cc9?postPublishedType=repub",
             "thumbnail": "images/blogs/blog1/vector.png",
-            "category": "ML/AI"
+            "category": [
+                "AWS",
+                "ML/AI"
+            ],
+            "sub_category": [
+                "AWS",
+                "GenAI",
+                "Bedrock"
+            ]
         },
         {
             "title": "How big companies manage prize and prevent duplication at scale",
@@ -717,10 +735,12 @@
             "date": "2024-09-04",
             "link": "https://issackpaul95.medium.com/aws-use-cases-spin-wheel-how-big-companies-manage-prize-giveaways-and-prevent-duplication-at-3f4c7dde64ff",
             "thumbnail": "images/blogs/blog2/spin.png",
-            "category": "AWS",
+            "category": [
+                "AWS"
+            ],
             "sub_category": [
                 "Use Cases",
-                "Hot News"
+                "Serverless"
             ]
         },
         {
@@ -729,9 +749,64 @@
             "date": "2024-08-02",
             "link": "https://issackpaul95.medium.com/aws-use-cases-enhanced-streak-system-for-game-portal-with-leaderboards-rewards-9188b1f2cd59?postPublishedType=repub",
             "thumbnail": "images/blogs/blog3/streak.png",
-            "category": "AWS",
+            "category": [
+                "AWS"
+            ],
             "sub_category": [
-                "Use Cases"
+                "Use Cases",
+                "Serverless"
+            ]
+        },
+        {
+            "title": "Implement Redis Cache in Spring Boot Application",
+            "description": "Most of the time if we are looking for the best performance from out application we are looking into many techniques. Apart from several other solutions, we also look for a caching technique to make DB calls faster. In order to achieve, we have Redis Cache technique in place",
+            "date": "2022-05-22",
+            "link": "https://issackpaul95.medium.com/implement-redis-cache-in-spring-boot-application-part-i-theory-36cb2fb03992",
+            "thumbnail": "images/blogs/blog5/redis.png",
+            "category": [
+                "Other"
+            ],
+            "sub_category": [
+                "Springboot"
+            ]
+        },
+        {
+            "title": "AWS Cloud Practitioner Questions | Containers in AWS",
+            "description": "This blog provides a quiz on migrating Docker-based apps to AWS, covering ECS, EKS, IAM roles, and storage solutions like S3 and EFS for efficient, secure cloud deployment.",
+            "date": "2025-09-29",
+            "link": "https://dev.to/minoltan/aws-cloud-practitioner-questions-containers-in-aws-2ddl",
+            "thumbnail": "images/blogs/blog6/containers.png",
+            "category": [
+                "AWS"
+            ],
+            "sub_category": [
+                "Cloud Practitioner Exam"
+            ]
+        },
+        {
+            "title": "AWS Cloud Practitioner Questions | Serverless Overview from a Solutions Architect Perspective",
+            "description": "This blog quizzes on AWS serverless solutions, covering Lambda timeouts, DynamoDB scaling, S3 access, and authentication with services like API Gateway, Step Functions, and Cognito for efficient app development.",
+            "date": "2025-10-07",
+            "link": "https://dev.to/minoltan/aws-cloud-practitioner-questions-serverless-overview-from-a-solutions-architect-perspective-2555",
+            "thumbnail": "images/blogs/blog7/serverless.png",
+            "category": [
+                "AWS"
+            ],
+            "sub_category": [
+                "Cloud Practitioner Exam"
+            ]
+        },
+        {
+            "title": "AWS Cloud Practitioner Questions | Serverless Solutions Architecture Discussions",
+            "description": "These questions cover AWS Serverless API design (API Gateway, Lambda), caching, content delivery (CloudFront/CDN for S3/EFS), DynamoDB Global Tables, Lambda permissions (IAM), and asynchronous video processing (SQS + EC2/EFS).",
+            "date": "2025-10-13",
+            "link": "https://dev.to/minoltan/aws-cloud-practitioner-questions-serverless-solutions-architecture-discussions-54mf",
+            "thumbnail": "images/blogs/blog8/serverless.png",
+            "category": [
+                "AWS"
+            ],
+            "sub_category": [
+                "Cloud Practitioner Exam"
             ]
         }
     ],

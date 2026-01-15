@@ -5,9 +5,9 @@ const BlogsList = ({ selectedCategory, selectedSubCategory = 'All' }) => {
     const theme = useTheme();
 
     const filteredBlogs = content.blogs.filter(blog => {
-        const categoryMatch = selectedCategory === 'All' || blog.category === selectedCategory;
+        const categoryMatch = selectedCategory === 'All' || (Array.isArray(blog.category) ? blog.category.includes(selectedCategory) : blog.category === selectedCategory);
 
-        if (selectedCategory === 'AWS' && selectedSubCategory !== 'All') {
+        if (selectedSubCategory !== 'All') {
             return categoryMatch && blog.sub_category && blog.sub_category.includes(selectedSubCategory);
         }
 

@@ -8,7 +8,8 @@ const BlogsHero = ({ selectedCategory, setSelectedCategory, selectedSubCategory,
     const { t } = useTranslation();
     const theme = useTheme();
 
-    const subCategories = ['All', 'Hot News', 'SAA C3 Exam', 'Cloud Practitioner Exam', 'AI', 'Use Cases'];
+    const awsSubCategories = ['All', 'Serverless', 'Hot News', 'SAA C3 Exam', 'Cloud Practitioner Exam', 'AI', 'Use Cases'];
+    const aiSubCategories = ['All', 'AWS', 'GenAI', 'Bedrock', 'SageMaker', 'Kiro'];
 
     return (
         <Box
@@ -67,7 +68,32 @@ const BlogsHero = ({ selectedCategory, setSelectedCategory, selectedSubCategory,
 
                         {selectedCategory === 'AWS' && (
                             <Stack direction="row" spacing={1} mt={1} flexWrap="wrap" rowGap={1}>
-                                {subCategories.map((subCategory, index) => (
+                                {awsSubCategories.map((subCategory, index) => (
+                                    <Chip
+                                        key={index}
+                                        label={subCategory}
+                                        variant={selectedSubCategory === subCategory ? "filled" : "outlined"}
+                                        color="secondary"
+                                        onClick={() => setSelectedSubCategory(subCategory)}
+                                        sx={{
+                                            fontWeight: 400,
+                                            cursor: 'pointer',
+                                            height: '28px',
+                                            border: selectedSubCategory === subCategory ? 'none' : `1px solid ${theme.palette.text.secondary}`,
+                                            color: selectedSubCategory === subCategory ? theme.palette.primary.contrastText : theme.palette.text.secondary,
+                                            backgroundColor: selectedSubCategory === subCategory ? theme.palette.text.primary : 'transparent',
+                                            '&:hover': {
+                                                backgroundColor: selectedSubCategory === subCategory ? theme.palette.text.primary : alpha(theme.palette.text.primary, 0.1),
+                                            }
+                                        }}
+                                    />
+                                ))}
+                            </Stack>
+                        )}
+
+                        {selectedCategory === 'ML/AI' && (
+                            <Stack direction="row" spacing={1} mt={1} flexWrap="wrap" rowGap={1}>
+                                {aiSubCategories.map((subCategory, index) => (
                                     <Chip
                                         key={index}
                                         label={subCategory}
