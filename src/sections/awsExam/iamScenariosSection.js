@@ -8,14 +8,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
 import { ACCENT } from "../../data/aws-exam/constants";
-import scenarios from "../../data/aws-exam/iam/scenarios";
+import iamScenarios from "../../data/aws-exam/iam/scenarios";
 import evalSteps from "../../data/aws-exam/iam/evalSteps";
 import stsApis from "../../data/aws-exam/iam/stsApis";
 import keyNumbers from "../../data/aws-exam/iam/keyNumbers";
 
 /* ── Compact scenario card — click opens modal ── */
 function ScenarioCard({ s, onOpen }) {
-    const theme = useTheme();
     return (
         <Card
             onClick={() => onOpen(s)}
@@ -69,6 +68,101 @@ function ScenarioCard({ s, onOpen }) {
                 </Typography>
             </CardContent>
         </Card>
+    );
+}
+
+function MatrixSections({ matrices }) {
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
+
+    return (
+        <Stack spacing={2}>
+            <Typography variant="caption" color="text.disabled"
+                sx={{ letterSpacing: '0.08em', display: 'block' }}>
+                MATRIX NOTES, LIMITS, AND SCENARIO LINKS
+            </Typography>
+
+            {matrices.map((matrix) => (
+                <Card key={matrix.id} sx={{
+                    borderRadius: 3,
+                    border: `1px solid ${alpha(matrix.color, 0.28)}`,
+                    borderLeft: `4px solid ${matrix.color}`,
+                    overflow: 'hidden',
+                }}>
+                    <CardContent>
+                        <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" gap={1} mb={1.5}>
+                            <Box>
+                                <Typography variant="subtitle1" fontWeight={700} sx={{ color: matrix.color }}>
+                                    {matrix.title}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                    {matrix.subtitle}
+                                </Typography>
+                            </Box>
+                            <Chip
+                                label={`${matrix.rows.length} row${matrix.rows.length !== 1 ? 's' : ''}`}
+                                size="small"
+                                variant="outlined"
+                                sx={{ color: matrix.color, borderColor: alpha(matrix.color, 0.45), alignSelf: { xs: 'flex-start', sm: 'center' } }}
+                            />
+                        </Stack>
+
+                        <Box sx={{ overflowX: 'auto' }}>
+                            <Box component="table" sx={{
+                                width: '100%',
+                                borderCollapse: 'separate',
+                                borderSpacing: 0,
+                                minWidth: 680,
+                            }}>
+                                <Box component="thead">
+                                    <Box component="tr">
+                                        {matrix.columns.map((column) => (
+                                            <Box component="th" key={column} sx={{
+                                                textAlign: 'left',
+                                                fontSize: 11,
+                                                letterSpacing: '0.06em',
+                                                color: matrix.color,
+                                                backgroundColor: alpha(matrix.color, isDark ? 0.14 : 0.08),
+                                                borderBottom: `1px solid ${alpha(matrix.color, 0.25)}`,
+                                                p: 1.25,
+                                                whiteSpace: 'nowrap',
+                                            }}>
+                                                {column}
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </Box>
+                                <Box component="tbody">
+                                    {matrix.rows.map((row, rowIndex) => (
+                                        <Box component="tr" key={`${matrix.id}-${rowIndex}`}>
+                                            {row.map((cell, cellIndex) => (
+                                                <Box component="td" key={`${matrix.id}-${rowIndex}-${cellIndex}`} sx={{
+                                                    p: 1.25,
+                                                    borderBottom: `1px solid ${theme.palette.divider}`,
+                                                    verticalAlign: 'top',
+                                                    backgroundColor: rowIndex % 2 === 0
+                                                        ? alpha(theme.palette.background.default, isDark ? 0.25 : 0.55)
+                                                        : 'transparent',
+                                                }}>
+                                                    <Typography
+                                                        variant="caption"
+                                                        color={cellIndex === 0 ? "text.primary" : "text.secondary"}
+                                                        fontWeight={cellIndex === 0 ? 700 : 500}
+                                                        sx={{ lineHeight: 1.55 }}
+                                                    >
+                                                        {cell}
+                                                    </Typography>
+                                                </Box>
+                                            ))}
+                                        </Box>
+                                    ))}
+                                </Box>
+                            </Box>
+                        </Box>
+                    </CardContent>
+                </Card>
+            ))}
+        </Stack>
     );
 }
 
@@ -506,7 +600,14 @@ function EvalStepModal({ step: s, onClose }) {
 }
 
 /* ── Main exported section ── */
-export default function IamScenariosSection({ hideHeader }) {
+export default function IamScenariosSection({
+    hideHeader,
+    title = "IAM",
+    scenarioMapTitle = "Scenario Map",
+    scenarios = iamScenarios,
+    showStudyTabs = true,
+    matrices = [],
+}) {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
     const [openScenario, setOpenScenario] = useState(null);
@@ -516,11 +617,15 @@ export default function IamScenariosSection({ hideHeader }) {
     const codeBg = isDark ? '#0d1117' : '#1a1f2e';
     const subBg = isDark ? alpha(theme.palette.background.default, 0.6) : theme.palette.grey[50];
 
-    const tabs = [
+    const tabs = showStudyTabs ? [
         { id: "scenarios", label: "🎯 Scenarios" },
+        ...(matrices.length > 0 ? [{ id: "matrices", label: "📊 Matrices" }] : []),
         { id: "eval", label: "⚖️ Policy Eval" },
         { id: "sts", label: "🔐 STS APIs" },
         { id: "numbers", label: "🔢 Key Numbers" },
+    ] : [
+        { id: "scenarios", label: "🎯 Scenarios" },
+        ...(matrices.length > 0 ? [{ id: "matrices", label: "📊 Matrices" }] : []),
     ];
 
     return (
@@ -528,7 +633,7 @@ export default function IamScenariosSection({ hideHeader }) {
             {!hideHeader && (
                 <Stack direction="row" alignItems="center" spacing={1} mb={3} flexWrap="wrap" rowGap={1}>
                     <Typography variant="h5" fontWeight={700}>
-                        IAM <span style={{ color: theme.palette.primary.main }}>Scenario Map</span>
+                        {title} <span style={{ color: theme.palette.primary.main }}>{scenarioMapTitle}</span>
                     </Typography>
                     <Chip label="SAA-C03" size="small" color="primary" variant="outlined" />
                     <Chip label="Interactive" size="small" variant="outlined"
@@ -563,6 +668,10 @@ export default function IamScenariosSection({ hideHeader }) {
                         ))}
                     </Box>
                 </>
+            )}
+
+            {tab === "matrices" && matrices.length > 0 && (
+                <MatrixSections matrices={matrices} />
             )}
 
             {/* ── POLICY EVAL TAB ── */}

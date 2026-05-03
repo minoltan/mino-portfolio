@@ -828,6 +828,29 @@
                         "IAM Best Practices"
                     ],
                     "blog_link": null
+                },
+                {
+                    "id": 2,
+                    "title": "Amazon Elastic Compute Cloud (Amazon EC2)",
+                    "description": "Core AWS compute service for launching virtual server instances in the cloud. Covers EC2 instances, Amazon Machine Images (AMIs), launch templates, storage, networking, user data, and pricing models.",
+                    "key_topics": [
+                        "Amazon Machine Images (AMIs)",
+                        "Supported Operating Systems",
+                        "EC2 Instance Types",
+                        "Billing & Provisioning",
+                        "Networking Limits",
+                        "IP Addresses",
+                        "ENI, ENA & EFA",
+                        "Placement Groups",
+                        "Bastion / Jump Hosts",
+                        "Monitoring & Auditing",
+                        "High Availability Compute",
+                        "Migration to EC2",
+                        "Launch Templates",
+                        "User Data & Instance Metadata",
+                        "EBS & Instance Store"
+                    ],
+                    "blog_link": null
                 }
             ]
         }

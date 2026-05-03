@@ -6,9 +6,27 @@ import TopNavigationLayout from "../sections/topNavigation/topNavigationLayout";
 import SpeedScroll from "../components/speedScroll";
 import content from "../data/profile.json";
 import IamScenariosSection from "../sections/awsExam/iamScenariosSection";
+import ec2Scenarios from "../data/aws-exam/ec2/scenarios";
+import ec2Matrices from "../data/aws-exam/ec2/matrices";
 
 const EXAM_CATEGORIES = ['All', 'SAA-C03', 'Cloud Practitioner'];
-const TOPIC_SCENARIO_IDS = new Set([1]);
+const TOPIC_SCENARIO_IDS = new Set([1, 2]);
+
+const renderTopicScenarioMap = (topicId) => {
+    if (topicId === 2) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="EC2"
+                scenarios={ec2Scenarios}
+                matrices={ec2Matrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+
+    return <IamScenariosSection hideHeader />;
+};
 
 const SaaCTopicsList = () => {
     const theme = useTheme();
@@ -128,7 +146,7 @@ const SaaCTopicsList = () => {
                                         pt: 3,
                                         pb: 3,
                                     }}>
-                                        <IamScenariosSection hideHeader />
+                                        {renderTopicScenarioMap(topic.id)}
                                     </Box>
                                 </Collapse>
                             )}
