@@ -32,9 +32,11 @@ import monitoringAuditingScenarios from "../data/aws-exam/monitoring-auditing/sc
 import monitoringAuditingMatrices from "../data/aws-exam/monitoring-auditing/matrices";
 import cloudSecurityScenarios from "../data/aws-exam/cloud-security/scenarios";
 import cloudSecurityMatrices from "../data/aws-exam/cloud-security/matrices";
+import migrationTransferScenarios from "../data/aws-exam/migration-transfer/scenarios";
+import migrationTransferMatrices from "../data/aws-exam/migration-transfer/matrices";
 
 const EXAM_CATEGORIES = ['All', 'SAA-C03', 'Cloud Practitioner'];
-const TOPIC_SCENARIO_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
+const TOPIC_SCENARIO_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
 
 const renderTopicScenarioMap = (topicId) => {
     if (topicId === 2) {
@@ -176,6 +178,17 @@ const renderTopicScenarioMap = (topicId) => {
                 title="Security in the Cloud"
                 scenarios={cloudSecurityScenarios}
                 matrices={cloudSecurityMatrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+    if (topicId === 15) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="Migration and Transfer"
+                scenarios={migrationTransferScenarios}
+                matrices={migrationTransferMatrices}
                 showStudyTabs={false}
             />
         );
