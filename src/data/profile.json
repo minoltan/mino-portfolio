@@ -851,6 +851,144 @@
                         "EBS & Instance Store"
                     ],
                     "blog_link": null
+                },
+                {
+                    "id": 3,
+                    "title": "Auto Scaling & Elastic Load Balancing",
+                    "description": "Scale EC2 fleets automatically based on demand and distribute incoming traffic across healthy instances. Covers ASG policies, launch templates, ALB/NLB, target groups, health checks, and blue/green deployments.",
+                    "key_topics": [
+                        "Auto Scaling Groups (ASG)",
+                        "Launch Templates & Launch Configurations",
+                        "Scaling Policies (Target Tracking, Step, Scheduled)",
+                        "Lifecycle Hooks",
+                        "Application Load Balancer (ALB)",
+                        "Network Load Balancer (NLB)",
+                        "Target Groups & Health Checks",
+                        "Sticky Sessions",
+                        "Cross-Zone Load Balancing",
+                        "SSL/TLS Termination & SNI",
+                        "Blue/Green Deployments",
+                        "Connection Draining"
+                    ],
+                    "blog_link": null
+                },
+                {
+                    "id": 4,
+                    "title": "Amazon VPC",
+                    "description": "Design and secure isolated private networks in AWS. Covers subnets, routing, internet gateways, NAT gateways, security groups, NACLs, VPC endpoints, peering, and AWS PrivateLink.",
+                    "key_topics": [
+                        "VPC CIDR Blocks & Subnets",
+                        "Internet Gateway & NAT Gateway",
+                        "Route Tables",
+                        "Security Groups vs NACLs",
+                        "VPC Endpoints (Gateway & Interface)",
+                        "VPC Peering",
+                        "AWS PrivateLink",
+                        "Bastion Hosts",
+                        "VPN & Direct Connect",
+                        "Elastic IP Addresses",
+                        "Default VPC",
+                        "Flow Logs"
+                    ],
+                    "blog_link": null
+                },
+                {
+                    "id": 5,
+                    "title": "AWS Organizations",
+                    "description": "Centrally govern and manage multiple AWS accounts. Covers organizational units, service control policies, consolidated billing, cross-account access patterns, and delegated administration.",
+                    "key_topics": [
+                        "Organization Structure & OUs",
+                        "Service Control Policies (SCPs)",
+                        "Consolidated Billing",
+                        "Management Account vs Member Accounts",
+                        "Cross-Account Access",
+                        "Delegated Administrator",
+                        "AWS Config with Organizations",
+                        "Tag Policies",
+                        "Backup Policies",
+                        "All Features vs Consolidated Billing Only"
+                    ],
+                    "blog_link": null
+                },
+                {
+                    "id": 6,
+                    "title": "Amazon S3 and Glacier",
+                    "description": "Scalable object storage for any amount of data. Covers storage classes, lifecycle policies, versioning, replication, pre-signed URLs, event notifications, S3 Select, and Glacier archiving with Vault Lock.",
+                    "key_topics": [
+                        "S3 Storage Classes",
+                        "Lifecycle Policies",
+                        "Versioning & MFA Delete",
+                        "Cross-Region Replication (CRR)",
+                        "Pre-Signed URLs",
+                        "S3 Event Notifications",
+                        "S3 Select",
+                        "Glacier & Glacier Deep Archive",
+                        "Glacier Vault Lock",
+                        "Block Public Access",
+                        "S3 Object Lock (WORM)",
+                        "S3 Transfer Acceleration"
+                    ],
+                    "blog_link": null
+                },
+                {
+                    "id": 7,
+                    "title": "DNS, Caching and Performance Optimization",
+                    "description": "Route global traffic intelligently and accelerate content delivery. Covers Route 53 routing policies and health checks, CloudFront distributions and signed URLs, and AWS Global Accelerator for static Anycast IPs.",
+                    "key_topics": [
+                        "Route 53 Routing Policies",
+                        "Route 53 Health Checks & Failover",
+                        "Route 53 Private Hosted Zones",
+                        "CloudFront Distributions",
+                        "CloudFront Cache Behaviors & TTL",
+                        "CloudFront Signed URLs & Signed Cookies",
+                        "Origin Access Control (OAC)",
+                        "AWS Global Accelerator",
+                        "CloudFront vs Global Accelerator",
+                        "Route 53 Alias Records",
+                        "Latency vs Geolocation Routing",
+                        "DNS Failover Patterns"
+                    ],
+                    "blog_link": null
+                },
+                {
+                    "id": 8,
+                    "title": "Block & File Storage",
+                    "description": "Persistent and shared storage for EC2 workloads. Covers EBS volume types, snapshots, encryption, Data Lifecycle Manager, Amazon EFS shared file systems with performance modes, and EC2 instance store trade-offs.",
+                    "key_topics": [
+                        "EBS Volume Types (gp2, gp3, io1, io2)",
+                        "EBS Snapshots & AMI Backup",
+                        "EBS Encryption with KMS",
+                        "Data Lifecycle Manager (DLM)",
+                        "EBS Multi-Attach",
+                        "Amazon EFS Overview",
+                        "EFS Performance Modes",
+                        "EFS Throughput Modes",
+                        "EFS Access Points",
+                        "EBS vs EFS vs Instance Store",
+                        "Instance Store Ephemeral Storage",
+                        "EBS-Optimized Instances"
+                    ],
+                    "blog_link": null
+                },
+                {
+                    "id": 9,
+                    "title": "Amazon ECS and EKS (Docker containers)",
+                    "description": "Run containerized workloads on AWS using managed orchestration. Covers ECR image management, ECS task definitions, Fargate vs EC2 launch types, service auto scaling, rolling and blue/green deployments, and EKS with IRSA.",
+                    "key_topics": [
+                        "Amazon ECR",
+                        "ECS Task Definitions",
+                        "ECS Services & Clusters",
+                        "Fargate vs EC2 Launch Type",
+                        "ECS Service Auto Scaling",
+                        "Rolling Updates & Blue/Green (CodeDeploy)",
+                        "Task Role vs Execution Role",
+                        "Amazon EKS Overview",
+                        "IRSA (IAM Roles for Service Accounts)",
+                        "Managed Node Groups",
+                        "ECS vs EKS Decision",
+                        "Container Networking (awsvpc mode)"
+                    ],
+                    "blog_link": null
                 }
             ]
         }

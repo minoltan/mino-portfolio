@@ -1,0 +1,67 @@
+import { ACCENT } from "../constants";
+
+const matrices = [
+    {
+        id: "scp-vs-iam",
+        title: "SCP vs IAM Policy",
+        subtitle: "How Service Control Policies and IAM policies differ in the AMI PVT LTD org",
+        color: ACCENT.primary,
+        columns: ["Feature", "SCP", "IAM Policy"],
+        rows: [
+            ["Who it applies to", "AWS accounts and OUs in the organization", "IAM identities (users, groups, roles) in an account"],
+            ["Grants permissions?", "No — SCPs only define the maximum permission boundary", "Yes — explicitly grants permissions to identities"],
+            ["Restricts permissions?", "Yes — Deny in SCP blocks even AdministratorAccess", "Yes — explicit Deny overrides any Allow"],
+            ["Default (no policy)", "FullAWSAccess SCP applied by default at root — all actions allowed", "Implicit Deny — no access unless explicitly granted"],
+            ["Management account affected?", "No — management account (ami-pvt-ltd-management) is never restricted by SCPs", "Yes — IAM policies apply to identities in the management account"],
+            ["Member account root user affected?", "Yes — SCP restricts even the root user of member accounts", "No — IAM policies cannot restrict the account root user"],
+            ["Max policies per entity", "5 SCPs per account or OU", "Up to 10 managed policies per identity; inline policies are separate"],
+            ["Inheritance", "Inherited down the OU hierarchy — child OUs and accounts get parent SCPs", "Not inherited across accounts — scoped to the account or identity"],
+            ["Works alone for access?", "No — SCP + IAM policy both needed; SCP sets ceiling, IAM grants within it", "Yes — IAM policy alone grants access within the same account"],
+            ["AMI PVT LTD use case", "Deny iam:DeleteRole on Marketplace-Deploy-Role in CustomerAccounts OU", "Allow Deployment Agent to call sts:AssumeRole on customer roles"],
+        ],
+    },
+    {
+        id: "org-feature-sets",
+        title: "Organization Feature Sets",
+        subtitle: "Capabilities available under each AWS Organizations mode",
+        color: ACCENT.teal,
+        columns: ["Feature", "Consolidated Billing Only", "All Features"],
+        rows: [
+            ["Consolidated billing", "Yes — single invoice across all accounts", "Yes — included"],
+            ["Volume pricing tier pooling", "Yes — usage summed org-wide", "Yes — included"],
+            ["Reserved Instance sharing", "Yes — RI discounts shared by default", "Yes — included"],
+            ["Service Control Policies (SCPs)", "No", "Yes — attach to root, OUs, or accounts"],
+            ["Tag policies", "No", "Yes — enforce tag key/value standards org-wide"],
+            ["Backup policies", "No", "Yes — deploy AWS Backup plans org-wide"],
+            ["AI services opt-out policies", "No", "Yes — control whether AWS AI services use data for improvement"],
+            ["Delegated administrator", "No", "Yes — register member accounts as admins for specific services"],
+            ["Centralized CloudTrail (org trail)", "No", "Yes — one trail captures API events for all member accounts"],
+            ["AWS Config org-wide rules", "No", "Yes — deploy Config conformance packs to all accounts from delegated admin"],
+            ["Switching from Consolidated Billing to All Features", "One-way — cannot downgrade after enabling All Features", "All Features is the recommended default for new organizations"],
+            ["AMI PVT LTD requirement", "Insufficient — SCPs and delegated admin needed for marketplace governance", "Required — enables SCPs, Config org rules, and delegated admin"],
+        ],
+    },
+    {
+        id: "org-key-numbers",
+        title: "AWS Organizations Key Numbers",
+        subtitle: "Limits, defaults, and facts relevant to AMI PVT LTD exam preparation",
+        color: ACCENT.purple,
+        columns: ["Limit / Concept", "Value", "AMI PVT LTD note"],
+        rows: [
+            ["Max accounts per org (default)", "10 (soft limit — request increase via AWS Support)", "AMI PVT LTD will need an increase as it onboards enterprise customers"],
+            ["Max OUs per root", "1000", "AMI PVT LTD uses 4 top-level OUs: Platform, CustomerAccounts, SharedServices, Dev/Test"],
+            ["Max OU nesting depth", "5 levels deep under root", "Flat two-level OU structure is sufficient for AMI PVT LTD"],
+            ["Max SCPs per org", "1000", "Well within limits for marketplace governance policies"],
+            ["Max SCPs per account or OU", "5", "AMI PVT LTD CustomerAccounts OU has: protect-deploy-role + approved-regions = 2 SCPs (headroom remains)"],
+            ["SCP max size", "5120 characters", "Keep region-deny SCPs concise with NotAction lists"],
+            ["Management account SCP effect", "Not affected — SCPs never apply to the management account", "ami-pvt-ltd-management (123456789012) is exempt from all SCPs"],
+            ["Member account root user SCP effect", "Affected — SCPs restrict even the root user of member accounts", "finserv-corp-account (987654321098) root user cannot bypass SCPs"],
+            ["FullAWSAccess SCP at root", "Applied by default — allows all actions until SCPs are customized", "AMI PVT LTD adds Deny SCPs on top; FullAWSAccess SCP remains"],
+            ["Max delegated admins per service", "3 per AWS service", "marketplace-prod registered as Config delegated admin (1 of 3 allowed)"],
+            ["Org trail (CloudTrail)", "1 org trail covers all accounts; logs delivered to management account S3", "Eliminates need to configure CloudTrail per-account"],
+            ["aws:PrincipalOrgID condition key", "Matches any principal whose account is in the specified org", "Used in Marketplace-Deploy-Role trust policies instead of per-account ExternalId"],
+        ],
+    },
+];
+
+export default matrices;

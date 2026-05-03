@@ -8,9 +8,23 @@ import content from "../data/profile.json";
 import IamScenariosSection from "../sections/awsExam/iamScenariosSection";
 import ec2Scenarios from "../data/aws-exam/ec2/scenarios";
 import ec2Matrices from "../data/aws-exam/ec2/matrices";
+import asgElbScenarios from "../data/aws-exam/asg-elb/scenarios";
+import asgElbMatrices from "../data/aws-exam/asg-elb/matrices";
+import vpcScenarios from "../data/aws-exam/vpc/scenarios";
+import vpcMatrices from "../data/aws-exam/vpc/matrices";
+import orgScenarios from "../data/aws-exam/organizations/scenarios";
+import orgMatrices from "../data/aws-exam/organizations/matrices";
+import s3Scenarios from "../data/aws-exam/s3/scenarios";
+import s3Matrices from "../data/aws-exam/s3/matrices";
+import dnsCachingScenarios from "../data/aws-exam/dns-caching/scenarios";
+import dnsCachingMatrices from "../data/aws-exam/dns-caching/matrices";
+import blockStorageScenarios from "../data/aws-exam/block-storage/scenarios";
+import blockStorageMatrices from "../data/aws-exam/block-storage/matrices";
+import ecsEksScenarios from "../data/aws-exam/ecs-eks/scenarios";
+import ecsEksMatrices from "../data/aws-exam/ecs-eks/matrices";
 
 const EXAM_CATEGORIES = ['All', 'SAA-C03', 'Cloud Practitioner'];
-const TOPIC_SCENARIO_IDS = new Set([1, 2]);
+const TOPIC_SCENARIO_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
 const renderTopicScenarioMap = (topicId) => {
     if (topicId === 2) {
@@ -20,6 +34,83 @@ const renderTopicScenarioMap = (topicId) => {
                 title="EC2"
                 scenarios={ec2Scenarios}
                 matrices={ec2Matrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+    if (topicId === 3) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="Auto Scaling & ELB"
+                scenarios={asgElbScenarios}
+                matrices={asgElbMatrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+    if (topicId === 4) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="Amazon VPC"
+                scenarios={vpcScenarios}
+                matrices={vpcMatrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+    if (topicId === 5) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="AWS Organizations"
+                scenarios={orgScenarios}
+                matrices={orgMatrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+    if (topicId === 6) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="Amazon S3 and Glacier"
+                scenarios={s3Scenarios}
+                matrices={s3Matrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+    if (topicId === 7) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="DNS, Caching and Performance Optimization"
+                scenarios={dnsCachingScenarios}
+                matrices={dnsCachingMatrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+    if (topicId === 8) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="Block & File Storage"
+                scenarios={blockStorageScenarios}
+                matrices={blockStorageMatrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+    if (topicId === 9) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="Amazon ECS and EKS"
+                scenarios={ecsEksScenarios}
+                matrices={ecsEksMatrices}
                 showStudyTabs={false}
             />
         );

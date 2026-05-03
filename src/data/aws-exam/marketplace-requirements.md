@@ -216,16 +216,122 @@ Customer Account-B Identity Policy on Provisioning-Service-Role:
 
 ---
 
-## Upcoming Topics (to be added)
+---
 
-Each topic below will extend the marketplace system with new AWS services and design patterns.
+### ✅ Topic 2: EC2 — Elastic Compute Cloud
+
+**SAA-C03 coverage:** AMIs, Instance Types, Billing Models, Networking, ENI/ENA/EFA, Placement Groups, Bastion Hosts, Monitoring, High Availability, Migration, Launch Templates
+
+**Marketplace additions:**
+- `marketplace-api-golden-ami-v1` — hardened Amazon Linux + Java runtime + CloudWatch Agent
+- `marketplace-api-launch-template` — references golden AMI + `Marketplace-API-EC2-Role` instance profile
+- Multi-AZ EC2 fleet for high availability; AMI copy to `ap-south-1` for DR
+
+---
+
+### ✅ Topic 3: Auto Scaling & Elastic Load Balancing
+
+**SAA-C03 coverage:** ASG, Scaling Policies, Launch Templates, Lifecycle Hooks, ALB, NLB, Target Groups, Health Checks, Blue/Green Deployments
+
+**Marketplace additions:**
+- `marketplace-api-asg` — min=2, max=10, desired=3 across two AZs in ap-southeast-1
+- `marketplace-alb` — HTTPS 443, path routing `/api/*` to EC2 target group, ACM certificate
+- `marketplace-nlb` — Layer 4 TCP for high-throughput MCP Report Server tool, static EIP per AZ
+- Target Tracking policy: scale out when ALBRequestCountPerTarget > 1000 or CPU > 70%
+- Lifecycle hook on `AUTOSCALING:EC2_INSTANCE_TERMINATING` for graceful Spring Boot connection drain
+
+**AWS resources added:**
+| Service | Resource Name | Purpose |
+|---------|--------------|---------|
+| ASG | `marketplace-api-asg` | Auto Scaling Group for EC2 API fleet |
+| ALB | `marketplace-alb` | Application Load Balancer (HTTPS, path routing) |
+| NLB | `marketplace-nlb` | Network Load Balancer for MCP tool streaming |
+| Launch Template | `marketplace-api-launch-template` | Golden AMI + instance profile reference |
+
+---
+
+### ✅ Topic 4: Amazon VPC
+
+**SAA-C03 coverage:** VPC, Subnets, Internet Gateway, NAT Gateway, Security Groups, NACLs, VPC Endpoints, VPC Peering, AWS PrivateLink, Route Tables
+
+**Marketplace additions:**
+- `marketplace-vpc` (10.0.0.0/16) in ap-southeast-1 with public and private subnets
+- Public subnet (10.0.1.0/24): ALB, bastion host, NAT Gateway
+- Private subnet (10.0.10.0/24): Spring Boot EC2 fleet, RDS (future)
+- `marketplace-nat-gw` — allows private EC2 to pull updates and call external APIs (e.g. Stripe)
+- `marketplace-s3-endpoint` and `marketplace-dynamodb-endpoint` — Gateway VPC Endpoints (free)
+- `marketplace-sqs-endpoint` — Interface VPC Endpoint for Lambda in private subnet
+- `marketplace-prod-analytics-peer` — VPC Peering to analytics account (10.1.0.0/16, no overlap)
+- `marketplace-api-endpoint-service` — PrivateLink service backed by NLB; exposed to customer accounts
+
+**AWS resources added:**
+| Service | Resource Name | Purpose |
+|---------|--------------|---------|
+| VPC | `marketplace-vpc` | Main network (10.0.0.0/16) |
+| NAT Gateway | `marketplace-nat-gw` | Private subnet outbound internet access |
+| VPC Endpoint | `marketplace-s3-endpoint` | Free Gateway endpoint for S3 |
+| VPC Endpoint | `marketplace-dynamodb-endpoint` | Free Gateway endpoint for DynamoDB |
+| VPC Endpoint | `marketplace-sqs-endpoint` | Interface endpoint for SQS |
+| PrivateLink | `marketplace-api-endpoint-service` | Private API access for enterprise customers |
+
+---
+
+### ✅ Topic 5: AWS Organizations
+
+**SAA-C03 coverage:** Organization Structure, OUs, SCPs, Consolidated Billing, Cross-Account Access, Delegated Admin, AWS Config org-wide
+
+**Marketplace account structure:**
+```
+Root
+├── Management Account: ami-pvt-ltd-management (123456789012) — billing & governance
+│   ├── OU: Platform
+│   │   └── marketplace-prod (234567890123) — the marketplace platform
+│   ├── OU: CustomerAccounts
+│   │   └── finserv-corp-account (987654321098) — enterprise subscriber (one per customer)
+│   ├── OU: SharedServices
+│   │   └── marketplace-analytics — data pipeline
+│   └── OU: Dev/Test
+│       └── marketplace-dev — development account
+```
+
+**SCPs applied:**
+- `CustomerAccounts` OU: Deny `iam:DeleteRole` / `iam:DetachRolePolicy` on `Marketplace-Deploy-Role`
+- All OUs: Deny actions outside approved regions (ap-southeast-1, ap-south-1)
+- AWS Config Rules org-wide: ensure EC2 instance profiles, S3 versioning, no public buckets
+
+---
+
+## AWS Resources Summary (post Topics 1–5)
+
+| Service | Resource Name | Purpose |
+|---------|--------------|---------|
+| EC2 | Marketplace API Server fleet | Spring Boot core API (via ASG) |
+| Lambda | `marketplace-order-processor` | Node.js order processing pipeline |
+| DynamoDB | `Products` | Product catalog |
+| DynamoDB | `Orders` | Purchase orders |
+| DynamoDB | `Subscriptions` | Enterprise subscriber subscriptions |
+| S3 | `marketplace-products-bucket` | Product images and metadata |
+| S3 | `marketplace-tool-artifacts` | Tool deployment packages |
+| S3 | `marketplace-staging-bucket` | Staging area for customer provisioning |
+| SQS | `order-events-queue` | Async order processing queue |
+| SNS | `marketplace-notifications` | Buyer/seller notification topic |
+| ASG | `marketplace-api-asg` | EC2 fleet auto scaling |
+| ALB | `marketplace-alb` | Application Load Balancer (HTTPS) |
+| NLB | `marketplace-nlb` | Network Load Balancer (MCP tool) |
+| VPC | `marketplace-vpc` | Main network (10.0.0.0/16) |
+| NAT GW | `marketplace-nat-gw` | Private subnet outbound access |
+| VPC Endpoint | `marketplace-s3-endpoint` | Private S3 access (Gateway) |
+| VPC Endpoint | `marketplace-sqs-endpoint` | Private SQS access (Interface) |
+| PrivateLink | `marketplace-api-endpoint-service` | Private API for enterprise customers |
+
+---
+
+## Upcoming Topics
 
 | Topic | Planned Marketplace Feature |
 |-------|---------------------------|
-| EC2 & AMIs | Auto Scaling marketplace API servers, custom AMI for Spring Boot |
 | S3 Advanced | Tool artifact versioning, lifecycle policies, cross-region replication |
 | RDS / Aurora | Migrate Orders & Subscriptions from DynamoDB to Aurora PostgreSQL |
-| VPC & Networking | Private subnets for EC2/RDS, NAT Gateway, Security Groups, VPC endpoints |
 | CloudFront & API Gateway | CDN for marketplace UI, REST API Gateway in front of Lambda |
 | SQS & SNS | Fan-out notification patterns, DLQ for failed order processing |
 | ECS / EKS | Containerize Spring Boot API (Docker → ECS Fargate) |
@@ -235,4 +341,4 @@ Each topic below will extend the marketplace system with new AWS services and de
 
 ---
 
-*Last updated: IAM topic complete (Scenario 1–6)*
+*Last updated: Topics 1–5 complete (IAM, EC2, Auto Scaling & ELB, VPC, AWS Organizations)*
