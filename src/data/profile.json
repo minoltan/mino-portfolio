@@ -975,6 +975,26 @@
                     "blog_link": null
                 },
                 {
+                    "id": 10,
+                    "title": "Serverless Application",
+                    "description": "Build event-driven, serverless architectures on AWS. Covers Lambda execution model, API Gateway types and authorizers, SQS/SNS messaging patterns, Step Functions workflow orchestration, and CloudWatch monitoring with alarms and dashboards.",
+                    "key_topics": [
+                        "AWS Lambda — Execution Model & Cold Start",
+                        "Lambda Concurrency (Reserved & Provisioned)",
+                        "Lambda Layers & Environment Variables",
+                        "Amazon API Gateway (REST, HTTP, WebSocket)",
+                        "API Gateway Authorizers & Throttling",
+                        "Amazon SQS — Standard vs FIFO, DLQ",
+                        "Amazon SNS — Topics, Subscriptions, Fan-out",
+                        "SNS + SQS Fan-out Pattern",
+                        "AWS Step Functions — Standard vs Express",
+                        "Amazon CloudWatch Metrics, Logs & Alarms",
+                        "CloudWatch Agent & Custom Metrics",
+                        "Amazon EventBridge (Scheduled & Event Rules)"
+                    ],
+                    "blog_link": null
+                },
+                {
                     "id": 9,
                     "title": "Amazon ECS and EKS (Docker containers)",
                     "description": "Run containerized workloads on AWS using managed orchestration. Covers ECR image management, ECS task definitions, Fargate vs EC2 launch types, service auto scaling, rolling and blue/green deployments, and EKS with IRSA.",
@@ -991,6 +1011,102 @@
                         "Managed Node Groups",
                         "ECS vs EKS Decision",
                         "Container Networking (awsvpc mode)"
+                    ],
+                    "blog_link": null
+                },
+                {
+                    "id": 11,
+                    "title": "AWS Databases and Analytics",
+                    "description": "Managed relational, NoSQL, in-memory, and analytical database services on AWS. Covers RDS multi-AZ and read replicas, Aurora global database, DynamoDB streams and DAX, ElastiCache, Redshift, EMR, Kinesis data streams and firehose, Athena serverless queries, and AWS Glue ETL.",
+                    "key_topics": [
+                        "Amazon RDS (Multi-AZ, Read Replicas, Automated Backups)",
+                        "Amazon Aurora (Serverless, Global Database, Backtrack)",
+                        "Amazon DynamoDB (GSI, LSI, Streams, DAX)",
+                        "DynamoDB Capacity Modes (Provisioned vs On-Demand)",
+                        "Amazon ElastiCache (Redis vs Memcached)",
+                        "Amazon Redshift (Cluster, Spectrum, Serverless)",
+                        "Amazon EMR (Managed Hadoop/Spark)",
+                        "Amazon Kinesis Data Streams",
+                        "Amazon Kinesis Data Firehose",
+                        "Amazon Athena (Serverless SQL on S3)",
+                        "AWS Glue (ETL, Data Catalog)",
+                        "Database Migration Service (DMS)"
+                    ],
+                    "blog_link": null
+                },
+                {
+                    "id": 12,
+                    "title": "Deployment & Management",
+                    "description": "Automate infrastructure provisioning, application deployment, and operational management at scale. Covers CloudFormation stacks and StackSets, Elastic Beanstalk environments, AWS Config rules and conformance packs, Resource Access Manager for cross-account sharing, Systems Manager for patching and parameter store, and OpsWorks.",
+                    "key_topics": [
+                        "AWS CloudFormation (Stacks, StackSets, Nested Stacks)",
+                        "CloudFormation Change Sets & Drift Detection",
+                        "AWS Elastic Beanstalk (Environments, Deployment Policies)",
+                        "Elastic Beanstalk vs CloudFormation",
+                        "AWS Config (Rules, Conformance Packs, Remediation)",
+                        "AWS Resource Access Manager (RAM)",
+                        "RAM — Cross-Account Resource Sharing",
+                        "AWS Systems Manager (SSM Agent, Session Manager)",
+                        "Systems Manager Parameter Store vs Secrets Manager",
+                        "Systems Manager Patch Manager & Maintenance Windows",
+                        "AWS OpsWorks (Chef / Puppet managed layers)"
+                    ],
+                    "blog_link": null
+                },
+                {
+                    "id": 13,
+                    "title": "Monitoring, Logging and Auditing",
+                    "description": "Gain full observability into AWS workloads through metrics, logs, traces, and audit trails. Covers CloudWatch metrics, alarms, dashboards, Logs Insights, and Container Insights, alongside CloudTrail for API activity recording and AWS X-Ray for distributed tracing.",
+                    "key_topics": [
+                        "Amazon CloudWatch Metrics & Namespaces",
+                        "CloudWatch Alarms (Simple & Composite)",
+                        "CloudWatch Logs & Log Groups",
+                        "CloudWatch Logs Insights",
+                        "CloudWatch Agent (Memory & Disk Metrics)",
+                        "CloudWatch Container Insights",
+                        "CloudWatch Dashboards & Anomaly Detection",
+                        "Amazon EventBridge (Scheduled & Event Pattern Rules)",
+                        "AWS CloudTrail (Management & Data Events)",
+                        "CloudTrail Lake & Log File Integrity Validation",
+                        "AWS X-Ray (Distributed Tracing & Service Map)"
+                    ],
+                    "blog_link": null
+                },
+                {
+                    "id": 14,
+                    "title": "Security in the Cloud",
+                    "description": "Protect AWS workloads with identity federation, encryption, threat detection, and DDoS defence. Covers Cognito user and identity pools, AWS Directory Service options, KMS key policies and grants, CloudHSM dedicated HSM, WAF web ACLs with managed rules, and Shield Standard vs Advanced.",
+                    "key_topics": [
+                        "Amazon Cognito User Pools vs Identity Pools",
+                        "Cognito Federated Identities & JWT Tokens",
+                        "AWS Directory Service (Managed Microsoft AD, AD Connector)",
+                        "AWS KMS (CMKs, Key Policies, Grants, Rotation)",
+                        "KMS Multi-Region Keys & Cross-Account Access",
+                        "AWS CloudHSM (Dedicated HSM, FIPS 140-2 Level 3)",
+                        "KMS vs CloudHSM Decision",
+                        "AWS WAF (Web ACL, Managed Rules, Rate Limiting)",
+                        "AWS Shield Standard vs Advanced",
+                        "AWS Secrets Manager (Rotation & Cross-Account)",
+                        "AWS Macie (S3 Sensitive Data Discovery)",
+                        "AWS GuardDuty (Threat Detection)"
+                    ],
+                    "blog_link": null
+                },
+                {
+                    "id": 15,
+                    "title": "Migration and Transfer",
+                    "description": "Plan and execute cloud migrations using AWS-native tools. Covers the AWS Migration Hub for central tracking, Application Migration Service for lift-and-shift server replication, Database Migration Service for homogeneous and heterogeneous DB migrations, DataSync for online data transfer, Snow Family for large offline transfers, and Transfer Family for SFTP/FTP workloads.",
+                    "key_topics": [
+                        "AWS Migration Hub (Central Migration Tracking)",
+                        "AWS Application Migration Service (MGN — Lift & Shift)",
+                        "AWS Database Migration Service (DMS)",
+                        "DMS Homogeneous vs Heterogeneous Migration",
+                        "AWS Schema Conversion Tool (SCT)",
+                        "AWS DataSync (Online Data Transfer to S3/EFS/FSx)",
+                        "AWS Snow Family (Snowball Edge, Snowmobile)",
+                        "AWS Transfer Family (SFTP, FTP, FTPS to S3/EFS)",
+                        "AWS Application Discovery Service",
+                        "Migration Strategies (7 Rs — Rehost, Replatform, Refactor…)"
                     ],
                     "blog_link": null
                 }

@@ -22,9 +22,13 @@ import blockStorageScenarios from "../data/aws-exam/block-storage/scenarios";
 import blockStorageMatrices from "../data/aws-exam/block-storage/matrices";
 import ecsEksScenarios from "../data/aws-exam/ecs-eks/scenarios";
 import ecsEksMatrices from "../data/aws-exam/ecs-eks/matrices";
+import serverlessScenarios from "../data/aws-exam/serverless/scenarios";
+import serverlessMatrices from "../data/aws-exam/serverless/matrices";
+import databasesAnalyticsScenarios from "../data/aws-exam/databases-analytics/scenarios";
+import databasesAnalyticsMatrices from "../data/aws-exam/databases-analytics/matrices";
 
 const EXAM_CATEGORIES = ['All', 'SAA-C03', 'Cloud Practitioner'];
-const TOPIC_SCENARIO_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+const TOPIC_SCENARIO_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 
 const renderTopicScenarioMap = (topicId) => {
     if (topicId === 2) {
@@ -111,6 +115,28 @@ const renderTopicScenarioMap = (topicId) => {
                 title="Amazon ECS and EKS"
                 scenarios={ecsEksScenarios}
                 matrices={ecsEksMatrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+    if (topicId === 10) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="Serverless Application"
+                scenarios={serverlessScenarios}
+                matrices={serverlessMatrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+    if (topicId === 11) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="AWS Databases and Analytics"
+                scenarios={databasesAnalyticsScenarios}
+                matrices={databasesAnalyticsMatrices}
                 showStudyTabs={false}
             />
         );

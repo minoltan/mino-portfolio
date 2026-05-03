@@ -328,17 +328,14 @@ Root
 
 ## Upcoming Topics
 
-| Topic | Planned Marketplace Feature |
-|-------|---------------------------|
-| S3 Advanced | Tool artifact versioning, lifecycle policies, cross-region replication |
-| RDS / Aurora | Migrate Orders & Subscriptions from DynamoDB to Aurora PostgreSQL |
-| CloudFront & API Gateway | CDN for marketplace UI, REST API Gateway in front of Lambda |
-| SQS & SNS | Fan-out notification patterns, DLQ for failed order processing |
-| ECS / EKS | Containerize Spring Boot API (Docker → ECS Fargate) |
-| CloudFormation / CDK | Full IaC for the entire system (post all topics) |
-| Monitoring | CloudWatch dashboards, alarms, X-Ray tracing for Lambda |
-| Security | WAF, Shield, Secrets Manager, KMS encryption for S3 and DynamoDB |
+| # | Topic | Planned Marketplace Feature |
+|---|-------|---------------------------|
+| 11 | AWS Databases & Analytics | Migrate Orders & Subscriptions to Aurora PostgreSQL; add Kinesis stream for real-time analytics; Athena queries on S3 access logs; ElastiCache Redis for session caching |
+| 12 | Deployment & Management | Full CloudFormation StackSets for marketplace-prod & customer accounts; Systems Manager Parameter Store for config; Config rules for compliance checks on all accounts |
+| 13 | Monitoring, Logging & Auditing | CloudWatch dashboards for all services; CloudTrail Lake for cross-account audit; X-Ray tracing end-to-end through API Gateway → Lambda → DynamoDB |
+| 14 | Security in the Cloud | Cognito User Pool for buyer authentication; KMS CMK encryption for S3 and DynamoDB; WAF Web ACL on ALB + API Gateway; GuardDuty & Macie on marketplace-prod account |
+| 15 | Migration & Transfer | DMS migration plan from DynamoDB to Aurora; DataSync for bulk tool artifact migration; Snow Family sizing for offline dataset transfers |
 
 ---
 
-*Last updated: Topics 1–5 complete (IAM, EC2, Auto Scaling & ELB, VPC, AWS Organizations)*
+*Last updated: Topics 1–10 complete (IAM, EC2, Auto Scaling & ELB, VPC, AWS Organizations, S3 & Glacier, DNS & Caching, Block & File Storage, ECS & EKS, Serverless Application)*
