@@ -28,9 +28,11 @@ import databasesAnalyticsScenarios from "../data/aws-exam/databases-analytics/sc
 import databasesAnalyticsMatrices from "../data/aws-exam/databases-analytics/matrices";
 import deploymentMgmtScenarios from "../data/aws-exam/deployment-management/scenarios";
 import deploymentMgmtMatrices from "../data/aws-exam/deployment-management/matrices";
+import monitoringAuditingScenarios from "../data/aws-exam/monitoring-auditing/scenarios";
+import monitoringAuditingMatrices from "../data/aws-exam/monitoring-auditing/matrices";
 
 const EXAM_CATEGORIES = ['All', 'SAA-C03', 'Cloud Practitioner'];
-const TOPIC_SCENARIO_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+const TOPIC_SCENARIO_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
 
 const renderTopicScenarioMap = (topicId) => {
     if (topicId === 2) {
@@ -150,6 +152,17 @@ const renderTopicScenarioMap = (topicId) => {
                 title="Deployment and Management"
                 scenarios={deploymentMgmtScenarios}
                 matrices={deploymentMgmtMatrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+    if (topicId === 13) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="Monitoring, Logging and Auditing"
+                scenarios={monitoringAuditingScenarios}
+                matrices={monitoringAuditingMatrices}
                 showStudyTabs={false}
             />
         );
