@@ -810,6 +810,28 @@
             ]
         }
     ],
+    "aws_exam": {
+        "saa_c03": {
+            "topics": [
+                {
+                    "id": 1,
+                    "title": "AWS Identity & Access Management (IAM)",
+                    "description": "Core AWS security service for managing access to AWS services and resources securely. Covers how to control who is authenticated and authorized to use resources.",
+                    "key_topics": [
+                        "Users & Groups",
+                        "IAM Policies & JSON",
+                        "IAM Roles",
+                        "Multi-Factor Authentication (MFA)",
+                        "AWS CLI & SDK Access",
+                        "IAM Credential Report",
+                        "IAM Access Analyzer",
+                        "IAM Best Practices"
+                    ],
+                    "blog_link": null
+                }
+            ]
+        }
+    },
     "languages": [
         {
             "language": "English",

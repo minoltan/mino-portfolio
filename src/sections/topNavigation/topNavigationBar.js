@@ -15,7 +15,8 @@ const TopNavigationBar = () => {
     const navOptions = [
         { label: 'home', to: '/' },
         { label: 'projects', to: '/project' },
-        { label: 'blogs', to: '/blogs' },
+        { label: 'blogs', to: '/blogs', badge: 'New' },
+        { label: 'aws_exam', to: '/aws-exam', badge: 'Hot' },
     ];
 
     const [drawerState, setDrawerState] = useState(false);
@@ -44,16 +45,13 @@ const TopNavigationBar = () => {
     useEffect(() => {
         const location = window.location.href;
 
-        // Projects page
         if (location.endsWith('/project')) {
             setActivePage(navOptions[1].to);
-        }
-        // Blogs page
-        else if (location.endsWith('/blogs')) {
+        } else if (location.endsWith('/blogs')) {
             setActivePage(navOptions[2].to);
-        }
-        // Landing page
-        else {
+        } else if (location.endsWith('/aws-exam')) {
+            setActivePage(navOptions[3].to);
+        } else {
             setActivePage(navOptions[0].to);
         }
     }, []);
@@ -144,8 +142,8 @@ const TopNavigationBar = () => {
                                         }}
                                     >
                                         <Badge
-                                            badgeContent={item.label === 'blogs' ? 'New' : 0}
-                                            color="primary"
+                                            badgeContent={item.badge ?? 0}
+                                            color={item.badge === 'Hot' ? 'error' : 'primary'}
                                             sx={{
                                                 '& .MuiBadge-badge': {
                                                     right: 10,
@@ -204,8 +202,8 @@ const TopNavigationBar = () => {
                                             onClick={() => selectNavOptionInMobile(item.to)}
                                         >
                                             <Badge
-                                                badgeContent={item.label === 'blogs' ? 'New' : 0}
-                                                color="primary"
+                                                badgeContent={item.badge ?? 0}
+                                                color={item.badge === 'Hot' ? 'error' : 'primary'}
                                                 sx={{
                                                     width: '100%',
                                                     '& .MuiBadge-badge': {

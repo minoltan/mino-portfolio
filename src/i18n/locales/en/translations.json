@@ -3,7 +3,8 @@
         "home": "Home",
         "projects": "Projects",
         "contact": "Contact Me",
-        "blogs": "Blogs"
+        "blogs": "Blogs",
+        "aws_exam": "AWS Exam"
     },
     "hero": {
         "welcome": "Hy! I Am",

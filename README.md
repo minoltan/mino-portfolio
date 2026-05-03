@@ -91,15 +91,15 @@ This is developed as a Progressive Web App (PWA), a type of web application that
 
 
 ## AUTHOR
-![Prasanth Logo](public/readme/author.png)<br />
-[Sivakumar Prasanth](www.linkedin.com/in/prasanthse1996)<br />
+![Minoltan Logo](public/profile/mino1.png)<br />
+[Minoltan Issack](www.linkedin.com/in/minoltan)<br />
 Co-Founder & CEO<br /> 
-[Techserw Labs (PVT) Ltd](https://techserw.com)<br />
-Senior Game Developer<br />
-B.Sc. (Hons) in Software Engineering (First Class)<br />
+[AMI Smart (PVT) Ltd](https://amismart.io)<br />
+Senior Software Engineer<br />
+B.Sc. (Hons) in Software Engineering <br />
 University of Kelaniya
 
 
 ## SUPPORT
 * Make sure you show some love by giving ⭐ to my repository
-* Support my project? [Buy me a coffee](https://github.com/sponsors/prasanthse?frequency=recurring&sponsor=prasanthse)
+* Support my project? [Buy me a coffee](https://github.com/sponsors/minoltan?frequency=recurring&sponsor=minoltan)

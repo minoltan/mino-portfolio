@@ -6,6 +6,7 @@ import NotFound from "../pages/notFound";
 import ProjectsPage from "../pages/projects";
 import ProjectDetailsPage from "../pages/projectDetails";
 import BlogsPage from "../pages/blogs";
+import AwsExamPage from "../pages/awsExam";
 
 const Router = () => {
     return (
@@ -15,6 +16,7 @@ const Router = () => {
                 <Route path="project" element={<ProjectsPage />} />
                 <Route path="project/:area/:id" element={<ProjectDetailsPage />} />
                 <Route path="blogs" element={<BlogsPage />} />
+                <Route path="aws-exam" element={<AwsExamPage />} />
                 <Route path="*" element={<NotFound />} />
             </Route>
         </Routes>
