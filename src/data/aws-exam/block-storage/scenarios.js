@@ -11,6 +11,7 @@ import { ACCENT } from "../constants";
 const scenarios = [
     {
         id: 1,
+        analogy: "Think of it like choosing a hard drive for your computer — a standard SSD (gp3) works great for everyday use and you can choose its speed separately from its size, while a high-performance NVMe drive (io2) is for professionals doing heavy video editing who need the absolute fastest speeds.",
         icon: "💾",
         color: ACCENT.primary,
         tag: "SCENARIO 1",
@@ -77,6 +78,7 @@ aws ec2 create-volume \\
 
     {
         id: 2,
+        analogy: "Think of it like a camera that takes a photo of your whiteboard every night — the first photo captures everything, but each one after only records what changed since yesterday (incremental), and you can always reconstruct the full board from any point in history.",
         icon: "📸",
         color: ACCENT.teal,
         tag: "SCENARIO 2",
@@ -162,6 +164,7 @@ aws ec2 register-image \\
 
     {
         id: 3,
+        analogy: "Think of it like a building where every filing cabinet is automatically fitted with a combination lock using the master key — even the cleaners can't read the files inside, and if someone brings in an old unlocked cabinet from outside, you simply make a locked copy and put the original away.",
         icon: "🔐",
         color: ACCENT.amber,
         tag: "SCENARIO 3",
@@ -234,6 +237,7 @@ aws ec2 copy-snapshot \\
 
     {
         id: 4,
+        analogy: "Think of it like a shared office printer on a network — any desk in any room of the building can send documents to it simultaneously, unlike a USB printer that only one computer can use at a time, and each department gets their own private tray so their printouts don't mix.",
         icon: "📂",
         color: ACCENT.orange,
         tag: "SCENARIO 4",
@@ -314,6 +318,7 @@ sudo mount -t efs -o tls,accesspoint=fsap-0abc123marketplace \\
 
     {
         id: 5,
+        analogy: "Think of it like a water tap — a normal tap (bursting) gives you steady flow and lets you open it wide for a short burst, but if your restaurant needs guaranteed high-pressure water all day long, you pay for a dedicated pressurised pipe (provisioned throughput) that never slows down regardless of demand.",
         icon: "📊",
         color: ACCENT.purple,
         tag: "SCENARIO 5",
@@ -387,6 +392,7 @@ aws cloudwatch put-metric-alarm \\
 
     {
         id: 6,
+        analogy: "Think of it like a whiteboard in a meeting room — it's the fastest way to scribble and read information during the meeting, but the moment everyone leaves and the room is cleaned (instance stops or terminates), everything on it is gone forever, so anything important must be copied to a notebook (DynamoDB) before the meeting ends.",
         icon: "⚡",
         color: ACCENT.green,
         tag: "SCENARIO 6",

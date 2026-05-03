@@ -13,6 +13,7 @@ import { ACCENT } from "../constants";
 const scenarios = [
     {
         id: 1,
+        analogy: "Think of it like your email inbox — recent emails stay in your main inbox (Standard), older ones move to an archive folder (Standard-IA), and after a year they're automatically deleted or put in deep cold storage (Glacier) where retrieving them takes hours.",
         icon: "🗂️",
         color: ACCENT.primary,
         tag: "SCENARIO 1",
@@ -90,6 +91,7 @@ const scenarios = [
 
     {
         id: 2,
+        analogy: "Think of it like a document shredder with an undo button — every time you update a file, the old copy is quietly kept in a drawer (versioning), accidental 'deletions' are just a sticky note on top that you can peel off, and MFA Delete is the padlock on that drawer that only the building owner can open.",
         icon: "🔁",
         color: ACCENT.teal,
         tag: "SCENARIO 2",
@@ -155,6 +157,7 @@ aws s3api delete-object \\
 
     {
         id: 3,
+        analogy: "Think of it like a bank that photocopies every customer document and sends a copy to a secure vault in another city — if the main branch burns down, the other city still has everything safe, though any documents destroyed before the copying was set up are not automatically recreated.",
         icon: "🌏",
         color: ACCENT.amber,
         tag: "SCENARIO 3",
@@ -235,6 +238,7 @@ aws s3api put-bucket-replication \\
 
     {
         id: 4,
+        analogy: "Think of it like a concert ticket with a QR code — the venue (S3 bucket) stays locked to the public, but a valid ticket (pre-signed URL) lets exactly one person in for a limited time window, and if the ticket issuer (the Lambda role) loses their job, all their tickets stop working immediately.",
         icon: "🔗",
         color: ACCENT.orange,
         tag: "SCENARIO 4",
@@ -305,6 +309,7 @@ def generate_download_url(tool_key: str, customer_id: str) -> str:
 
     {
         id: 5,
+        analogy: "Think of it like a motion-sensor doorbell — the moment someone drops a parcel (new object) on your doorstep (S3 bucket), the doorbell (event notification) instantly alerts your phone (Lambda), the parcel office (SQS), and the security company (SNS fan-out) all at the same time without you having to keep checking the door.",
         icon: "📬",
         color: ACCENT.green,
         tag: "SCENARIO 5",
@@ -383,6 +388,7 @@ aws s3api put-bucket-notification-configuration \\
 
     {
         id: 6,
+        analogy: "Think of S3 Select like asking a librarian to find only the chapter you need instead of handing you the whole encyclopaedia — you get just the relevant pages and only pay for those pages. Glacier Vault Lock is like sealing legal documents in a tamper-evident safe-deposit box where even the bank manager cannot open it early.",
         icon: "🔍",
         color: ACCENT.purple,
         tag: "SCENARIO 6",

@@ -16,6 +16,7 @@ import { ACCENT } from "../constants";
 const scenarios = [
     {
         id: 1,
+        analogy: "Think of it like a company org chart — the CEO's office (management account) sits at the top, departments like Finance, Engineering, and Sales (OUs) group teams together, and individual employees (member accounts) each do their own work while sharing one company invoice.",
         icon: "🏢",
         color: ACCENT.primary,
         tag: "SCENARIO 1",
@@ -75,6 +76,7 @@ aws organizations move-account \\
 
     {
         id: 2,
+        analogy: "Think of it like a building manager who hands out master keys but can permanently block certain doors — even if a tenant has a key, the manager's override lock means they can never open the forbidden room, regardless of what the key says.",
         icon: "🔒",
         color: ACCENT.orange,
         tag: "SCENARIO 2",
@@ -168,6 +170,7 @@ aws organizations move-account \\
 
     {
         id: 3,
+        analogy: "Think of it like a family mobile phone plan — each family member has their own number and usage, but all bills roll up into one family account that qualifies for bulk discounts that no individual member could get on their own.",
         icon: "💰",
         color: ACCENT.teal,
         tag: "SCENARIO 3",
@@ -228,6 +231,7 @@ aws ce get-savings-plans-coverage \\
 
     {
         id: 4,
+        analogy: "Think of it like a company badge that works in every branch office — any staff member wearing the company lanyard can enter branch buildings without being added to each branch's individual visitor list, and new branches automatically honour the same badge.",
         icon: "🔗",
         color: ACCENT.purple,
         tag: "SCENARIO 4",
@@ -328,6 +332,7 @@ aws ce get-savings-plans-coverage \\
 
     {
         id: 5,
+        analogy: "Think of it like a health-and-safety inspector who sets one set of rules from headquarters — every branch office is automatically audited against the same checklist, and new branches opening next month are inspected too without anyone updating the rulebook.",
         icon: "📋",
         color: ACCENT.green,
         tag: "SCENARIO 5",

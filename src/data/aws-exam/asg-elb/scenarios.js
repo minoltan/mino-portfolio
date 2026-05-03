@@ -10,6 +10,7 @@ import { ACCENT } from "../constants";
 const scenarios = [
     {
         id: 1,
+        analogy: "Think of it like a restaurant that hires extra waitstaff during dinner rush and sends them home after closing — the kitchen always has the right number of people. If a waiter calls in sick, a replacement is hired automatically.",
         icon: "📈",
         color: ACCENT.primary,
         tag: "SCENARIO 1",
@@ -66,6 +67,7 @@ const scenarios = [
 
     {
         id: 2,
+        analogy: "Think of it like a hotel concierge who reads your request and directs you to the right department — guests asking for room service go to the kitchen, guests asking for a taxi go to the transport desk — all through one front door.",
         icon: "🔀",
         color: ACCENT.teal,
         tag: "SCENARIO 2",
@@ -130,6 +132,7 @@ const scenarios = [
 
     {
         id: 3,
+        analogy: "Think of it like a thermostat that automatically turns the heating up or down to maintain your desired room temperature — you set the target and the system figures out how much power is needed, adjusting continuously as the weather changes.",
         icon: "🎯",
         color: ACCENT.amber,
         tag: "SCENARIO 3",
@@ -186,6 +189,7 @@ const scenarios = [
 
     {
         id: 4,
+        analogy: "Think of it like a restaurant that rings a bell before closing so the last customers can finish their meals — the doors lock only after everyone has been served, not in the middle of a dish being delivered.",
         icon: "🔗",
         color: ACCENT.orange,
         tag: "SCENARIO 4",
@@ -236,6 +240,7 @@ const scenarios = [
 
     {
         id: 5,
+        analogy: "Think of it like a road diversion where a new bypass is built alongside the old road — traffic is gradually shifted from the old road to the new one, and if the new road has potholes, you can instantly redirect everyone back.",
         icon: "🟦",
         color: ACCENT.purple,
         tag: "SCENARIO 5",
@@ -303,6 +308,7 @@ const scenarios = [
 
     {
         id: 6,
+        analogy: "Think of it like a dedicated express mail courier who delivers packages as fast as possible without opening them to read the address label — speed and raw delivery are the only goals, and the sender's name is always visible on the package.",
         icon: "⚡",
         color: ACCENT.green,
         tag: "SCENARIO 6",

@@ -13,6 +13,7 @@ import { ACCENT } from "../constants";
 const scenarios = [
     {
         id: 1,
+        analogy: "Think of it like a hotel chain's reservation system — it automatically routes you to the nearest branch with availability (latency routing), and during a soft launch of a new branch, it sends 10% of guests there to test it before fully opening (weighted routing).",
         icon: "🌐",
         color: ACCENT.primary,
         tag: "SCENARIO 1",
@@ -91,6 +92,7 @@ aws route53 change-resource-record-sets \\
 
     {
         id: 2,
+        analogy: "Think of it like a building's backup generator — a health monitor checks the main power every 30 seconds, and the moment the lights flicker three times in a row, it automatically switches the whole building to the backup generator so tenants barely notice an outage.",
         icon: "🏥",
         color: ACCENT.teal,
         tag: "SCENARIO 2",
@@ -167,6 +169,7 @@ aws route53 change-resource-record-sets \\
 
     {
         id: 3,
+        analogy: "Think of it like a chain of local convenience stores stocking popular items from a central warehouse — customers grab what they need nearby (edge cache) instead of travelling to headquarters, and when the warehouse updates its stock the local stores are told to throw out the old version (cache invalidation).",
         icon: "🚀",
         color: ACCENT.amber,
         tag: "SCENARIO 3",
@@ -245,6 +248,7 @@ aws cloudfront create-distribution \\
 
     {
         id: 4,
+        analogy: "Think of it like a members-only library where a librarian stamps a time-limited borrowing pass (signed URL) for a single book, or issues a membership card (signed cookie) that lets a subscriber browse an entire section without needing a new stamp for every book they pick up.",
         icon: "🔐",
         color: ACCENT.orange,
         tag: "SCENARIO 4",
@@ -335,6 +339,7 @@ def generate_cloudfront_signed_url(
 
     {
         id: 5,
+        analogy: "Think of it like a highway that has a private express lane running through a city — instead of fighting traffic on public roads (the internet), your data jumps onto a dedicated fast lane the moment it enters the city boundary (AWS edge PoP) and travels on reserved roads all the way to the destination.",
         icon: "🌍",
         color: ACCENT.green,
         tag: "SCENARIO 5",
@@ -406,6 +411,7 @@ aws globalaccelerator create-endpoint-group \\
 
     {
         id: 6,
+        analogy: "Think of it like an internal company phone directory that only works inside the office building — employees dial short extension names (order-processor.internal) instead of memorising long external phone numbers (RDS endpoint strings), and none of these numbers are listed in the public phone book.",
         icon: "🔒",
         color: ACCENT.purple,
         tag: "SCENARIO 6",

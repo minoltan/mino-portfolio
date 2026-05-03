@@ -884,8 +884,12 @@
                         "VPC Endpoints (Gateway & Interface)",
                         "VPC Peering",
                         "AWS PrivateLink",
+                        "AWS Transit Gateway",
+                        "Site-to-Site VPN",
+                        "AWS Direct Connect",
+                        "AWS Resource Access Manager (RAM)",
+                        "VPC Subnet Sharing",
                         "Bastion Hosts",
-                        "VPN & Direct Connect",
                         "Elastic IP Addresses",
                         "Default VPC",
                         "Flow Logs"

@@ -18,6 +18,7 @@ import { ACCENT } from "../constants";
 const scenarios = [
     {
         id: 1,
+        analogy: "Think of it like a company building where every employee gets an ID badge that only opens the doors they need — engineers get access to the server room, finance gets the accounts office, and MFA is the requirement to also show a PIN before entering sensitive areas.",
         icon: "👥",
         color: ACCENT.primary,
         tag: "SCENARIO 1",
@@ -110,6 +111,7 @@ const scenarios = [
 
     {
         id: 2,
+        analogy: "Think of it like a company delivery van with a staff ID permanently mounted on the dashboard — the van itself is authorized to make deliveries, so the driver never needs to carry personal credentials or memorize passwords.",
         icon: "🖥️",
         color: ACCENT.teal,
         tag: "SCENARIO 2",
@@ -212,6 +214,7 @@ const scenarios = [
 
     {
         id: 3,
+        analogy: "Think of it like a temp worker hired through an agency — they show up, use the specific tools the job requires, and leave; they never have their own permanent key to the building, and their access is limited to exactly what the task needs.",
         icon: "⚡",
         color: ACCENT.amber,
         tag: "SCENARIO 3",
@@ -317,6 +320,7 @@ const scenarios = [
 
     {
         id: 4,
+        analogy: "Think of it like a hotel where guests from a partner company use their own corporate ID to check in — the hotel trusts the partner's reception desk to verify identities, so guests get a room key without the hotel ever issuing them a separate permanent membership card.",
         icon: "🏢",
         color: ACCENT.orange,
         tag: "SCENARIO 4",
@@ -413,6 +417,7 @@ const scenarios = [
 
     {
         id: 5,
+        analogy: "Think of it like a contractor company sending a worker into a client's office building — the client creates a visitor badge (the role) that works only in their building, the contractor presents a secret project code (ExternalId) to prove they're the right company, and the visitor badge is returned after the job is done.",
         icon: "🔑",
         color: ACCENT.purple,
         tag: "SCENARIO 5",
@@ -530,6 +535,7 @@ const scenarios = [
 
     {
         id: 6,
+        analogy: "Think of it like a secure package locker at a depot — the depot posts a notice saying 'Delivery Company B may collect from locker 12', and Delivery Company B gives their driver a pick-up authorisation; both permissions must exist for the driver to open the locker.",
         icon: "🪣",
         color: ACCENT.green,
         tag: "SCENARIO 6",

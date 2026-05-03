@@ -12,6 +12,7 @@ import { ACCENT } from "../constants";
 const scenarios = [
     {
         id: 1,
+        analogy: "Think of it like a supermarket's private label product warehouse — before items hit store shelves, they're inspected for quality (image scanning), labelled with a version number, and stored in a secured stockroom (private ECR) that only authorised staff can access.",
         icon: "🐳",
         color: ACCENT.primary,
         tag: "SCENARIO 1",
@@ -114,6 +115,7 @@ aws ecr put-lifecycle-policy \\
 
     {
         id: 2,
+        analogy: "Think of it like a job description posted by HR — it specifies exactly what the role requires (CPU, memory), what tools are needed (the Docker image), what confidential access keys to bring (SSM secrets), and which department the person reports to (task role vs execution role), before any actual employee starts work.",
         icon: "📋",
         color: ACCENT.teal,
         tag: "SCENARIO 2",
@@ -197,6 +199,7 @@ aws ecr put-lifecycle-policy \\
 
     {
         id: 3,
+        analogy: "Think of it like a restaurant chain that replaced its kitchen staff with a catering company — the menu (your app) stays the same, the dining room (ALB) stays the same, but now the caterers (Fargate) bring their own equipment and you only pay for the meals actually served rather than keeping a full kitchen running 24/7.",
         icon: "🚀",
         color: ACCENT.amber,
         tag: "SCENARIO 3",
@@ -285,6 +288,7 @@ aws application-autoscaling put-scaling-policy \\
 
     {
         id: 4,
+        analogy: "Think of it like repainting a hotel one floor at a time — guests on freshly painted floors (new version) coexist with guests on old floors until every floor is done, or for riskier changes, you open a brand-new identical hotel next door (blue/green), quietly move guests across, and if anything goes wrong you move them straight back.",
         icon: "🔄",
         color: ACCENT.orange,
         tag: "SCENARIO 4",
@@ -354,6 +358,7 @@ aws deploy create-deployment \\
 
     {
         id: 5,
+        analogy: "Think of it like a large office building with separate floors for different companies — each company (namespace) has its own entrance, security badge system (IRSA), and rules, so the leaderboard team on floor 3 can't accidentally walk into the payroll room on floor 5 even though they share the same building.",
         icon: "☸️",
         color: ACCENT.purple,
         tag: "SCENARIO 5",
@@ -441,6 +446,7 @@ helm install leaderboard ./charts/leaderboard \\
 
     {
         id: 6,
+        analogy: "Think of it like choosing between a managed serviced office (ECS Fargate) and a self-managed office block (EKS) — the serviced office handles cleaning, security, and maintenance so you just show up and work, while the self-managed block gives you full control to knock down walls and add custom facilities but you hire your own maintenance crew.",
         icon: "⚖️",
         color: ACCENT.green,
         tag: "SCENARIO 6",

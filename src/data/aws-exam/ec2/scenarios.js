@@ -10,6 +10,7 @@ import { ACCENT } from "../constants";
 const scenarios = [
     {
         id: 1,
+        analogy: "Think of it like a master key mould kept in a locksmith's safe — every new key for the building is cut from the same tested mould, so all copies are identical and no one has to measure and cut from scratch each time.",
         icon: "🖥️",
         color: ACCENT.primary,
         tag: "SCENARIO 1",
@@ -66,6 +67,7 @@ const scenarios = [
 
     {
         id: 2,
+        analogy: "Think of it like photocopying an important document at your main office and filing a copy in each branch — if the head office burns down, every branch already has a ready-to-use duplicate and operations can continue without delay.",
         icon: "🌏",
         color: ACCENT.teal,
         tag: "SCENARIO 2",
@@ -112,6 +114,7 @@ const scenarios = [
 
     {
         id: 3,
+        analogy: "Think of it like a film studio lending a licensed DVD master to a specific cinema chain — the studio retains ownership, the cinema can play it for their audience, and when the contract ends the studio simply revokes the lending agreement.",
         icon: "🤝",
         color: ACCENT.amber,
         tag: "SCENARIO 3",
@@ -156,6 +159,7 @@ const scenarios = [
 
     {
         id: 4,
+        analogy: "Think of it like a furniture delivery order that lists exactly which items come with a new apartment — the sofa (root volume) arrives with every tenant, and a filing cabinet (data volume) is added for tenants who need extra storage, specified in advance on the order form.",
         icon: "💾",
         color: ACCENT.green,
         tag: "SCENARIO 4",
@@ -218,6 +222,7 @@ const scenarios = [
 
     {
         id: 5,
+        analogy: "Think of it like a hire car that comes with a standard setup, but you leave a note on the seat with personalised instructions — 'tune the radio to Jazz FM, set AC to 22°C' — so the same model car feels right for you the moment you start driving.",
         icon: "🧾",
         color: ACCENT.purple,
         tag: "SCENARIO 5",
@@ -273,6 +278,7 @@ systemctl start marketplace-api`,
 
     {
         id: 6,
+        analogy: "Think of it like hiring the right vehicle for each job — you would not deliver letters in a 40-tonne lorry or move house in a bicycle; a van fits general errands, a refrigerated truck fits food transport, and a sports car fits speed.",
         icon: "⚙️",
         color: ACCENT.orange,
         tag: "SCENARIO 6",
@@ -308,6 +314,7 @@ systemctl start marketplace-api`,
 
     {
         id: 7,
+        analogy: "Think of it like booking a hotel — you can pay full price per night with no commitment (On-Demand), grab a last-minute deal that the hotel can cancel if a better guest arrives (Spot), pre-pay for a year at a discount (Reserved), or rent an entire private floor for compliance reasons (Dedicated Host).",
         icon: "💸",
         color: ACCENT.pink,
         tag: "SCENARIO 7",
@@ -343,6 +350,7 @@ systemctl start marketplace-api`,
 
     {
         id: 8,
+        analogy: "Think of it like a building's phone system — each office has an internal extension (private IP), the reception desk has a public phone number (public IP), and the CEO gets a dedicated direct-dial line that never changes even if they move desk (Elastic IP).",
         icon: "🌐",
         color: ACCENT.teal,
         tag: "SCENARIO 8",
@@ -378,6 +386,7 @@ systemctl start marketplace-api`,
 
     {
         id: 9,
+        analogy: "Think of it like road upgrades — a standard road (ENI) handles everyday traffic, a motorway (ENA) moves more vehicles faster with less congestion, and a private race circuit with no traffic lights (EFA) lets formula-one teams push at maximum speed with zero interference.",
         icon: "🚀",
         color: ACCENT.red,
         tag: "SCENARIO 9",
@@ -412,6 +421,7 @@ systemctl start marketplace-api`,
 
     {
         id: 10,
+        analogy: "Think of it like seating arrangements at a conference — cluster seating puts a team all at one table so they can whisper quickly (low latency), spread seating puts VIP speakers at separate tables so one spill does not affect all of them, and partition seating groups large delegations into separate sections so a fire in one section does not disrupt the others.",
         icon: "📍",
         color: ACCENT.amber,
         tag: "SCENARIO 10",
@@ -447,6 +457,7 @@ systemctl start marketplace-api`,
 
     {
         id: 11,
+        analogy: "Think of it like a staffed security gatehouse at the entrance of a gated estate — visitors check in with the guard, prove their identity, and the guard escorts or grants access to the private residences inside; no one walks directly to the front door from the street.",
         icon: "🔐",
         color: ACCENT.green,
         tag: "SCENARIO 11",
@@ -482,6 +493,7 @@ systemctl start marketplace-api`,
 
     {
         id: 12,
+        analogy: "Think of it like a hospital with vital-signs monitors at every bed (CloudWatch metrics), nurses writing notes in patient charts (application logs), and a reception ledger that records every visitor who entered or left the building (CloudTrail API audit).",
         icon: "📊",
         color: ACCENT.purple,
         tag: "SCENARIO 12",
@@ -517,6 +529,7 @@ systemctl start marketplace-api`,
 
     {
         id: 13,
+        analogy: "Think of it like a chain of restaurants — if one branch closes for repairs the others stay open, a queue management system (load balancer) directs hungry customers to whichever branch has space, and a health inspector (Route 53) can redirect diners away from any branch that fails its checks.",
         icon: "🛡️",
         color: ACCENT.slate,
         tag: "SCENARIO 13",
@@ -552,6 +565,7 @@ systemctl start marketplace-api`,
 
     {
         id: 14,
+        analogy: "Think of it like a removalist company that photographs every room of your old house (VM image), packs everything into a standardised shipping container (VMDK/VHD), and reassembles it exactly in the new location so you can move in and continue life without rebuilding from scratch.",
         icon: "🚚",
         color: ACCENT.orange,
         tag: "SCENARIO 14",

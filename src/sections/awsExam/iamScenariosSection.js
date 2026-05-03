@@ -263,6 +263,34 @@ function ScenarioModal({ scenario: s, onClose }) {
             {/* Scrollable content */}
             <DialogContent sx={{ p: { xs: 2, md: 3 }, overflowY: 'auto' }}>
 
+                {/* ── Real World Analogy ── */}
+                {s.analogy && (
+                    <Box mb={3} sx={{
+                        background: isDark
+                            ? `linear-gradient(135deg, ${alpha(s.color, 0.12)} 0%, ${alpha(s.color, 0.05)} 100%)`
+                            : `linear-gradient(135deg, ${alpha(s.color, 0.08)} 0%, ${alpha(s.color, 0.03)} 100%)`,
+                        border: `1px solid ${alpha(s.color, 0.25)}`,
+                        borderLeft: `4px solid ${s.color}`,
+                        borderRadius: '0 12px 12px 0',
+                        p: { xs: 1.75, md: 2.25 },
+                    }}>
+                        <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+                            <Typography fontSize={18} lineHeight={1}>🧠</Typography>
+                            <Typography variant="caption" fontWeight={700}
+                                sx={{ color: s.color, letterSpacing: '0.1em' }}>
+                                THINK OF IT LIKE THIS
+                            </Typography>
+                        </Stack>
+                        <Typography variant="body2" sx={{
+                            lineHeight: 1.85,
+                            fontStyle: 'italic',
+                            color: isDark ? alpha('#fff', 0.82) : 'text.primary',
+                        }}>
+                            {s.analogy}
+                        </Typography>
+                    </Box>
+                )}
+
                 {/* ── Use Case ── */}
                 <Box mb={3}>
                     <Typography variant="overline" fontWeight={700}

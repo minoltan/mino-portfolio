@@ -12,6 +12,7 @@ import { ACCENT } from "../constants";
 const scenarios = [
     {
         id: 1,
+        analogy: "Think of it like an office building where the lobby and reception area face the street (public subnet) while the back offices and server rooms are locked away from visitors (private subnet) — only the front desk staff deal with the public.",
         icon: "🏗️",
         color: ACCENT.primary,
         tag: "SCENARIO 1",
@@ -80,6 +81,7 @@ aws ec2 attach-internet-gateway \\
 
     {
         id: 2,
+        analogy: "Think of it like a company mailroom that sends outgoing letters on behalf of staff — employees in the back office can post letters to the outside world, but no one outside can walk in and knock on their doors.",
         icon: "🌍",
         color: ACCENT.teal,
         tag: "SCENARIO 2",
@@ -137,6 +139,7 @@ aws ec2 create-route \\
 
     {
         id: 3,
+        analogy: "Think of it like a building's security: the guard at each office door (Security Group) remembers who they let in and automatically lets them out — while the guard at the building entrance (NACL) checks every person entering AND leaving against a rulebook, with no memory of prior visits.",
         icon: "🛡️",
         color: ACCENT.amber,
         tag: "SCENARIO 3",
@@ -205,6 +208,7 @@ aws ec2 create-route \\
 
     {
         id: 4,
+        analogy: "Think of it like an internal office supply room — instead of staff leaving the building to buy pens from a shop downtown, there is a direct internal corridor to the supplies, saving time and cost without anyone stepping outside.",
         icon: "🔌",
         color: ACCENT.orange,
         tag: "SCENARIO 4",
@@ -275,6 +279,7 @@ aws ec2 create-vpc-endpoint \\
 
     {
         id: 5,
+        analogy: "Think of it like building a private connecting corridor between two office buildings — staff can walk directly between them, but the corridor only connects those two buildings, so you need a separate corridor for every additional pair.",
         icon: "🔗",
         color: ACCENT.purple,
         tag: "SCENARIO 5",
@@ -339,6 +344,7 @@ aws ec2 create-route \\
 
     {
         id: 6,
+        analogy: "Think of it like a secure private doorbell that a customer presses inside their own home — it rings directly in your shop's back room without anyone stepping onto a public street, and you decide which customers get a doorbell.",
         icon: "🔒",
         color: ACCENT.green,
         tag: "SCENARIO 6",
@@ -395,6 +401,211 @@ aws ec2 create-vpc-endpoint \\
   --subnet-ids subnet-customer-private1 \\
   --security-group-ids sg-0customer-endpoint \\
   --private-dns-enabled`,
+            },
+        ],
+    },
+    {
+        id: 7,
+        analogy: "Think of it like a major highway interchange — instead of building a separate road between every city pair, all roads connect to one central hub, so adding a new city only requires one new on-ramp, not roads to every existing city.",
+        icon: "🌐",
+        color: ACCENT.red,
+        tag: "SCENARIO 7",
+        title: "AWS Transit Gateway",
+        subtitle: "Hub-and-spoke network for all AMI PVT LTD VPCs and on-premises",
+        useCase: {
+            title: "AMI PVT LTD Marketplace — replacing point-to-point peering with a central Transit Gateway",
+            story: "AMI PVT LTD operates four VPCs: marketplace-prod (10.0.0.0/16), marketplace-analytics (10.1.0.0/16), marketplace-dev (10.2.0.0/16), and marketplace-dr (10.3.0.0/16 in ap-south-1). Using VPC peering, connecting all four requires six individual peering connections, each with its own route table entries — and peering is non-transitive, so traffic cannot flow through an intermediate VPC. AMI PVT LTD creates marketplace-tgw (Transit Gateway) as a central hub. Each VPC attaches to marketplace-tgw. A single route table on the TGW propagates all four CIDR blocks, and each VPC's route table gets a single entry pointing all inter-VPC CIDRs to marketplace-tgw. The on-premises data centre also connects via a Site-to-Site VPN attachment on the same TGW, giving all VPCs on-premises connectivity through one hub.",
+            diagram: [
+                { actor: "marketplace-prod VPC (10.0.0.0/16)", icon: "🏢" },
+                { arrow: "TGW attachment" },
+                { actor: "marketplace-tgw (Transit Gateway — central hub)", icon: "🌐" },
+                { arrow: "TGW attachment" },
+                { actor: "marketplace-analytics (10.1.0.0/16) / marketplace-dev (10.2.0.0/16) / marketplace-dr (10.3.0.0/16)", icon: "📊" },
+                { arrow: "VPN attachment" },
+                { actor: "On-Premises Data Centre (192.168.0.0/16)", icon: "🏗️" },
+            ],
+        },
+        buildSystem: [
+            "Create marketplace-tgw in ap-southeast-1 with auto-accept shared attachments disabled (manual approval for new VPC attachments)",
+            "Enable DNS support and VPN ECMP support on marketplace-tgw; keep default route table association and propagation enabled for simplicity",
+            "Create TGW VPC attachment for marketplace-prod (10.0.0.0/16) — select one private subnet per AZ for the attachment ENIs",
+            "Create TGW VPC attachments for marketplace-analytics (10.1.0.0/16) and marketplace-dev (10.2.0.0/16) the same way",
+            "On the TGW default route table, each attachment's CIDR auto-propagates — verify routes: 10.0.0.0/16, 10.1.0.0/16, 10.2.0.0/16 all appear",
+            "In each VPC's private route table, add a route for all other VPC CIDRs pointing to marketplace-tgw (e.g. marketplace-prod-private-rt: 10.1.0.0/16 → tgw-id)",
+            "Attach the on-premises VPN to marketplace-tgw using a VPN attachment with Customer Gateway (CGW) pointing to the on-premises router IP",
+            "Use Resource Access Manager (RAM) to share marketplace-tgw with the marketplace-analytics AWS account if it is in a different account",
+        ],
+        flow: ["VPC Attachments", "marketplace-tgw", "TGW Route Table", "CIDR Propagation", "All VPCs + On-Premises Connected"],
+        examTips: [
+            "Transit Gateway is transitive — traffic CAN flow through the TGW hub to reach any attached VPC or VPN, unlike VPC peering",
+            "Each VPC attachment uses ENIs in subnets within that VPC — choose one subnet per AZ for high availability",
+            "TGW supports VPC attachments, VPN attachments, Direct Connect Gateway attachments, and peering with TGWs in other Regions",
+            "VPC route tables still need updating — adding a TGW attachment does NOT automatically add routes in the VPC route tables",
+            "Use RAM (Resource Access Manager) to share a TGW across AWS accounts in the same Organization",
+        ],
+        roleJson: [
+            {
+                label: "AWS CLI — create marketplace-tgw and attach marketplace-prod VPC",
+                note: "💡 After creating the attachment, routes in the TGW route table are auto-propagated — but you must manually add routes in each VPC's route table pointing to the TGW.",
+                code: `# Create Transit Gateway
+aws ec2 create-transit-gateway \\
+  --description "AMI PVT LTD central network hub" \\
+  --options AmazonSideAsn=64512,AutoAcceptSharedAttachments=disable,DefaultRouteTableAssociation=enable,DefaultRouteTablePropagation=enable,DnsSupport=enable,VpnEcmpSupport=enable \\
+  --tag-specifications 'ResourceType=transit-gateway,Tags=[{Key=Name,Value=marketplace-tgw}]'
+
+# Attach marketplace-prod VPC
+aws ec2 create-transit-gateway-vpc-attachment \\
+  --transit-gateway-id tgw-0marketplace123 \\
+  --vpc-id vpc-0marketplace123 \\
+  --subnet-ids subnet-private1a subnet-private1b \\
+  --tag-specifications 'ResourceType=transit-gateway-attachment,Tags=[{Key=Name,Value=tgw-attach-marketplace-prod}]'
+
+# Add route in marketplace-prod private route table pointing analytics CIDR to TGW
+aws ec2 create-route \\
+  --route-table-id rtb-marketplace-private \\
+  --destination-cidr-block 10.1.0.0/16 \\
+  --transit-gateway-id tgw-0marketplace123`,
+            },
+        ],
+    },
+
+    {
+        id: 8,
+        analogy: "Think of it like the difference between a secure courier using public roads (Site-to-Site VPN — encrypted but shares the road with everyone) and a private dedicated railway line (Direct Connect — your own track, consistent speed, lower delays, but takes time to lay).",
+        icon: "🔐",
+        color: ACCENT.pink,
+        tag: "SCENARIO 8",
+        title: "Site-to-Site VPN & Direct Connect",
+        subtitle: "Hybrid connectivity for on-premises to marketplace-vpc",
+        useCase: {
+            title: "AMI PVT LTD Marketplace — connecting the on-premises data centre to marketplace-vpc securely",
+            story: "AMI PVT LTD's finance team operates legacy systems in an on-premises data centre (192.168.0.0/16) that need to query the marketplace's internal billing API running on the Spring Boot fleet in marketplace-vpc (10.0.0.0/16). For an interim encrypted connection, AMI PVT LTD creates a Site-to-Site VPN: a Virtual Private Gateway (marketplace-vgw) is attached to marketplace-vpc, and a Customer Gateway (marketplace-cgw) represents the on-premises router IP. Two IPSec tunnels are established for redundancy. For the long-term, AMI PVT LTD provisions a 1 Gbps AWS Direct Connect (DX) circuit from the on-premises data centre to the AWS DX location in Singapore, providing dedicated, consistent bandwidth with lower latency than VPN.",
+            diagram: [
+                { actor: "On-Premises Data Centre (192.168.0.0/16)", icon: "🏗️" },
+                { arrow: "IPSec VPN tunnels (2× for HA)" },
+                { actor: "marketplace-cgw (Customer Gateway) ↔ marketplace-vgw (Virtual Private Gateway)", icon: "🔐" },
+                { arrow: "attached to marketplace-vpc" },
+                { actor: "marketplace-vpc (10.0.0.0/16) — Spring Boot EC2 billing API", icon: "🏢" },
+                { arrow: "OR: dedicated 1 Gbps DX circuit (lower latency, no public internet)" },
+                { actor: "AWS Direct Connect Location (Singapore)", icon: "⚡" },
+            ],
+        },
+        buildSystem: [
+            "Create Customer Gateway (marketplace-cgw) specifying the on-premises router's public IP and BGP ASN (e.g. 65000)",
+            "Create Virtual Private Gateway (marketplace-vgw) and attach it to marketplace-vpc",
+            "Create Site-to-Site VPN connection between marketplace-cgw and marketplace-vgw; download the configuration for the on-premises router",
+            "Enable route propagation on marketplace-private-rt to automatically propagate the on-premises CIDR (192.168.0.0/16) from marketplace-vgw",
+            "Configure the on-premises router with the VPN tunnel pre-shared keys and IKE/IPSec settings from the AWS config download",
+            "Verify both VPN tunnels are UP (one may be UP and one standby — both UP is preferred for Active/Active ECMP)",
+            "For Direct Connect: order a hosted or dedicated DX connection via the AWS Direct Connect console or a DX partner; provision a Virtual Interface (VIF) on the DX connection",
+            "For hybrid DX + VPN: use DX as primary and Site-to-Site VPN as failover — use BGP route priority to prefer DX routes",
+        ],
+        flow: ["On-Premises Router", "marketplace-cgw", "IPSec Tunnels (×2)", "marketplace-vgw", "marketplace-vpc Private Subnets"],
+        examTips: [
+            "Site-to-Site VPN uses the public internet with IPSec encryption — it is quick to set up but bandwidth is limited and latency varies",
+            "Direct Connect provides a dedicated private circuit — consistent bandwidth, lower latency, but takes weeks to provision and costs more",
+            "Virtual Private Gateway (VGW) is attached to one VPC; use Transit Gateway for VPN access to multiple VPCs from one on-premises connection",
+            "Route propagation on the VPC route table automatically adds on-premises CIDRs advertised by BGP — no manual route entries needed",
+            "DX supports Public VIF (access AWS public endpoints), Private VIF (access VPC private IPs), and Transit VIF (access via TGW)",
+        ],
+        roleJson: [
+            {
+                label: "AWS CLI — create Customer Gateway, Virtual Private Gateway, and Site-to-Site VPN",
+                note: "💡 Enable route propagation on the route table so on-premises CIDRs are automatically added via BGP — avoids manual static routes.",
+                code: `# Step 1: Create Customer Gateway (on-premises router)
+aws ec2 create-customer-gateway \\
+  --type ipsec.1 \\
+  --public-ip 203.0.113.10 \\
+  --bgp-asn 65000 \\
+  --tag-specifications 'ResourceType=customer-gateway,Tags=[{Key=Name,Value=marketplace-cgw}]'
+
+# Step 2: Create Virtual Private Gateway and attach to marketplace-vpc
+aws ec2 create-vpn-gateway \\
+  --type ipsec.1 \\
+  --tag-specifications 'ResourceType=vpn-gateway,Tags=[{Key=Name,Value=marketplace-vgw}]'
+
+aws ec2 attach-vpn-gateway \\
+  --vpn-gateway-id vgw-0marketplace123 \\
+  --vpc-id vpc-0marketplace123
+
+# Step 3: Create Site-to-Site VPN connection
+aws ec2 create-vpn-connection \\
+  --type ipsec.1 \\
+  --customer-gateway-id cgw-0marketplace \\
+  --vpn-gateway-id vgw-0marketplace123 \\
+  --options StaticRoutesOnly=false
+
+# Step 4: Enable route propagation on private route table
+aws ec2 enable-vgw-route-propagation \\
+  --route-table-id rtb-marketplace-private \\
+  --gateway-id vgw-0marketplace123`,
+            },
+        ],
+    },
+    {
+        id: 9,
+        analogy: "Think of it like a landlord sharing one large office floor with multiple tenants — each tenant has their own desks and equipment in the shared space, they can talk to each other directly across the room, but the landlord controls the floor plan and the exits.",
+        icon: "🤝",
+        color: ACCENT.amber,
+        tag: "SCENARIO 9",
+        title: "AWS Resource Access Manager (RAM) — Subnet Sharing",
+        subtitle: "Share marketplace-vpc subnets across accounts so all EC2s live in the same VPC",
+        useCase: {
+            title: "AMI PVT LTD Marketplace — sharing a private subnet with the analytics account via RAM",
+            story: "AMI PVT LTD runs the marketplace-analytics account (SharedServices OU) separately from marketplace-prod (234567890123). The analytics pipeline needs EC2 instances that can directly communicate with the Spring Boot API fleet inside marketplace-vpc — the same VPC, same subnets, no VPC peering, no Transit Gateway overhead. Instead of duplicating the VPC in the analytics account or setting up peering, marketplace-prod uses AWS RAM to share marketplace-private-subnet-1a (10.0.10.0/24) with the marketplace-analytics account. The analytics account can then launch EC2 instances directly into that shared subnet. All instances — owned by different accounts — share the same VPC routing, security groups references, and private IP space. AMI PVT LTD pays nothing extra for RAM itself.",
+            diagram: [
+                { actor: "marketplace-prod (234567890123) — VPC Owner", icon: "🏢" },
+                { arrow: "RAM Resource Share: share marketplace-private-subnet-1a" },
+                { actor: "AWS Resource Access Manager (RAM)", icon: "🤝" },
+                { arrow: "grants subnet participant access to marketplace-analytics" },
+                { actor: "marketplace-analytics account — launches EC2 into shared subnet", icon: "📊" },
+                { arrow: "same VPC, same private IP range, direct communication" },
+                { actor: "marketplace-api-asg EC2 ↔ analytics EC2 (both in 10.0.10.0/24)", icon: "🔗" },
+            ],
+        },
+        buildSystem: [
+            "In marketplace-prod (234567890123): open RAM console → Create Resource Share named 'marketplace-subnet-share'",
+            "Select resource type 'Subnets' and choose marketplace-private-subnet-1a (10.0.10.0/24) as the shared resource",
+            "Specify the principal: add the marketplace-analytics AWS account ID or the entire SharedServices OU ARN from AWS Organizations",
+            "If sharing within the same AWS Organization, enable the 'Enable sharing with AWS Organizations' setting in RAM — no invitation acceptance needed",
+            "If sharing with an external account, the recipient must accept the Resource Share invitation before they can use the subnet",
+            "In marketplace-analytics account: confirm the shared subnet appears in the VPC console under 'Subnets' (marked as 'Shared')",
+            "The analytics team launches EC2 instances into the shared subnet specifying the subnet ID — the instances get IPs from 10.0.10.0/24",
+            "VPC owner (marketplace-prod) retains full control: they can modify or delete the subnet, and VPC-level route tables and NACLs still apply",
+        ],
+        flow: ["VPC Owner creates Resource Share", "Specifies Subnet Resource", "Specifies Analytics Account", "Participant Launches EC2 into Shared Subnet", "All EC2s Communicate Directly in Same VPC"],
+        examTips: [
+            "RAM subnet sharing lets multiple accounts launch resources into the SAME VPC subnet — no VPC peering or TGW required for inter-account communication within the same VPC",
+            "The VPC owner retains control of route tables, NACLs, and the subnet itself; participants can only launch resources into the shared subnet",
+            "Participants cannot modify the shared subnet, route tables, or NACLs — only the VPC owner can change these",
+            "RAM can share Transit Gateways, subnets, Route 53 Resolver rules, License Manager configs, and more — subnet sharing is the most common VPC use case",
+            "RAM is free — there is no additional charge for using RAM to share resources",
+            "Sharing within an AWS Organization requires enabling 'sharing with Organizations' in RAM; sharing with external accounts requires an invitation and acceptance",
+        ],
+        roleJson: [
+            {
+                label: "AWS CLI — create RAM Resource Share for marketplace-private-subnet-1a",
+                note: "💡 If all accounts are in the same AWS Organization, use the OU ARN as the principal — new accounts added to the OU automatically get access.",
+                code: `# Step 1: Enable RAM sharing with AWS Organizations (run once in management account)
+aws ram enable-sharing-with-aws-organization
+
+# Step 2: In marketplace-prod (234567890123) — create resource share
+aws ram create-resource-share \\
+  --name "marketplace-subnet-share" \\
+  --resource-arns "arn:aws:ec2:ap-southeast-1:234567890123:subnet/subnet-private1a" \\
+  --principals "arn:aws:organizations::123456789012:ou/o-marketplace/ou-xxxx-sharedservices" \\
+  --allow-external-principals false \\
+  --tags key=Name,value=marketplace-subnet-share
+
+# Step 3: Verify the share is active
+aws ram get-resource-shares \\
+  --resource-owner SELF \\
+  --query "resourceShares[?name=='marketplace-subnet-share'].status"
+
+# Step 4: In marketplace-analytics account — confirm shared subnet is visible
+aws ec2 describe-subnets \\
+  --filters "Name=owner-id,Values=234567890123" \\
+  --query "Subnets[*].{SubnetId:SubnetId,CIDR:CidrBlock,OwnerId:OwnerId}"`,
             },
         ],
     },
