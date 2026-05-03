@@ -26,9 +26,11 @@ import serverlessScenarios from "../data/aws-exam/serverless/scenarios";
 import serverlessMatrices from "../data/aws-exam/serverless/matrices";
 import databasesAnalyticsScenarios from "../data/aws-exam/databases-analytics/scenarios";
 import databasesAnalyticsMatrices from "../data/aws-exam/databases-analytics/matrices";
+import deploymentMgmtScenarios from "../data/aws-exam/deployment-management/scenarios";
+import deploymentMgmtMatrices from "../data/aws-exam/deployment-management/matrices";
 
 const EXAM_CATEGORIES = ['All', 'SAA-C03', 'Cloud Practitioner'];
-const TOPIC_SCENARIO_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+const TOPIC_SCENARIO_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
 
 const renderTopicScenarioMap = (topicId) => {
     if (topicId === 2) {
@@ -137,6 +139,17 @@ const renderTopicScenarioMap = (topicId) => {
                 title="AWS Databases and Analytics"
                 scenarios={databasesAnalyticsScenarios}
                 matrices={databasesAnalyticsMatrices}
+                showStudyTabs={false}
+            />
+        );
+    }
+    if (topicId === 12) {
+        return (
+            <IamScenariosSection
+                hideHeader
+                title="Deployment and Management"
+                scenarios={deploymentMgmtScenarios}
+                matrices={deploymentMgmtMatrices}
                 showStudyTabs={false}
             />
         );
