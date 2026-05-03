@@ -2,684 +2,16 @@ import { useState } from "react";
 import { useTheme, alpha, useMediaQuery } from "@mui/material";
 import {
     Box, Typography, Stack, Chip, Card, CardContent, Divider,
-    Dialog, DialogContent, IconButton
+    Dialog, DialogContent, IconButton, Button
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
-
-const ACCENT = {
-    primary: "#e76715",
-    teal: "#2dd4bf",
-    amber: "#fbbf24",
-    orange: "#fb923c",
-    purple: "#c084fc",
-    green: "#4ade80",
-    pink: "#f472b6",
-    red: "#f87171",
-    slate: "#94a3b8",
-};
-
-const scenarios = [
-    {
-        id: 1,
-        icon: "👤",
-        color: ACCENT.primary,
-        tag: "SCENARIO 1",
-        title: "IAM User + MFA",
-        subtitle: "Humans accessing AWS directly",
-        useCase: {
-            title: "A startup's DevOps engineer managing infrastructure",
-            story: "Priya is a DevOps engineer at a fintech startup. She needs to log into the AWS Console to configure EC2 instances, review CloudWatch alarms, and push deployments. Her company creates an IAM User for her, assigns her to the \"DevOps\" group which has relevant policies, and enforces MFA on her account.",
-            diagram: [
-                { actor: "Priya (Human)", icon: "👩‍💼" },
-                { arrow: "enters password + MFA code" },
-                { actor: "AWS Console", icon: "🖥️" },
-                { arrow: "checks identity policy" },
-                { actor: "DevOps Group Policy", icon: "📋" },
-                { arrow: "grants access to" },
-                { actor: "EC2 / CloudWatch / S3", icon: "☁️" },
-            ],
-        },
-        buildSystem: [
-            "Create IAM Group: 'DevOps-Engineers'",
-            "Attach policy: AmazonEC2FullAccess, CloudWatchFullAccess",
-            "Create IAM User for each engineer → add to group",
-            "Enable virtual MFA device on each user",
-            "Set password policy: min 12 chars, rotate every 90 days",
-            "Never give engineers root access → use admin role if needed",
-        ],
-        flow: ["IAM User", "Password + MFA", "Group Policy", "AWS Resources"],
-        examTips: [
-            "Never use root for daily tasks → lock root access keys",
-            "Max 2 access keys per user → rotate regularly",
-            "Access keys = CLI/SDK only, not Console login",
-            "Policies attached to groups, not individual users",
-        ],
-        roleJson: [
-            {
-                label: "Group Permission Policy",
-                note: "Attached to 'DevOps-Engineers' group. MFA condition ensures credentials are only valid after MFA authentication.",
-                code: `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:*",
-        "cloudwatch:*",
-        "s3:GetObject",
-        "s3:ListBucket"
-      ],
-      "Resource": "*",
-      "Condition": {
-        "Bool": {
-          "aws:MultiFactorAuthPresent": "true"
-        }
-      }
-    }
-  ]
-}`,
-            },
-            {
-                label: "Deny All Without MFA (Security Guardrail)",
-                note: "Add this as a second statement to block all actions when MFA is not present — even if another policy allows them.",
-                code: `{
-  "Effect": "Deny",
-  "NotAction": [
-    "iam:CreateVirtualMFADevice",
-    "iam:EnableMFADevice",
-    "iam:GetUser",
-    "sts:GetSessionToken"
-  ],
-  "Resource": "*",
-  "Condition": {
-    "BoolIfExists": {
-      "aws:MultiFactorAuthPresent": "false"
-    }
-  }
-}`,
-            },
-        ],
-    },
-    {
-        id: 2,
-        icon: "🖥️",
-        color: ACCENT.teal,
-        tag: "SCENARIO 2",
-        title: "EC2 Instance Profile",
-        subtitle: "App on EC2 calls other AWS services",
-        useCase: {
-            title: "An e-commerce app on EC2 reading product images from S3",
-            story: "ShopFast runs their Node.js product catalog API on EC2. The app needs to read product images from S3 and write order data to DynamoDB. Instead of hardcoding access keys (a security disaster), they attach an IAM Role to the EC2 instance. The app calls S3/DynamoDB using temp credentials fetched automatically from instance metadata.",
-            diagram: [
-                { actor: "EC2 (Node.js App)", icon: "🖥️" },
-                { arrow: "fetches creds from metadata (169.254.169.254)" },
-                { actor: "Instance Profile / IAM Role", icon: "🎭" },
-                { arrow: "STS issues temp credentials" },
-                { actor: "S3 Bucket", icon: "🪣" },
-                { arrow: "also writes to" },
-                { actor: "DynamoDB Orders Table", icon: "🗄️" },
-            ],
-        },
-        buildSystem: [
-            "Create IAM Role: 'EC2-ShopFast-AppRole'",
-            "Trust policy: Allow EC2 service (ec2.amazonaws.com) to assume role",
-            "Attach policy: S3 read on product-images bucket, DynamoDB write on orders table",
-            "Launch EC2 → attach role via Instance Profile",
-            "App uses AWS SDK → SDK auto-fetches creds from metadata service",
-            "NEVER put access keys in code, env vars, or AMI",
-        ],
-        flow: ["EC2 Instance", "Instance Profile", "IAM Role", "STS Temp Creds", "S3 / DynamoDB"],
-        examTips: [
-            "Only 1 role per EC2 instance → can swap at any time",
-            "Creds from 169.254.169.254 (instance metadata)",
-            "NEVER embed access keys in application code",
-            "SDK automatically handles credential refresh",
-        ],
-        roleJson: [
-            {
-                label: "Trust Policy — allows EC2 to assume this role",
-                note: "The 'Principal: Service' tells AWS that the EC2 service can assume this role on behalf of the instance.",
-                code: `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}`,
-            },
-            {
-                label: "Permission Policy — what the EC2 app is allowed to do",
-                note: "Scoped to specific bucket and table ARNs — never use '*' for resources in production.",
-                code: `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": ["s3:GetObject", "s3:PutObject"],
-      "Resource": "arn:aws:s3:::product-images-bucket/*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "dynamodb:PutItem",
-        "dynamodb:GetItem",
-        "dynamodb:UpdateItem"
-      ],
-      "Resource": "arn:aws:dynamodb:us-east-1:123456789012:table/Orders"
-    }
-  ]
-}`,
-            },
-        ],
-    },
-    {
-        id: 3,
-        icon: "⚡",
-        color: ACCENT.amber,
-        tag: "SCENARIO 3",
-        title: "Lambda / ECS Execution Role",
-        subtitle: "Serverless & containers accessing AWS services",
-        useCase: {
-            title: "A Lambda function processing S3 uploads and sending SNS alerts",
-            story: "ImagePro builds a photo processing pipeline. When a user uploads an image to S3, it triggers a Lambda function that: resizes the image, writes metadata to DynamoDB, and sends an SNS notification to the user. The Lambda has an Execution Role granting it exactly these three permissions — nothing more.",
-            diagram: [
-                { actor: "User uploads image", icon: "📸" },
-                { arrow: "triggers" },
-                { actor: "Lambda Function", icon: "⚡" },
-                { arrow: "assumes execution role" },
-                { actor: "IAM Execution Role", icon: "🎭" },
-                { arrow: "grants access to S3 + DynamoDB + SNS" },
-                { actor: "S3 → DynamoDB → SNS", icon: "☁️" },
-            ],
-        },
-        buildSystem: [
-            "Create IAM Role: 'Lambda-ImageProcessor-Role'",
-            "Trust policy: Allow lambda.amazonaws.com to assume role",
-            "Attach policies: S3 read/write (specific bucket), DynamoDB write, SNS publish",
-            "Also attach: AWSLambdaBasicExecutionRole (for CloudWatch logs)",
-            "Set this role as the Lambda function's execution role",
-            "ECS equivalent: use 'task role' (not task execution role which is for pulling images)",
-        ],
-        flow: ["S3 Event Trigger", "Lambda", "Execution Role", "S3 + DynamoDB + SNS"],
-        examTips: [
-            "Lambda role set on function, not invocation",
-            "ECS task role ≠ task execution role (execution = pull image + logs)",
-            "Lambda needs resource-based policy for cross-account invocation",
-            "Principle of least privilege → only grant what the function needs",
-        ],
-        roleJson: [
-            {
-                label: "Trust Policy — allows Lambda to assume this role",
-                note: "Change 'lambda.amazonaws.com' to 'ecs-tasks.amazonaws.com' for ECS task roles.",
-                code: `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}`,
-            },
-            {
-                label: "Permission Policy — Lambda's allowed actions",
-                note: "AWSLambdaBasicExecutionRole covers the logs permissions. The rest are custom least-privilege grants.",
-                code: `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": ["s3:GetObject", "s3:PutObject"],
-      "Resource": "arn:aws:s3:::uploads-bucket/*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "dynamodb:PutItem",
-      "Resource": "arn:aws:dynamodb:us-east-1:123456789012:table/ImageMetadata"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "sns:Publish",
-      "Resource": "arn:aws:sns:us-east-1:123456789012:UserNotifications"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ],
-      "Resource": "arn:aws:logs:*:*:*"
-    }
-  ]
-}`,
-            },
-        ],
-    },
-    {
-        id: 4,
-        icon: "🏢",
-        color: ACCENT.orange,
-        tag: "SCENARIO 4",
-        title: "SAML / OIDC Federation",
-        subtitle: "Corporate users access AWS without IAM accounts",
-        useCase: {
-            title: "A 500-person company using Microsoft AD to access AWS",
-            story: "MegaCorp has 500 developers already managed in Microsoft Active Directory (AD). Creating 500 IAM users would be a management nightmare. Instead, they configure SAML 2.0 federation between their AD (via ADFS) and AWS. Developers log in with their existing AD credentials, get mapped to IAM roles based on their AD groups, and access AWS — no IAM users created at all.",
-            diagram: [
-                { actor: "Developer (AD user)", icon: "🧑‍💼" },
-                { arrow: "authenticates with" },
-                { actor: "Microsoft AD / ADFS", icon: "🏢" },
-                { arrow: "returns SAML assertion" },
-                { actor: "AWS STS", icon: "🔐" },
-                { arrow: "AssumeRoleWithSAML → temp creds" },
-                { actor: "AWS Console / CLI", icon: "☁️" },
-            ],
-        },
-        buildSystem: [
-            "Set up AWS as Service Provider in ADFS (download metadata XML)",
-            "Configure ADFS as IdP in AWS IAM (upload ADFS metadata)",
-            "Create IAM Roles: 'Dev-Role', 'Admin-Role', 'ReadOnly-Role'",
-            "Trust policy: Allow SAML federation principal (ADFS ARN)",
-            "Map AD groups → IAM roles in ADFS claim rules",
-            "For modern approach: use AWS IAM Identity Center (SSO) instead",
-        ],
-        flow: ["Corp AD Login", "SAML Assertion", "STS AssumeRoleWithSAML", "Temp Creds", "AWS Access"],
-        examTips: [
-            "No IAM user is created → users auth via corporate IdP",
-            "AWS IAM Identity Center = modern recommended approach for SSO",
-            "Mobile apps → Cognito + OIDC (Google, Facebook login)",
-            "STS API: AssumeRoleWithSAML or AssumeRoleWithWebIdentity",
-        ],
-        roleJson: [
-            {
-                label: "Trust Policy — SAML federated role (ADFS)",
-                note: "The 'Federated' principal references your SAML IdP ARN registered in IAM. The condition locks it to the AWS sign-in endpoint.",
-                code: `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Federated": "arn:aws:iam::123456789012:saml-provider/ADFS"
-      },
-      "Action": "sts:AssumeRoleWithSAML",
-      "Condition": {
-        "StringEquals": {
-          "SAML:aud": "https://signin.aws.amazon.com/saml"
-        }
-      }
-    }
-  ]
-}`,
-            },
-            {
-                label: "Dev-Role Permission Policy",
-                note: "Grants read-only EC2 and S3 access to developers who federate in via AD. Extend per AD group.",
-                code: `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:Describe*",
-        "s3:GetObject",
-        "s3:ListBucket",
-        "cloudwatch:GetMetricData",
-        "cloudwatch:ListMetrics"
-      ],
-      "Resource": "*"
-    }
-  ]
-}`,
-            },
-        ],
-    },
-    {
-        id: 5,
-        icon: "🔑",
-        color: ACCENT.purple,
-        tag: "SCENARIO 5",
-        title: "Cross-Account Role",
-        subtitle: "Dev account accesses Prod resources safely",
-        useCase: {
-            title: "A DevOps team in Account-A deploying to Production in Account-B",
-            story: "TechCorp has two AWS accounts: Account-A (Dev/Staging) and Account-B (Production). A DevOps engineer needs to deploy code to production, but they live in Account-A. Instead of giving them credentials to Account-B, they assume a 'DeployRole' in Account-B. The role grants only deployment permissions, and all actions are logged in CloudTrail under their original identity.",
-            diagram: [
-                { actor: "DevOps in Account-A", icon: "🧑‍💼" },
-                { arrow: "calls STS AssumeRole (needs sts:AssumeRole permission)" },
-                { actor: "STS Service", icon: "🔐" },
-                { arrow: "issues temp creds for" },
-                { actor: "DeployRole in Account-B", icon: "🎭" },
-                { arrow: "grants access to" },
-                { actor: "Account-B ECS / CodeDeploy", icon: "☁️" },
-            ],
-        },
-        buildSystem: [
-            "In Account-B: Create IAM Role 'CrossAccount-DeployRole'",
-            "Role trust policy: allow Account-A root (arn:aws:iam::ACCT-A:root) to assume",
-            "Role permission policy: ECS deploy, CodeDeploy actions only",
-            "In Account-A: Give DevOps user permission to sts:AssumeRole on the Account-B role ARN",
-            "DevOps assumes role: aws sts assume-role --role-arn arn:aws:iam::ACCT-B:role/DeployRole",
-            "Use temporary credentials returned by STS to operate in Account-B",
-        ],
-        flow: ["Account-A User", "sts:AssumeRole", "STS Issues Creds", "Account-B Role", "Prod Resources"],
-        examTips: [
-            "Role needs: Trust policy (who) + Permissions policy (what)",
-            "Caller also needs sts:AssumeRole in their own identity policy",
-            "Wildcard (*) NOT allowed in trust policy Principal for cross-account",
-            "Actions logged in CloudTrail under original identity → full audit trail",
-        ],
-        roleJson: [
-            {
-                label: "Trust Policy in Account-B — who can assume this role",
-                note: "Using ':root' allows any identity in Account-A to assume the role, controlled by the caller's own identity policy. Replace with a specific role ARN for tighter control.",
-                code: `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:iam::ACCOUNT-A-ID:root"
-      },
-      "Action": "sts:AssumeRole",
-      "Condition": {
-        "Bool": {
-          "aws:MultiFactorAuthPresent": "true"
-        }
-      }
-    }
-  ]
-}`,
-            },
-            {
-                label: "Permission Policy in Account-B — what the role can do",
-                note: "Minimal deployment permissions. Never grant AdministratorAccess in cross-account roles.",
-                code: `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ecs:UpdateService",
-        "ecs:DescribeServices",
-        "codedeploy:CreateDeployment",
-        "codedeploy:GetDeployment",
-        "codedeploy:GetDeploymentConfig"
-      ],
-      "Resource": "*"
-    }
-  ]
-}`,
-            },
-            {
-                label: "Caller Policy in Account-A — allows the DevOps user to assume the role",
-                note: "Without this, even if Account-B trusts Account-A, the individual user cannot call sts:AssumeRole.",
-                code: `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "sts:AssumeRole",
-      "Resource": "arn:aws:iam::ACCOUNT-B-ID:role/CrossAccount-DeployRole"
-    }
-  ]
-}`,
-            },
-        ],
-    },
-    {
-        id: 6,
-        icon: "🪣",
-        color: ACCENT.green,
-        tag: "SCENARIO 6",
-        title: "Resource-Based Policy",
-        subtitle: "S3 / SQS shared across accounts or made public",
-        useCase: {
-            title: "Company A's analytics pipeline reads from Company B's S3 data lake",
-            story: "DataCo (Account-B) maintains a raw data lake in S3. AnalyticsCo (Account-A) needs to read this data for their ML pipeline. DataCo adds a bucket policy granting Account-A's ETL role read access. AnalyticsCo's ETL role also has an identity policy allowing s3:GetObject. Both policies together allow the cross-account access — neither alone is sufficient.",
-            diagram: [
-                { actor: "ETL Role in Account-A", icon: "☁️" },
-                { arrow: "identity policy: allow s3:GetObject" },
-                { actor: "S3 Bucket in Account-B", icon: "🪣" },
-                { arrow: "bucket policy: allow Account-A ETL role" },
-                { actor: "Access GRANTED", icon: "✅" },
-                { arrow: "BUT if only 1 side has policy →" },
-                { actor: "Access DENIED", icon: "❌" },
-            ],
-        },
-        buildSystem: [
-            "In Account-B: Add S3 bucket policy allowing Account-A role ARN to s3:GetObject",
-            "In Account-A: Give ETL role an identity policy allowing s3:GetObject on Account-B bucket ARN",
-            "BOTH policies needed for cross-account → unlike same-account (only one needed)",
-            "Check S3 Block Public Access settings → these override even permissive policies",
-            "KMS encrypted bucket: also need KMS key policy allowing Account-A to use the key",
-            "Services that support resource policies: S3, SQS, SNS, KMS, Lambda, API GW, ECR",
-        ],
-        flow: ["Account-A Role", "Identity Policy ✓", "S3 Bucket Policy ✓", "Cross-Account Access ✓"],
-        examTips: [
-            "Same account: identity OR resource policy → ALLOW",
-            "Cross-account: BOTH identity AND resource policy needed",
-            "S3 Block Public Access overrides all permissive policies",
-            "KMS: key policy MUST allow → IAM policy alone is insufficient",
-        ],
-        roleJson: [
-            {
-                label: "S3 Bucket Policy in Account-B (resource-based policy)",
-                note: "Attached directly to the S3 bucket. Grants Account-A's ETL role read access to this bucket.",
-                code: `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:iam::ACCOUNT-A-ID:role/ETL-Role"
-      },
-      "Action": [
-        "s3:GetObject",
-        "s3:ListBucket"
-      ],
-      "Resource": [
-        "arn:aws:s3:::data-lake-bucket",
-        "arn:aws:s3:::data-lake-bucket/*"
-      ]
-    }
-  ]
-}`,
-            },
-            {
-                label: "Identity Policy on ETL-Role in Account-A",
-                note: "Both this AND the bucket policy must exist for cross-account access. Either alone is insufficient.",
-                code: `{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:ListBucket"
-      ],
-      "Resource": [
-        "arn:aws:s3:::data-lake-bucket",
-        "arn:aws:s3:::data-lake-bucket/*"
-      ]
-    }
-  ]
-}`,
-            },
-        ],
-    },
-];
-
-const evalSteps = [
-    {
-        step: "1", label: "Explicit DENY anywhere?",
-        yes: "DENIED → always wins, no exceptions", no: "Continue →", type: "deny",
-        details: {
-            what: "An explicit Deny is a policy statement with \"Effect\": \"Deny\". AWS evaluates every attached policy, and if any one of them contains an explicit Deny for the action, access is blocked immediately — no other policy can override it.",
-            where: "Any policy type can carry an explicit Deny: identity policies (users, groups, roles), resource-based policies (S3, SQS), SCPs (AWS Organizations), and Permission Boundaries.",
-            tip: "Use explicit Denies to enforce non-negotiable guardrails — e.g. block access outside approved regions, prevent deletion of production resources, or lock down root account actions.",
-            sample: `{
-  "Effect": "Deny",
-  "Action": "s3:DeleteBucket",
-  "Resource": "*",
-  "Condition": {
-    "StringNotEquals": {
-      "aws:RequestedRegion": "us-east-1"
-    }
-  }
-}`,
-            sampleNote: "Denies S3 bucket deletion in every region except us-east-1 — overrides any Allow policies that exist."
-        }
-    },
-    {
-        step: "2", label: "SCP (Org) blocks action?",
-        yes: "DENIED → SCP caps max permissions", no: "Continue →", type: "check",
-        details: {
-            what: "Service Control Policies (SCPs) are organization-level guardrails attached via AWS Organizations. They define the ceiling of permissions any identity in an account can ever have. SCPs do NOT grant permissions — they only restrict what can be granted.",
-            where: "AWS Organizations console → Policies → Service Control Policies. Attach to the Organization Root, an OU (Organizational Unit), or a specific member account.",
-            tip: "An SCP of Allow * plus an identity policy of Allow S3 = S3 access allowed. But an SCP that Denies EC2 means no one in that account can use EC2, even if identity policies grant it.",
-            sample: `{
-  "Effect": "Deny",
-  "Action": "*",
-  "Resource": "*",
-  "Condition": {
-    "StringNotEquals": {
-      "aws:RequestedRegion": [
-        "us-east-1",
-        "eu-west-1"
-      ]
-    }
-  }
-}`,
-            sampleNote: "Blocks all API calls made outside us-east-1 and eu-west-1 for every identity in the account."
-        }
-    },
-    {
-        step: "3", label: "Permission Boundary set & blocks?",
-        yes: "DENIED → boundary limits scope", no: "Continue →", type: "check",
-        details: {
-            what: "A Permission Boundary is an IAM managed policy attached to a user or role as their 'maximum allowed permissions'. The effective permissions are the intersection of what the identity policy allows AND what the boundary allows. If the boundary doesn't include an action, that action is denied — even if the identity policy grants it.",
-            where: "IAM console → Users or Roles → 'Permissions boundary' tab → Set boundary. Commonly used to delegate safe IAM user/role creation to developers without letting them escalate their own privileges.",
-            tip: "If a developer's identity policy allows iam:CreateRole but the boundary doesn't include IAM permissions, they cannot create roles. Boundaries are invisible guardrails — users don't see them but they feel the effect.",
-            sample: `// Boundary policy (limits the role to S3 + EC2 only)
-{
-  "Effect": "Allow",
-  "Action": ["s3:*", "ec2:*"],
-  "Resource": "*"
-}
-
-// Identity policy (grants S3 + DynamoDB)
-{
-  "Effect": "Allow",
-  "Action": ["s3:*", "dynamodb:*"],
-  "Resource": "*"
-}
-
-// Effective permissions = intersection = S3 only
-// DynamoDB is blocked by boundary
-// EC2 is blocked by identity policy`,
-            sampleNote: "Effective permissions = identity policy ∩ boundary. DynamoDB and EC2 cancel out."
-        }
-    },
-    {
-        step: "4", label: "Resource-based policy allows?",
-        yes: "ALLOWED ✓", no: "Continue →", type: "allow",
-        details: {
-            what: "Resource-based policies are attached directly to AWS resources (S3 buckets, SQS queues, KMS keys, Lambda functions, etc.). They specify which principals can access that resource and what actions they can perform. For same-account access, a resource policy alone is enough to grant access.",
-            where: "Configured per-resource: S3 → Bucket Policy tab, SQS → Access Policy, KMS → Key Policy, Lambda → Configuration → Permissions → Resource-based policy, SNS → Access Policy, API Gateway → Resource Policy.",
-            tip: "Cross-account: BOTH the resource policy AND the caller's identity policy must allow the action. Same-account: either one is sufficient. KMS is the exception — key policy must always explicitly allow, even same-account.",
-            sample: `// S3 Bucket Policy (attached to the bucket)
-{
-  "Effect": "Allow",
-  "Principal": {
-    "AWS": "arn:aws:iam::111122223333:role/ETL-Role"
-  },
-  "Action": ["s3:GetObject", "s3:ListBucket"],
-  "Resource": [
-    "arn:aws:s3:::data-lake-bucket",
-    "arn:aws:s3:::data-lake-bucket/*"
-  ]
-}`,
-            sampleNote: "Grants the ETL-Role in account 111122223333 read access to this bucket."
-        }
-    },
-    {
-        step: "5", label: "Identity policy allows?",
-        yes: "ALLOWED ✓", no: "Continue →", type: "allow",
-        details: {
-            what: "Identity-based policies are attached to IAM identities — users, groups, or roles. They define what actions that identity is permitted to perform and on which resources. These are the most common policy type you'll work with.",
-            where: "IAM console → Users / Groups / Roles → Permissions tab → Add permissions → Attach managed policy or create inline policy. Can also be applied via IaC (CDK, CloudFormation, Terraform).",
-            tip: "Managed policies (AWS or customer) can be reused across multiple identities. Inline policies are embedded in a single identity and deleted with it. Prefer managed policies for consistency and auditability.",
-            sample: `// Inline policy on an IAM Role
-{
-  "Effect": "Allow",
-  "Action": [
-    "s3:GetObject",
-    "s3:PutObject"
-  ],
-  "Resource": "arn:aws:s3:::my-app-bucket/*"
-}
-
-// Another statement in the same policy
-{
-  "Effect": "Allow",
-  "Action": "dynamodb:PutItem",
-  "Resource": "arn:aws:dynamodb:us-east-1:*:table/Orders"
-}`,
-            sampleNote: "Role can read/write a specific S3 bucket and write to a specific DynamoDB table — nothing else."
-        }
-    },
-    {
-        step: "6", label: "No explicit allow found",
-        yes: "IMPLICIT DENY → default fallback", no: "", type: "deny",
-        details: {
-            what: "AWS uses a default-deny model. If no policy explicitly grants an Allow for the requested action, the request is implicitly denied. You never need to write a Deny statement to block everything — silence means no access.",
-            where: "This is not configured anywhere — it is AWS's built-in default behavior. It is the reason the principle of least privilege works: start with zero permissions and grant only what is explicitly needed.",
-            tip: "Implicit Deny vs Explicit Deny: both result in 'Access Denied' to the caller, but internally they're different. An explicit Deny cannot be overridden by any Allow. An implicit Deny can be overridden simply by adding an Allow. Always prefer explicit Denies for security-critical restrictions.",
-            sample: `// No policy attached to a new IAM user
-// → ALL actions are implicitly denied by default
-
-// Once you attach this policy:
-{
-  "Effect": "Allow",
-  "Action": "s3:ListAllMyBuckets",
-  "Resource": "*"
-}
-// → ONLY s3:ListAllMyBuckets is allowed
-// → Everything else remains implicitly denied`,
-            sampleNote: "New IAM identities have zero permissions. Every Allow you add carves out an explicit exception from the implicit deny baseline."
-        }
-    },
-];
-
-const stsApis = [
-    { name: "AssumeRole", color: ACCENT.primary, who: "IAM users / roles", useCase: "Dev assumes prod role. MFA-enforced access. Cross-account deployments." },
-    { name: "AssumeRoleWithSAML", color: ACCENT.orange, who: "SAML federated users", useCase: "Corp AD users (via ADFS) logging into AWS Console or CLI." },
-    { name: "AssumeRoleWithWebIdentity", color: ACCENT.green, who: "OIDC / web identity users", useCase: "Mobile app users (Google/Facebook login) → use Cognito instead directly." },
-    { name: "GetSessionToken", color: ACCENT.purple, who: "IAM or root user", useCase: "Enforce MFA for CLI access. Root user creating temp creds." },
-];
-
-const keyNumbers = [
-    { num: "5,000", label: "IAM users / account", color: ACCENT.primary, note: "Use federation for large orgs" },
-    { num: "2", label: "Access keys / user", color: ACCENT.teal, note: "Rotate: deactivate old, create new, delete old" },
-    { num: "1", label: "Role / EC2 instance", color: ACCENT.amber, note: "Can change role without stopping instance" },
-    { num: "10", label: "Managed policies / entity", color: ACCENT.orange, note: "Hard limit → plan your policy structure" },
-    { num: "1 hr", label: "Default STS duration", color: ACCENT.purple, note: "Min 15min, max 12hr for roles" },
-    { num: "36 hr", label: "Root user STS max", color: ACCENT.pink, note: "GetSessionToken for root" },
-    { num: "Global", label: "IAM service scope", color: ACCENT.green, note: "Not replicated per region" },
-    { num: "Free", label: "IAM cost", color: ACCENT.slate, note: "No charge for IAM itself" },
-];
+import { ACCENT } from "../../data/aws-exam/constants";
+import scenarios from "../../data/aws-exam/iam/scenarios";
+import evalSteps from "../../data/aws-exam/iam/evalSteps";
+import stsApis from "../../data/aws-exam/iam/stsApis";
+import keyNumbers from "../../data/aws-exam/iam/keyNumbers";
 
 /* ── Compact scenario card — click opens modal ── */
 function ScenarioCard({ s, onOpen }) {
@@ -746,6 +78,7 @@ function ScenarioModal({ scenario: s, onClose }) {
     const isDark = theme.palette.mode === 'dark';
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [expanded, setExpanded] = useState(false);
+    const [showJson, setShowJson] = useState(false);
     const isFullScreen = isMobile || expanded;
     const subBg = isDark ? alpha('#000', 0.35) : theme.palette.grey[50];
     const codeBg = isDark ? '#0d1117' : '#1a1f2e';
@@ -787,10 +120,7 @@ function ScenarioModal({ scenario: s, onClose }) {
                                 '&:hover': { backgroundColor: isDark ? alpha('#fff', 0.12) : alpha('#000', 0.1) },
                             }}
                         >
-                            {expanded
-                                ? <CloseFullscreenIcon fontSize="small" />
-                                : <OpenInFullIcon fontSize="small" />
-                            }
+                            {expanded ? <CloseFullscreenIcon fontSize="small" /> : <OpenInFullIcon fontSize="small" />}
                         </IconButton>
                     )}
                     <IconButton
@@ -896,12 +226,40 @@ function ScenarioModal({ scenario: s, onClose }) {
 
                 <Divider sx={{ mb: 3 }} />
 
-                {/* ── Build Steps ── */}
+                {/* ── Build Steps + JSON Toggle ── */}
                 <Box mb={3}>
-                    <Typography variant="overline" fontWeight={700}
-                        sx={{ color: s.color, letterSpacing: '0.12em', display: 'block', mb: 2 }}>
-                        🛠️ How to Build This System
-                    </Typography>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+                        <Typography variant="overline" fontWeight={700}
+                            sx={{ color: s.color, letterSpacing: '0.12em' }}>
+                            🛠️ How to Build This System
+                        </Typography>
+                        {s.roleJson && s.roleJson.length > 0 && (
+                            <Button
+                                size="small"
+                                variant={showJson ? "contained" : "outlined"}
+                                onClick={() => setShowJson(prev => !prev)}
+                                sx={{
+                                    borderRadius: 2,
+                                    textTransform: 'none',
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
+                                    px: 1.5, py: 0.5,
+                                    minWidth: 'unset',
+                                    borderColor: s.color,
+                                    color: showJson ? '#fff' : s.color,
+                                    backgroundColor: showJson ? s.color : 'transparent',
+                                    '&:hover': {
+                                        backgroundColor: showJson ? alpha(s.color, 0.85) : alpha(s.color, 0.1),
+                                        borderColor: s.color,
+                                    },
+                                }}
+                            >
+                                {'{ } JSON'}
+                            </Button>
+                        )}
+                    </Stack>
+
                     <Stack spacing={1.25}>
                         {s.buildSystem.map((step, i) => (
                             <Stack key={i} direction="row" gap={1.5} alignItems="flex-start">
@@ -917,6 +275,48 @@ function ScenarioModal({ scenario: s, onClose }) {
                             </Stack>
                         ))}
                     </Stack>
+
+                    {/* ── JSON Policy Examples ── */}
+                    {showJson && s.roleJson && (
+                        <Box mt={2.5}>
+                            <Typography variant="caption" color="text.disabled" fontWeight={700}
+                                sx={{ letterSpacing: '0.1em', display: 'block', mb: 2 }}>
+                                IAM POLICY EXAMPLES
+                            </Typography>
+                            <Stack spacing={2}>
+                                {s.roleJson.map((entry, i) => (
+                                    <Box key={i}>
+                                        <Typography variant="caption" fontWeight={700}
+                                            sx={{ color: s.color, letterSpacing: '0.06em', display: 'block', mb: 0.75 }}>
+                                            {entry.label}
+                                        </Typography>
+                                        <Box component="pre" sx={{
+                                            fontSize: 11.5,
+                                            color: '#86efac',
+                                            backgroundColor: codeBg,
+                                            p: { xs: 1.5, md: 2 },
+                                            borderRadius: 2,
+                                            overflowX: 'auto',
+                                            lineHeight: 1.7,
+                                            m: 0,
+                                            fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
+                                            border: `1px solid ${alpha(s.color, 0.2)}`,
+                                        }}>
+                                            {entry.code}
+                                        </Box>
+                                        {entry.note && (
+                                            <Stack direction="row" spacing={0.75} mt={0.75} alignItems="flex-start">
+                                                <Typography sx={{ color: ACCENT.amber, fontSize: 13, flexShrink: 0, mt: '1px' }}>💡</Typography>
+                                                <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+                                                    {entry.note}
+                                                </Typography>
+                                            </Stack>
+                                        )}
+                                    </Box>
+                                ))}
+                            </Stack>
+                        </Box>
+                    )}
                 </Box>
 
                 <Divider sx={{ mb: 3 }} />
@@ -1203,7 +603,7 @@ export default function IamScenariosSection({ hideHeader }) {
 
                                 return (
                                     <Box key={i}>
-                                        {/* Connector from previous */}
+                                        {/* Connector */}
                                         <Stack alignItems="flex-start" sx={{ pl: '19px', py: '2px' }}>
                                             <Box sx={{ width: 2, height: 14, backgroundColor: theme.palette.divider }} />
                                             <Typography sx={{ fontSize: 9, color: 'text.disabled', lineHeight: 1, ml: '-4px' }}>▼</Typography>
@@ -1227,7 +627,6 @@ export default function IamScenariosSection({ hideHeader }) {
                                                 },
                                             }}
                                         >
-                                            {/* Question row */}
                                             <Stack direction="row" alignItems="center" spacing={1.25} mb={1.25}>
                                                 <Box sx={{
                                                     width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
@@ -1248,7 +647,6 @@ export default function IamScenariosSection({ hideHeader }) {
                                                 </Typography>
                                             </Stack>
 
-                                            {/* YES / NO outcome boxes */}
                                             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0.75} sx={{ pl: '36px' }}>
                                                 <Box sx={{
                                                     flex: 1,
@@ -1281,7 +679,6 @@ export default function IamScenariosSection({ hideHeader }) {
                                             </Stack>
                                         </Box>
 
-                                        {/* Final outcome marker */}
                                         {isLast && (
                                             <Stack alignItems="flex-start" sx={{ pl: '19px', pt: '4px' }}>
                                                 <Box sx={{ width: 2, height: 10, backgroundColor: theme.palette.divider }} />
@@ -1353,7 +750,7 @@ export default function IamScenariosSection({ hideHeader }) {
                                             borderRadius: 2, p: 1.5, flex: 1, maxWidth: { sm: 420 }
                                         }}>
                                             <Typography variant="caption" color="text.disabled" display="block" mb={0.5} sx={{ letterSpacing: '0.06em' }}>
-                                                REAL-WORLD USE CASE
+                                                MARKETPLACE USE CASE
                                             </Typography>
                                             <Typography variant="body2" sx={{ lineHeight: 1.6 }}>{api.useCase}</Typography>
                                         </Box>
@@ -1379,11 +776,13 @@ export default function IamScenariosSection({ hideHeader }) {
   "Statement": [{
     "Effect": "Allow",
     "Principal": {
-      "AWS": "arn:aws:iam::ACCOUNT-A:user/DevOpsUser"
+      "AWS": "arn:aws:iam::MARKETPLACE-ACCT:role/Marketplace-DeploymentAgent-Role"
     },
     "Action": "sts:AssumeRole",
     "Condition": {
-      "Bool": { "aws:MultiFactorAuthPresent": "true" }
+      "StringEquals": {
+        "sts:ExternalId": "marketplace-deploy-secret-token-xyz"
+      }
     }
   }]
 }`}
