@@ -183,6 +183,8 @@ aws s3api delete-object \\
             "Enable Replication Time Control (RTC) if SLA of 15-minute replication is required for DR",
             "Note: existing objects are NOT automatically replicated — use S3 Batch Replication to replicate pre-existing objects",
             "For cross-account CRR, add a bucket policy on the destination granting the replication role from the source account write permissions",
+            "SSE-KMS + CRR: grant marketplace-s3-replication-role two KMS permissions — kms:GenerateDataKey on the source bucket's key (to decrypt during replication read) AND kms:Encrypt on the destination bucket's key (to re-encrypt the object at the destination region); without both, replication silently fails for KMS-encrypted objects",
+            "If the security policy mandates the SAME key material in both regions: create a KMS Multi-Region Primary Key (MRK) in ap-southeast-1 and replicate it to ap-south-1 (mrk- prefix); configure the source bucket with the primary MRK and the destination bucket with the replica MRK — both share identical key material and key ID so data encrypted in one region is decryptable in the other",
         ],
         flow: ["Source (ap-southeast-1)", "marketplace-s3-replication-role", "CRR Rule", "Asynchronous replication", "Destination (ap-south-1)"],
         examTips: [
@@ -191,6 +193,8 @@ aws s3api delete-object \\
             "Delete markers are NOT replicated by default in CRR — you must explicitly enable delete marker replication in the replication rule",
             "For cross-account CRR, the destination bucket policy must grant the source account's replication role permission to write objects; the ACL is owned by the destination account",
             "Replication Time Control (RTC) adds a 99.99% SLA for replication within 15 minutes and provides replication metrics in CloudWatch — it has an additional cost",
+            "SSE-KMS + CRR KEY TRAP: the replication IAM role needs kms:GenerateDataKey on the SOURCE key (decrypt read) AND kms:Encrypt on the DESTINATION key (re-encrypt write) — these are two different KMS permissions on two different keys; omitting either causes replication to fail silently",
+            "KMS Multi-Region Keys (MRK) + S3 GOTCHA: S3 currently treats MRKs as though they were single-region keys — it does NOT skip the regional KMS call even though key material is shared; the benefit is only that data encrypted with the primary MRK in region A can be decrypted with the replica MRK in region B (same key material/ID) satisfying a 'same key' compliance requirement — but S3 still calls the local KMS endpoint in each region",
         ],
         roleJson: [
             {
