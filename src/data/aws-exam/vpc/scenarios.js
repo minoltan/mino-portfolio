@@ -891,6 +891,156 @@ const subnetShare = new ram.CfnResourceShare(this, 'MarketplaceSubnetShare', {
             },
         ],
     },
+
+    {
+        id: 10,
+        analogy: "Think of it like a two-door office building — the front door (Security Group A) faces the street and lets in any visitor with a valid appointment (HTTPS on port 443). The server room door (Security Group B) is deep inside the building and will only open for a badge that was issued at the front door — not for anyone who walked in through the car park, a window, or a side entrance. The badge is the security group itself, not the floor they came from.",
+        icon: "🔒",
+        color: ACCENT.teal,
+        tag: "SCENARIO 10",
+        title: "Two-Tier Security Group Chaining",
+        subtitle: "Most secure web-to-database SG design — referencing SG-A as the source in SG-B",
+        useCase: {
+            title: "AMI PVT LTD Marketplace — locking the MSSQL database tier so only web-tier EC2s can connect, blocking all other sources including the internet",
+            story: "AMI PVT LTD acquired a startup whose flagship product ran on a classic two-tier architecture: IIS web servers in public subnets (ap-southeast-1a and ap-southeast-1b) listening on port 443, backed by MSSQL database instances in private subnets listening on port 1433. The DevOps team migrates this architecture into marketplace-vpc and must configure the most secure Security Group rules. Security Group A (marketplace-web-sg) is assigned to all web server EC2 instances. Security Group B (marketplace-db-sg) is assigned to all MSSQL EC2 instances. The exam question tests whether the team knows to reference SG-A as the inbound source in SG-B — instead of using a VPC CIDR — so only instances wearing SG-A can ever reach the database on port 1433, regardless of which subnet or IP they come from.",
+            diagram: [
+                { actor: "Internet (0.0.0.0/0)", icon: "🌐" },
+                { arrow: "SG-A inbound: allow TCP 443 from 0.0.0.0/0" },
+                { actor: "Web Server EC2 — public subnets AZ-a & AZ-b [ Security Group A ]", icon: "🖥️" },
+                { arrow: "SG-B inbound: allow TCP 1433 from Security Group A (SG reference, not CIDR)" },
+                { actor: "MSSQL Database EC2 — private subnets AZ-a & AZ-b [ Security Group B ]", icon: "🗄️" },
+            ],
+        },
+        buildSystem: [
+            "Create Security Group A (marketplace-web-sg): inbound TCP 443 from 0.0.0.0/0 — web servers must accept HTTPS from the public internet; outbound allow all (default)",
+            "Create Security Group B (marketplace-db-sg): inbound TCP 1433 from SOURCE = marketplace-web-sg (SG reference) — only EC2 instances assigned SG-A can reach the database; outbound allow all (default)",
+            "Never use the VPC CIDR (e.g. 10.0.0.0/16) as the source in SG-B — this would allow every resource in the VPC (bastion hosts, Lambda, other EC2s) to reach the MSSQL port, not just web servers",
+            "Never use 0.0.0.0/0 as the source on port 1433 in SG-B — this exposes the database directly to the internet",
+            "Confirm SGs are stateful: when a web server EC2 (SG-A) initiates a connection to MSSQL port 1433, the response traffic back on the ephemeral port is automatically allowed — no explicit outbound rule on SG-B needed",
+            "Apply SG-A to all web tier instances at launch using the --security-group-ids parameter or via the Launch Template; apply SG-B to all database instances",
+            "Optionally add a separate outbound rule on SG-A to explicitly allow TCP 1433 to SG-B (best-practice explicit allow) — even though outbound is open by default, explicit rules document intent",
+            "Verify with VPC Reachability Analyzer: source = web EC2, destination = DB EC2 port 1433 → should show REACHABLE; source = internet gateway, destination = DB EC2 port 1433 → should show NOT REACHABLE",
+        ],
+        flow: ["Internet → SG-A (port 443 allowed)", "Web Server EC2 (wears SG-A)", "SG-B source = SG-A (port 1433)", "MSSQL DB EC2 (wears SG-B)", "Response auto-allowed (stateful)"],
+        examTips: [
+            "MOST SECURE answer = SG-B inbound allows port 1433 from Security Group A (SG reference) — this means ONLY instances wearing SG-A can reach the DB, regardless of IP, subnet, or AZ",
+            "Using a VPC CIDR as the SG-B source is LESS SECURE — any resource in the VPC (not just web servers) could reach the database; always use an SG reference for inter-tier rules",
+            "Security groups are STATEFUL — if a web server initiates a TCP connection to the DB on port 1433, the return packets on the ephemeral port (1024–65535) are automatically allowed back; no outbound rule on SG-B is required",
+            "Security group rules are ALWAYS PERMISSIVE — you cannot write a DENY rule in a security group; to block traffic you must simply not add an ALLOW rule (unlike NACLs which support explicit DENY)",
+            "The correct two answers for this type of exam question are always: (1) SG-A inbound port 443 from 0.0.0.0/0, and (2) SG-B inbound port 1433 from SG-A — not from a CIDR range",
+        ],
+        roleJson: [
+            {
+                label: "AWS CLI — create SG-A (web, port 443) and SG-B (MSSQL port 1433 from SG-A only)",
+                note: "💡 In --ip-permissions, use UserIdGroupPairs with the GroupId of SG-A as the source for SG-B — this is the SG reference that makes the rule follow the security group, not a static IP range.",
+                code: `# Step 1 — Create Security Group A for web servers
+aws ec2 create-security-group \\
+  --group-name marketplace-web-sg \\
+  --description "Web tier — allow HTTPS from internet" \\
+  --vpc-id vpc-marketplace123 \\
+  --region ap-southeast-1
+# Returns: sg-WEBSGID
+
+# Step 2 — Allow inbound HTTPS (port 443) from the internet on SG-A
+aws ec2 authorize-security-group-ingress \\
+  --group-id sg-WEBSGID \\
+  --protocol tcp \\
+  --port 443 \\
+  --cidr 0.0.0.0/0 \\
+  --region ap-southeast-1
+
+# Step 3 — Create Security Group B for MSSQL database instances
+aws ec2 create-security-group \\
+  --group-name marketplace-db-sg \\
+  --description "DB tier — allow MSSQL from web SG only" \\
+  --vpc-id vpc-marketplace123 \\
+  --region ap-southeast-1
+# Returns: sg-DBSGID
+
+# Step 4 — Allow inbound MSSQL (port 1433) from SG-A ONLY (SG reference — not CIDR)
+aws ec2 authorize-security-group-ingress \\
+  --group-id sg-DBSGID \\
+  --ip-permissions '[{
+    "IpProtocol": "tcp",
+    "FromPort": 1433,
+    "ToPort": 1433,
+    "UserIdGroupPairs": [{
+      "GroupId": "sg-WEBSGID",
+      "Description": "MSSQL from marketplace-web-sg only — never from 0.0.0.0/0"
+    }]
+  }]' \\
+  --region ap-southeast-1
+
+# Verify rules — confirm no 0.0.0.0/0 or VPC CIDR source on port 1433
+aws ec2 describe-security-groups \\
+  --group-ids sg-DBSGID \\
+  --query 'SecurityGroups[0].IpPermissions' \\
+  --region ap-southeast-1`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — SG-A (web port 443) and SG-B (MSSQL port 1433 from SG-A reference)",
+                note: "💡 Pass the SecurityGroup object directly as the peer in addIngressRule() — CDK translates this to a UserIdGroupPairs reference in CloudFormation, not a hardcoded CIDR.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { Construct } from 'constructs';
+
+export class MarketplaceTwoTierSgStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const vpc = ec2.Vpc.fromLookup(this, 'MarketplaceVpc', { vpcName: 'marketplace-vpc' });
+
+    // Security Group A — web servers in public subnets, accept HTTPS from internet
+    const webSg = new ec2.SecurityGroup(this, 'WebSg', {
+      vpc,
+      securityGroupName: 'marketplace-web-sg',
+      description: 'Web tier EC2 — allow HTTPS 443 from internet',
+      allowAllOutbound: true,
+    });
+    webSg.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(443),
+      'Allow HTTPS from internet'
+    );
+
+    // Security Group B — MSSQL database in private subnets
+    // Source is webSg (SG object reference) — NOT a CIDR, NOT 0.0.0.0/0
+    const dbSg = new ec2.SecurityGroup(this, 'DbSg', {
+      vpc,
+      securityGroupName: 'marketplace-db-sg',
+      description: 'DB tier EC2 — allow MSSQL 1433 from web SG only',
+      allowAllOutbound: true,
+    });
+    dbSg.addIngressRule(
+      webSg,                    // SG reference — only instances wearing webSg can connect
+      ec2.Port.tcp(1433),
+      'Allow MSSQL from marketplace-web-sg only'
+    );
+
+    // Launch web server in public subnet with SG-A
+    new ec2.Instance(this, 'WebServer', {
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
+      machineImage: ec2.MachineImage.latestWindows(ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_BASE),
+      securityGroup: webSg,
+      vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
+    });
+
+    // Launch MSSQL server in private subnet with SG-B
+    new ec2.Instance(this, 'MssqlServer', {
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R6I, ec2.InstanceSize.LARGE),
+      machineImage: ec2.MachineImage.latestWindows(ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_BASE),
+      securityGroup: dbSg,
+      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+    });
+  }
+}`,
+            },
+        ],
+    },
 ];
 
 export default scenarios;
