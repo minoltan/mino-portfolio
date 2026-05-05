@@ -790,6 +790,187 @@ const financeWorkgroup = new athena.CfnWorkGroup(this, 'MarketplaceFinanceWg', {
             },
         ],
     },
+
+    {
+        id: 7,
+        analogy: "Think of it like a library's cross-reference web — instead of looking up books in a flat catalogue, imagine every book is physically connected by string to every book it cites, every book those books cite, and every reader who checked out both. Following the strings in any direction instantly finds patterns — 'readers who liked this also liked that' — that a rows-and-columns table can never express efficiently.",
+        icon: "🕸️",
+        color: ACCENT.pink,
+        tag: "SCENARIO 7",
+        title: "Amazon Neptune",
+        subtitle: "Graph database for tool dependency and co-purchase recommendation graphs",
+        useCase: {
+            title: "AMI PVT LTD Marketplace — Neptune storing tool-to-tool PURCHASED_WITH edges for 'Works Well With' recommendations",
+            story: "AMI PVT LTD has 10,000+ tools in the marketplace. Tools can depend on other tools (a CI/CD pipeline tool requires a version control integration; a monitoring tool pairs with an alerting tool). Buyers who purchase tool A frequently also buy tool B. The product team builds a 'Works Well With' recommendation panel on each tool detail page. A relational approach would require multiple recursive CTEs and self-joins — prohibitively expensive at scale. AMI PVT LTD deploys marketplace-tool-graph (Neptune r6g.large cluster in marketplace-vpc private subnets). Tool nodes are vertices with properties: toolId, name, category. Relationships are directed edges: DEPENDS_ON (tool → tool), PURCHASED_WITH (tool ↔ tool, weight = co-purchase count). When a buyer views tool T, a Gremlin traversal finds tools connected by PURCHASED_WITH edges with weight > 5 within 2 hops, sorted by weight descending — returning the top 5 recommendations in under 20 ms. Spring Boot calls Neptune's Gremlin HTTPS endpoint (port 8182) using IAM SigV4-signed requests from within marketplace-vpc.",
+            diagram: [
+                { actor: "Buyer views tool detail page", icon: "🌐" },
+                { arrow: "GET /tools/{id}/recommendations" },
+                { actor: "marketplace-api (Spring Boot, marketplace-vpc)", icon: "🏢" },
+                { arrow: "Gremlin traversal over HTTPS port 8182 (SigV4 signed)" },
+                { actor: "marketplace-tool-graph (Neptune r6g.large, private subnets)", icon: "🕸️" },
+                { arrow: "2-hop PURCHASED_WITH traversal ranked by edge weight (< 20 ms)" },
+                { actor: "Top 5 tool IDs → enriched from DynamoDB Products table", icon: "⚡" },
+            ],
+        },
+        buildSystem: [
+            "Create Neptune DB subnet group marketplace-neptune-subnet-group: include private subnets in ap-southeast-1a and ap-southeast-1b so Neptune deploys a writer and reader in separate AZs for HA",
+            "Create Neptune cluster marketplace-tool-graph: engine=neptune 1.2.x, db.r6g.large writer, iamAuth=true (SigV4-signed requests only — no username/password), backupRetentionPeriod=7, storageEncrypted=true",
+            "Create Security Group marketplace-neptune-sg: allow port 8182 inbound from marketplace-api-sg only; Neptune has no public endpoint — all access must originate from within marketplace-vpc",
+            "Grant IAM access: attach neptune-db:connect policy to Marketplace-API-EC2-Role scoped to the cluster ARN — Spring Boot uses the Gremlin Java driver with SigV4 signing via the AWS SDK CredentialsProvider",
+            "Bulk load initial graph data: upload Gremlin CSV vertex files (tools) and edge files (PURCHASED_WITH, DEPENDS_ON) to s3://marketplace-staging-bucket/graph-data/; call the Neptune loader REST API endpoint from within VPC to ingest millions of edges in minutes",
+            "Implement the Gremlin recommendation query in Spring Boot: g.V().has('Tool','toolId', toolId).out('PURCHASED_WITH').order().by('weight', Order.desc).limit(5).values('toolId') — returns co-purchased tool IDs within 2 hops sorted by co-purchase frequency",
+            "Enable Neptune Streams: every graph mutation (addV, addE, dropE) is published to a change log; consume the stream via Lambda to invalidate the ElastiCache Redis recommendation cache when the graph changes",
+            "Monitor with CloudWatch: track GremlinRequestsPerSec, MainRequestThrottled, BufferCacheHitRatio (target > 99%), and GremlinWebSocketOpenConnections — add a Neptune reader instance when read latency exceeds 10 ms p99",
+        ],
+        flow: ["Graph data bulk loaded from S3", "Buyer views tool", "Gremlin 2-hop traversal", "PURCHASED_WITH edges ranked by weight", "Top 5 recommendations returned"],
+        examTips: [
+            "Neptune supports two query languages: Gremlin (Property Graph — Apache TinkerPop) for application relationship data and SPARQL (RDF) for semantic/linked data — choose Gremlin for social, recommendation, fraud, and dependency graphs",
+            "Neptune is NOT a replacement for relational or key-value stores — use it when relationships between entities ARE the data (social graphs, recommendation engines, fraud detection rings, network topology, knowledge graphs)",
+            "Neptune is VPC-only with no public endpoint — all connections must come from within the same VPC or a peered/Transit Gateway connected VPC; access via EC2, Lambda, ECS containers, or on-premises Direct Connect",
+            "Neptune uses IAM authentication with SigV4 request signing — there is no built-in username/password; grant access via neptune-db:connect IAM policy scoped to the specific cluster ARN",
+            "Neptune bulk loader reads Gremlin CSV or RDF files from S3 — it is the fastest way to seed a large graph (millions of edges in minutes); incremental graph changes use Gremlin addV(), addE(), property() traversal mutations",
+        ],
+        roleJson: [
+            {
+                label: "AWS CLI — create Neptune cluster, grant IAM access, and initiate S3 bulk load",
+                note: "💡 Set --iam-auth on the cluster and restrict the Neptune security group to your app's security group — Neptune has no built-in password; IAM auth + network isolation are the two primary security controls.",
+                code: `# Create Neptune DB subnet group (subnets in 2 AZs for multi-AZ HA)
+aws neptune create-db-subnet-group \\
+  --db-subnet-group-name marketplace-neptune-subnet-group \\
+  --db-subnet-group-description "Neptune private subnets for marketplace-tool-graph" \\
+  --subnet-ids subnet-private-1a subnet-private-1b \\
+  --region ap-southeast-1
+
+# Create Neptune cluster — IAM auth enabled, no password
+aws neptune create-db-cluster \\
+  --db-cluster-identifier marketplace-tool-graph \\
+  --engine neptune \\
+  --engine-version 1.2.1.0 \\
+  --db-subnet-group-name marketplace-neptune-subnet-group \\
+  --vpc-security-group-ids sg-neptune123 \\
+  --iam-auth \\
+  --backup-retention-period 7 \\
+  --storage-encrypted \\
+  --region ap-southeast-1
+
+# Create writer instance
+aws neptune create-db-instance \\
+  --db-instance-identifier marketplace-tool-graph-writer \\
+  --db-cluster-identifier marketplace-tool-graph \\
+  --db-instance-class db.r6g.large \\
+  --engine neptune \\
+  --region ap-southeast-1
+
+# Get Gremlin endpoint (port 8182)
+aws neptune describe-db-clusters \\
+  --db-cluster-identifier marketplace-tool-graph \\
+  --query 'DBClusters[0].{Endpoint:Endpoint,Reader:ReaderEndpoint,Status:Status}' \\
+  --region ap-southeast-1
+
+# IAM policy — allow marketplace-api-ec2-role to connect to Neptune
+aws iam put-role-policy \\
+  --role-name Marketplace-API-EC2-Role \\
+  --policy-name NeptuneConnectPolicy \\
+  --policy-document '{
+    "Version":"2012-10-17",
+    "Statement":[{
+      "Effect":"Allow",
+      "Action":"neptune-db:connect",
+      "Resource":"arn:aws:neptune-db:ap-southeast-1:234567890123:cluster-XXXXXXXX/*"
+    }]
+  }'
+
+# Bulk load graph data from S3 CSV files (call from within marketplace-vpc)
+# curl -X POST https://<neptune-endpoint>:8182/loader
+#   -H 'Content-Type: application/json'
+#   -d '{"source":"s3://marketplace-staging-bucket/graph-data/",
+#         "format":"csv",
+#         "iamRoleArn":"arn:aws:iam::234567890123:role/NeptuneS3LoadRole",
+#         "region":"ap-southeast-1","parallelism":"MEDIUM"}'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — Neptune cluster with IAM auth, Multi-AZ reader, and security group (L1 constructs)",
+                note: "💡 Neptune CDK L2 is in '@aws-cdk/aws-neptune-alpha' (still alpha) — use L1 CfnDBCluster + CfnDBInstance from aws-cdk-lib/aws-neptune for stable production deployments.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as neptune from 'aws-cdk-lib/aws-neptune';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
+
+// Neptune L2 is alpha — use L1 CfnDBCluster + CfnDBInstance (aws-cdk-lib/aws-neptune)
+export class MarketplaceNeptuneStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const vpc = ec2.Vpc.fromLookup(this, 'MarketplaceVpc', { vpcName: 'marketplace-vpc' });
+    const privateSubnets = vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS });
+
+    // Security group — port 8182 (Gremlin/SPARQL) from marketplace-api-asg only
+    const neptuneSg = new ec2.SecurityGroup(this, 'NeptuneSg', {
+      vpc,
+      securityGroupName: 'marketplace-neptune-sg',
+      description: 'Neptune — Gremlin access from marketplace-api-asg only',
+    });
+    neptuneSg.addIngressRule(
+      ec2.Peer.securityGroupId('sg-marketplace-api'),
+      ec2.Port.tcp(8182),
+      'Gremlin/SPARQL from marketplace-api-asg'
+    );
+
+    const subnetGroup = new neptune.CfnDBSubnetGroup(this, 'SubnetGroup', {
+      dbSubnetGroupDescription: 'Neptune private subnets for marketplace-tool-graph',
+      dbSubnetGroupName: 'marketplace-neptune-subnet-group',
+      subnetIds: privateSubnets.subnetIds,
+    });
+
+    // Neptune cluster — IAM auth (SigV4 only, no password), encrypted storage
+    const cluster = new neptune.CfnDBCluster(this, 'ToolGraphCluster', {
+      dbClusterIdentifier: 'marketplace-tool-graph',
+      engineVersion: '1.2.1.0',
+      dbSubnetGroupName: subnetGroup.ref,
+      vpcSecurityGroupIds: [neptuneSg.securityGroupId],
+      iamAuthEnabled: true,
+      backupRetentionPeriod: 7,
+      preferredBackupWindow: '02:00-03:00',
+      storageEncrypted: true,
+    });
+
+    // Writer instance
+    new neptune.CfnDBInstance(this, 'ToolGraphWriter', {
+      dbInstanceIdentifier: 'marketplace-tool-graph-writer',
+      dbClusterIdentifier: cluster.ref,
+      dbInstanceClass: 'db.r6g.large',
+    });
+
+    // Reader instance for read scaling (add more readers for higher throughput)
+    new neptune.CfnDBInstance(this, 'ToolGraphReader', {
+      dbInstanceIdentifier: 'marketplace-tool-graph-reader',
+      dbClusterIdentifier: cluster.ref,
+      dbInstanceClass: 'db.r6g.large',
+    });
+
+    // Grant marketplace-api-ec2-role permission to connect (neptune-db:connect)
+    const apiRole = iam.Role.fromRoleName(this, 'ApiRole', 'Marketplace-API-EC2-Role');
+    apiRole.addToPrincipalPolicy(new iam.PolicyStatement({
+      actions: ['neptune-db:connect'],
+      resources: [
+        cdk.Arn.format({
+          service: 'neptune-db', resource: 'cluster-' + cluster.ref, resourceName: '*',
+        }, cdk.Stack.of(this)),
+      ],
+    }));
+
+    new cdk.CfnOutput(this, 'NeptuneEndpoint', {
+      value: cluster.attrEndpoint,
+      description: 'Gremlin endpoint — connect on port 8182 with SigV4 request signing',
+    });
+  }
+}`,
+            },
+        ],
+    },
 ];
 
 export default scenarios;
