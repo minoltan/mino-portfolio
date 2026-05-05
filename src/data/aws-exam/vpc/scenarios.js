@@ -928,6 +928,7 @@ const subnetShare = new ram.CfnResourceShare(this, 'MarketplaceSubnetShare', {
             "Security groups are STATEFUL — if a web server initiates a TCP connection to the DB on port 1433, the return packets on the ephemeral port (1024–65535) are automatically allowed back; no outbound rule on SG-B is required",
             "Security group rules are ALWAYS PERMISSIVE — you cannot write a DENY rule in a security group; to block traffic you must simply not add an ALLOW rule (unlike NACLs which support explicit DENY)",
             "The correct two answers for this type of exam question are always: (1) SG-A inbound port 443 from 0.0.0.0/0, and (2) SG-B inbound port 1433 from SG-A — not from a CIDR range",
+            "Common well-known ports tested in SAA-C03 — HTTP = 80, HTTPS = 443, SSH = 22, RDP = 3389, MySQL/Aurora = 3306, PostgreSQL/Aurora PostgreSQL = 5432, MSSQL = 1433, Oracle = 1521, Redis = 6379, Memcached = 11211, SMTP = 25, DNS = 53 — always match the correct port when writing security group inbound rules",
         ],
         roleJson: [
             {
