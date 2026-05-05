@@ -107,6 +107,42 @@ const scenarios = [
 }`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Engineering IAM Group with MFA-gated policy",
+                note: "Creates the three IAM groups and attaches scoped policies. The MFA condition is embedded inline. Users are added to groups via addUser().",
+                code: `import * as iam from 'aws-cdk-lib/aws-iam';
+
+// Engineering group with MFA-gated access
+const engineeringGroup = new iam.Group(this, 'EngineeringGroup', {
+  groupName: 'Engineering-Group',
+});
+engineeringGroup.addToPolicy(new iam.PolicyStatement({
+  sid: 'MarketplaceEngineeringAccess',
+  effect: iam.Effect.ALLOW,
+  actions: ['ec2:*', 'lambda:*', 'cloudformation:*', 'logs:*', 's3:GetObject', 's3:ListBucket'],
+  resources: ['*'],
+  conditions: { Bool: { 'aws:MultiFactorAuthPresent': 'true' } },
+}));
+
+// Marketplace Ops group
+const opsGroup = new iam.Group(this, 'MarketplaceOpsGroup', {
+  groupName: 'MarketplaceOps-Group',
+});
+opsGroup.addToPolicy(new iam.PolicyStatement({
+  actions: ['s3:GetObject', 's3:PutObject', 's3:ListBucket'],
+  resources: ['arn:aws:s3:::marketplace-products-bucket', 'arn:aws:s3:::marketplace-products-bucket/*'],
+}));
+opsGroup.addToPolicy(new iam.PolicyStatement({
+  actions: ['dynamodb:*'],
+  resources: ['arn:aws:dynamodb:ap-southeast-1:123456789012:table/Products'],
+}));
+
+// Finance group — read-only billing
+const financeGroup = new iam.Group(this, 'FinanceGroup', { groupName: 'Finance-Group' });
+financeGroup.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AWSBillingReadOnlyAccess'));`,
+            },
+        ],
     },
 
     {
@@ -208,6 +244,40 @@ const scenarios = [
     }
   ]
 }`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — EC2 Instance Profile for Spring Boot API",
+                note: "Creates the IAM role with a trust policy for EC2, attaches scoped permissions, and wraps it in an InstanceProfile. Pass this profile to the Launch Template or Instance construct.",
+                code: `import * as iam from 'aws-cdk-lib/aws-iam';
+
+const apiRole = new iam.Role(this, 'MarketplaceApiEc2Role', {
+  roleName: 'Marketplace-API-EC2-Role',
+  assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+});
+
+apiRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['dynamodb:GetItem', 'dynamodb:PutItem', 'dynamodb:UpdateItem', 'dynamodb:Query', 'dynamodb:Scan'],
+  resources: [
+    'arn:aws:dynamodb:ap-southeast-1:123456789012:table/Products',
+    'arn:aws:dynamodb:ap-southeast-1:123456789012:table/Orders',
+  ],
+}));
+apiRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['s3:GetObject', 's3:PutObject', 's3:ListBucket'],
+  resources: ['arn:aws:s3:::marketplace-products-bucket', 'arn:aws:s3:::marketplace-products-bucket/*'],
+}));
+apiRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['sqs:SendMessage', 'sqs:GetQueueAttributes'],
+  resources: ['arn:aws:sqs:ap-southeast-1:123456789012:order-events-queue'],
+}));
+
+// The CfnInstanceProfile is referenced by the Launch Template
+const instanceProfile = new iam.InstanceProfile(this, 'MarketplaceApiInstanceProfile', {
+  instanceProfileName: 'Marketplace-API-EC2-InstanceProfile',
+  role: apiRole,
+});`,
             },
         ],
     },
@@ -316,6 +386,42 @@ const scenarios = [
 }`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Lambda Execution Role for Order Processor",
+                note: "Creates the execution role with AWSLambdaBasicExecutionRole attached plus scoped inline statements for SQS, DynamoDB, S3, and SNS.",
+                code: `import * as iam from 'aws-cdk-lib/aws-iam';
+
+const orderProcessorRole = new iam.Role(this, 'OrderProcessorLambdaRole', {
+  roleName: 'Marketplace-OrderProcessor-Lambda-Role',
+  assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+  managedPolicies: [
+    iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
+  ],
+});
+
+orderProcessorRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['sqs:ReceiveMessage', 'sqs:DeleteMessage', 'sqs:GetQueueAttributes'],
+  resources: ['arn:aws:sqs:ap-southeast-1:123456789012:order-events-queue'],
+}));
+orderProcessorRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['dynamodb:GetItem', 'dynamodb:UpdateItem', 'dynamodb:PutItem'],
+  resources: ['arn:aws:dynamodb:ap-southeast-1:123456789012:table/Orders'],
+}));
+orderProcessorRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['s3:GetObject'],
+  resources: ['arn:aws:s3:::marketplace-tool-artifacts/*'],
+}));
+orderProcessorRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['s3:PutObject'],
+  resources: ['arn:aws:s3:::marketplace-staging-bucket/*'],
+}));
+orderProcessorRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['sns:Publish'],
+  resources: ['arn:aws:sns:ap-southeast-1:123456789012:marketplace-notifications'],
+}));`,
+            },
+        ],
     },
 
     {
@@ -411,6 +517,38 @@ const scenarios = [
     }
   ]
 }`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — SAML-federated IAM roles for Enterprise Viewer and Admin",
+                note: "Registers the SAML provider and creates both federated roles. Replace the metadata XML path with the actual Azure AD federation metadata.",
+                code: `import * as iam from 'aws-cdk-lib/aws-iam';
+import * as fs from 'fs';
+
+const samlProvider = new iam.SamlProvider(this, 'AzureAdSamlProvider', {
+  name: 'AzureAD-FinServCorp',
+  metadataDocument: iam.SamlMetadataDocument.fromXml(
+    fs.readFileSync('saml-metadata/finservcorp-azure-ad-metadata.xml', 'utf8')
+  ),
+});
+
+const viewerRole = new iam.Role(this, 'EnterpriseViewerRole', {
+  roleName: 'Enterprise-Viewer-Role',
+  assumedBy: new iam.SamlConsolePrincipal(samlProvider),
+  maxSessionDuration: cdk.Duration.hours(8),
+});
+viewerRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['dynamodb:GetItem', 'dynamodb:Query', 'dynamodb:Scan'],
+  resources: [
+    'arn:aws:dynamodb:ap-southeast-1:123456789012:table/Products',
+    'arn:aws:dynamodb:ap-southeast-1:123456789012:table/Subscriptions',
+  ],
+}));
+viewerRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['s3:GetObject', 's3:ListBucket'],
+  resources: ['arn:aws:s3:::marketplace-products-bucket', 'arn:aws:s3:::marketplace-products-bucket/*'],
+}));`,
             },
         ],
     },
@@ -531,6 +669,36 @@ const scenarios = [
 }`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Cross-Account Deploy Role in Customer Account-B",
+                note: "Deploy this stack in the customer account (Account B). The ExternalId prevents confused-deputy attacks. The Marketplace account ARN is the trusted principal.",
+                code: `import * as iam from 'aws-cdk-lib/aws-iam';
+
+// Deploy this in the CUSTOMER account (Account B)
+const deployRole = new iam.Role(this, 'MarketplaceDeployRole', {
+  roleName: 'Marketplace-Deploy-Role',
+  assumedBy: new iam.ArnPrincipal(
+    'arn:aws:iam::MARKETPLACE-ACCT-ID:role/Marketplace-DeploymentAgent-Role'
+  ).withConditions({
+    StringEquals: { 'sts:ExternalId': 'marketplace-deploy-secret-token-xyz' },
+  }),
+});
+
+deployRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['cloudformation:CreateStack', 'cloudformation:UpdateStack', 'cloudformation:DescribeStacks'],
+  resources: ['arn:aws:cloudformation:*:*:stack/marketplace-tool-*'],
+}));
+deployRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['lambda:CreateFunction', 'lambda:UpdateFunctionCode', 'lambda:GetFunction', 'lambda:AddPermission'],
+  resources: ['arn:aws:lambda:*:*:function:marketplace-*'],
+}));
+deployRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['dynamodb:CreateTable', 'dynamodb:DescribeTable'],
+  resources: ['arn:aws:dynamodb:*:*:table/marketplace-*'],
+}));`,
+            },
+        ],
     },
 
     {
@@ -615,6 +783,31 @@ const scenarios = [
     }
   ]
 }`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — S3 Bucket Policy granting cross-account read to customer Provisioning Role",
+                note: "Adds a resource-based bucket policy to marketplace-tool-artifacts in Account A. The customer's Provisioning-Service-Role ARN is the grantee.",
+                code: `import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+// Reference the existing artifacts bucket in Account A
+const artifactsBucket = s3.Bucket.fromBucketName(
+  this, 'ArtifactsBucket', 'marketplace-tool-artifacts'
+);
+
+// Grant cross-account read access to the customer's provisioning role
+const customerProvisioningRole = new iam.ArnPrincipal(
+  'arn:aws:iam::CUSTOMER-ACCT-ID:role/Provisioning-Service-Role'
+);
+artifactsBucket.addToResourcePolicy(new iam.PolicyStatement({
+  sid: 'AllowCustomerProvisioning',
+  effect: iam.Effect.ALLOW,
+  principals: [customerProvisioningRole],
+  actions: ['s3:GetObject', 's3:ListBucket'],
+  resources: [artifactsBucket.bucketArn, \`\${artifactsBucket.bucketArn}/*\`],
+}));`,
             },
         ],
     },

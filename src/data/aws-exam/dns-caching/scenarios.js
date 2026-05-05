@@ -88,6 +88,49 @@ aws route53 change-resource-record-sets \\
   }'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — Route 53 latency-based alias records for api.marketplace.ami.com",
+                note: "💡 CDK's route53.LatencyRecord creates the SetIdentifier automatically. Pass the ALB as an AliasRecordTarget for native AWS alias resolution.",
+                code: `import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as targets from 'aws-cdk-lib/aws-route53-targets';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+const hostedZone = route53.HostedZone.fromLookup(this, 'MarketplaceZone', {
+  domainName: 'marketplace.ami.com',
+});
+
+// Latency record — ap-southeast-1 primary ALB
+new route53.ARecord(this, 'ApiLatencyRecordSea', {
+  zone: hostedZone,
+  recordName: 'api',
+  target: route53.RecordTarget.fromAlias(
+    new targets.LoadBalancerTarget(marketplaceAlb) // ap-southeast-1 ALB
+  ),
+  // Latency routing via escape hatch on the underlying CfnRecordSet
+});
+
+// Apply latency routing via CfnRecordSet override
+const cfnRecord = (this.node.findChild('ApiLatencyRecordSea') as route53.ARecord)
+  .node.defaultChild as route53.CfnRecordSet;
+cfnRecord.region = 'ap-southeast-1';
+cfnRecord.setIdentifier = 'ap-southeast-1-primary';
+
+// Weighted record for blue/green rollout (weight=10 for v2 ALB)
+new route53.CfnRecordSet(this, 'ApiWeightedV2', {
+  hostedZoneId: hostedZone.hostedZoneId,
+  name: 'api.marketplace.ami.com.',
+  type: 'A',
+  setIdentifier: 'marketplace-alb-v2',
+  weight: 10,
+  aliasTarget: {
+    hostedZoneId: 'Z1LMS91P8CMLE5',
+    dnsName: marketplaceAlbV2.loadBalancerDnsName,
+    evaluateTargetHealth: true,
+  },
+});`,
+            },
+        ],
     },
 
     {
@@ -163,6 +206,60 @@ aws route53 change-resource-record-sets \\
       }
     }]
   }'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — Route 53 health check and active-passive DNS failover",
+                note: "💡 CDK's route53.CfnHealthCheck creates the health check resource. Failover records (PRIMARY/SECONDARY) are set via CfnRecordSet with the Failover property.",
+                code: `import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as targets from 'aws-cdk-lib/aws-route53-targets';
+
+const hostedZone = route53.HostedZone.fromLookup(this, 'MarketplaceZone', {
+  domainName: 'marketplace.ami.com',
+});
+
+// Health check for marketplace-alb
+const albHealthCheck = new route53.CfnHealthCheck(this, 'MarketplaceAlbHealthCheck', {
+  healthCheckConfig: {
+    type: 'HTTPS',
+    fullyQualifiedDomainName: marketplaceAlb.loadBalancerDnsName,
+    port: 443,
+    resourcePath: '/health',
+    requestInterval: 30,
+    failureThreshold: 3,
+    enableSni: true,
+  },
+});
+
+// PRIMARY failover record — marketplace-alb
+new route53.CfnRecordSet(this, 'MarketplaceFailoverPrimary', {
+  hostedZoneId: hostedZone.hostedZoneId,
+  name: 'marketplace.ami.com.',
+  type: 'A',
+  setIdentifier: 'marketplace-alb-primary',
+  failover: 'PRIMARY',
+  healthCheckId: albHealthCheck.attrHealthCheckId,
+  aliasTarget: {
+    hostedZoneId: 'Z1LMS91P8CMLE5',
+    dnsName: marketplaceAlb.loadBalancerDnsName,
+    evaluateTargetHealth: true,
+  },
+});
+
+// SECONDARY failover record — S3 static maintenance page
+new route53.CfnRecordSet(this, 'MarketplaceFailoverSecondary', {
+  hostedZoneId: hostedZone.hostedZoneId,
+  name: 'marketplace.ami.com.',
+  type: 'A',
+  setIdentifier: 'marketplace-failover-s3',
+  failover: 'SECONDARY',
+  aliasTarget: {
+    hostedZoneId: 'Z3O0J2DXBE1FTB', // S3 website hosted zone for ap-southeast-1
+    dnsName: 'marketplace-failover-bucket.s3-website-ap-southeast-1.amazonaws.com',
+    evaluateTargetHealth: false,
+  },
+});`,
             },
         ],
     },
@@ -242,6 +339,51 @@ aws cloudfront create-distribution \\
     "Comment": "marketplace-cdn",
     "Enabled": true
   }'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — CloudFront distribution with S3 (OAC) and ALB origins for marketplace-cdn",
+                note: "💡 Use S3BucketOrigin.withOriginAccessControl() for OAC (modern replacement for OAI). Set cachePolicy to CACHING_DISABLED for /api/* pass-through.",
+                code: `import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+const productsBucket = s3.Bucket.fromBucketName(
+  this, 'ProductsBucket', 'marketplace-products-bucket'
+);
+
+const distribution = new cloudfront.Distribution(this, 'MarketplaceCdn', {
+  comment: 'marketplace-cdn',
+  defaultBehavior: {
+    // Default: /api/* → ALB (no caching, all methods)
+    origin: new origins.LoadBalancerV2Origin(marketplaceAlb, {
+      protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
+    }),
+    viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+    allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+  },
+  additionalBehaviors: {
+    '/images/*': {
+      origin: origins.S3BucketOrigin.withOriginAccessControl(productsBucket),
+      viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      cachePolicy: new cloudfront.CachePolicy(this, 'ImagesCachePolicy', {
+        defaultTtl: cdk.Duration.days(1),
+        maxTtl: cdk.Duration.days(7),
+        minTtl: cdk.Duration.seconds(0),
+      }),
+      compress: true,
+    },
+    '/static/*': {
+      origin: origins.S3BucketOrigin.withOriginAccessControl(productsBucket),
+      viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+      compress: true,
+    },
+  },
+});`,
             },
         ],
     },
@@ -335,6 +477,49 @@ def generate_cloudfront_signed_url(
     )`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — CloudFront trusted key group for signed URL access to /docs/*",
+                note: "💡 Create a CloudFront Public Key from the console-generated key pair, then associate it with a KeyGroup. Apply the KeyGroup to the /docs/* cache behavior.",
+                code: `import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+
+// Store the CloudFront public key PEM in CDK (the private key goes to Secrets Manager)
+const cfPublicKey = new cloudfront.PublicKey(this, 'MarketplaceCfPublicKey', {
+  publicKeyName: 'marketplace-cloudfront-pubkey',
+  encodedKey: process.env.CF_PUBLIC_KEY_PEM ?? '',  // inject from CI/CD pipeline
+  comment: 'CloudFront signed URL key for marketplace-cdn /docs/* behavior',
+});
+
+const keyGroup = new cloudfront.KeyGroup(this, 'MarketplaceKeyGroup', {
+  keyGroupName: 'marketplace-key-group',
+  items: [cfPublicKey],
+  comment: 'Trusted key group for marketplace-cdn signed URL access',
+});
+
+// /docs/* behavior with signed URL enforcement
+const distribution = new cloudfront.Distribution(this, 'MarketplaceCdn', {
+  comment: 'marketplace-cdn',
+  defaultBehavior: {
+    origin: new origins.LoadBalancerV2Origin(marketplaceAlb, {
+      protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
+    }),
+    viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+  },
+  additionalBehaviors: {
+    '/docs/*': {
+      origin: origins.S3BucketOrigin.withOriginAccessControl(toolArtifactsBucket),
+      viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      // Require signed URL — enforced by CloudFront edge using the key group
+      trustedKeyGroups: [keyGroup],
+      cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+    },
+  },
+});`,
+            },
+        ],
     },
 
     {
@@ -405,6 +590,52 @@ aws globalaccelerator create-endpoint-group \\
     "ClientIPPreservationEnabled": true
   }]' \\
   --region us-west-2`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — Global Accelerator with ALB endpoint groups for ap-southeast-1 (primary) and ap-south-1 (standby)",
+                note: "💡 GlobalAccelerator resources are always created in us-west-2 regardless of your stack region. CDK handles this transparently.",
+                code: `import * as globalaccelerator from 'aws-cdk-lib/aws-globalaccelerator';
+import * as ga_endpoints from 'aws-cdk-lib/aws-globalaccelerator-endpoints';
+
+const accelerator = new globalaccelerator.Accelerator(this, 'MarketplaceGlobalAccelerator', {
+  acceleratorName: 'marketplace-global-accelerator',
+  enabled: true,
+});
+
+const listener = accelerator.addListener('MarketplaceListener', {
+  listenerName: 'marketplace-api-listener',
+  protocol: globalaccelerator.ConnectionProtocol.TCP,
+  portRanges: [
+    { fromPort: 443, toPort: 443 },
+    { fromPort: 80, toPort: 80 },
+  ],
+});
+
+// Primary endpoint group — ap-southeast-1 ALB (traffic dial 100%)
+listener.addEndpointGroup('PrimaryEndpointGroup', {
+  region: 'ap-southeast-1',
+  trafficDialPercentage: 100,
+  endpoints: [
+    new ga_endpoints.ApplicationLoadBalancerEndpoint(marketplaceAlb, {
+      weight: 128,
+      preserveClientIp: true,
+    }),
+  ],
+});
+
+// Standby endpoint group — ap-south-1 DR ALB (traffic dial 0%)
+listener.addEndpointGroup('StandbyEndpointGroup', {
+  region: 'ap-south-1',
+  trafficDialPercentage: 0,
+  endpoints: [
+    new ga_endpoints.ApplicationLoadBalancerEndpoint(marketplaceAlbDr, {
+      weight: 128,
+      preserveClientIp: true,
+    }),
+  ],
+});`,
             },
         ],
     },
@@ -483,6 +714,40 @@ aws route53 change-resource-record-sets \\
       }
     ]
   }'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — Route 53 private hosted zone for internal.marketplace.local with VPC association",
+                note: "💡 Pass the VPC to the PrivateHostedZone constructor to associate it automatically. enableDnsHostnames and enableDnsSupport must be true on the VPC.",
+                code: `import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const marketplaceVpc = ec2.Vpc.fromLookup(this, 'MarketplaceVpc', {
+  vpcName: 'marketplace-vpc',
+});
+
+const privateZone = new route53.PrivateHostedZone(this, 'MarketplacePrivateZone', {
+  zoneName: 'internal.marketplace.local',
+  vpc: marketplaceVpc,
+  comment: 'AMI PVT LTD internal service DNS',
+});
+
+// order-processor A record (internal ALB or service IP)
+new route53.ARecord(this, 'OrderProcessorRecord', {
+  zone: privateZone,
+  recordName: 'order-processor',
+  target: route53.RecordTarget.fromIpAddresses('10.0.10.45'),
+  ttl: cdk.Duration.seconds(60),
+});
+
+// db CNAME record → RDS cluster endpoint
+new route53.CnameRecord(this, 'DbRecord', {
+  zone: privateZone,
+  recordName: 'db',
+  domainName: 'marketplace-rds-primary.cluster-xyz.ap-southeast-1.rds.amazonaws.com',
+  ttl: cdk.Duration.seconds(60),
+});`,
             },
         ],
     },

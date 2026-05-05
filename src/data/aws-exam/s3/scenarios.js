@@ -87,6 +87,61 @@ const scenarios = [
   }'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — S3 bucket with versioning and lifecycle rules",
+                note: "💡 CDK lifecycle rules use the Transitions and NoncurrentVersionTransitions props directly on the Bucket construct — no separate API call needed.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+
+const toolArtifacts = new s3.Bucket(this, 'MarketplaceToolArtifacts', {
+  bucketName: 'marketplace-tool-artifacts',
+  versioned: true,
+  encryption: s3.BucketEncryption.S3_MANAGED,
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+  lifecycleRules: [
+    {
+      id: 'tier-tool-artifacts',
+      enabled: true,
+      transitions: [
+        {
+          storageClass: s3.StorageClass.INFREQUENT_ACCESS,
+          transitionAfter: cdk.Duration.days(90),
+        },
+      ],
+      expiration: cdk.Duration.days(365),
+    },
+    {
+      id: 'archive-audit-logs',
+      enabled: true,
+      prefix: 'audit-logs/',
+      transitions: [
+        {
+          storageClass: s3.StorageClass.GLACIER,
+          transitionAfter: cdk.Duration.days(30),
+        },
+        {
+          storageClass: s3.StorageClass.DEEP_ARCHIVE,
+          transitionAfter: cdk.Duration.days(180),
+        },
+      ],
+    },
+    {
+      id: 'expire-old-versions',
+      enabled: true,
+      noncurrentVersionTransitions: [
+        {
+          storageClass: s3.StorageClass.GLACIER,
+          transitionAfter: cdk.Duration.days(30),
+        },
+      ],
+      noncurrentVersionExpiration: cdk.Duration.days(365),
+    },
+  ],
+});`,
+            },
+        ],
     },
 
     {
@@ -151,6 +206,40 @@ aws s3api delete-object \\
   --key "products/tool-xyz/hero-image.jpg" \\
   --version-id dm-0abc123deleteMarkerVersionId \\
   --mfa "arn:aws:iam::234567890123:mfa/root-account-mfa-device 654321"`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — marketplace-products-bucket with versioning and noncurrent lifecycle",
+                note: "💡 MFA Delete cannot be enabled via CDK or CloudFormation — it requires the root account CLI call. CDK provisions the bucket with versioning only.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+
+const productsBucket = new s3.Bucket(this, 'MarketplaceProductsBucket', {
+  bucketName: 'marketplace-products-bucket',
+  versioned: true,
+  encryption: s3.BucketEncryption.S3_MANAGED,
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+  lifecycleRules: [
+    {
+      id: 'transition-noncurrent-to-ia',
+      enabled: true,
+      noncurrentVersionTransitions: [
+        {
+          storageClass: s3.StorageClass.INFREQUENT_ACCESS,
+          transitionAfter: cdk.Duration.days(30),
+        },
+      ],
+      noncurrentVersionExpiration: cdk.Duration.days(90),
+    },
+  ],
+});
+
+// MFA Delete must be enabled separately using root account credentials:
+// aws s3api put-bucket-versioning --bucket marketplace-products-bucket
+//   --versioning-configuration Status=Enabled,MFADelete=Enabled
+//   --mfa "arn:aws:iam::234567890123:mfa/root-account-mfa-device <TOTP>"`,
             },
         ],
     },
@@ -238,6 +327,57 @@ aws s3api put-bucket-replication \\
   }'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — CRR from marketplace-tool-artifacts (ap-southeast-1) to DR bucket (ap-south-1)",
+                note: "💡 CRR requires both source and destination buckets to have versioning enabled. The replication role is created automatically by CDK when you call addReplicationRule.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+// Source bucket in ap-southeast-1 (this stack)
+const sourceBucket = new s3.Bucket(this, 'MarketplaceToolArtifacts', {
+  bucketName: 'marketplace-tool-artifacts',
+  versioned: true,
+  encryption: s3.BucketEncryption.S3_MANAGED,
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+});
+
+// Destination bucket must be created in a separate stack targeting ap-south-1
+// Here we reference it by ARN using CfnBucket for the replication configuration
+const replicationRole = new iam.Role(this, 'MarketplaceS3ReplicationRole', {
+  roleName: 'marketplace-s3-replication-role',
+  assumedBy: new iam.ServicePrincipal('s3.amazonaws.com'),
+});
+
+replicationRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['s3:GetReplicationConfiguration', 's3:ListBucket'],
+  resources: [sourceBucket.bucketArn],
+}));
+replicationRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['s3:ReplicateObject', 's3:ReplicateDelete', 's3:ReplicateTags'],
+  resources: ['arn:aws:s3:::marketplace-tool-artifacts-dr/*'],
+}));
+
+// Apply CRR via the underlying CfnBucket (CDK L1 escape hatch)
+const cfnSource = sourceBucket.node.defaultChild as s3.CfnBucket;
+cfnSource.replicationConfiguration = {
+  role: replicationRole.roleArn,
+  rules: [{
+    id: 'replicate-all-to-ap-south-1',
+    status: 'Enabled',
+    destination: {
+      bucket: 'arn:aws:s3:::marketplace-tool-artifacts-dr',
+      storageClass: 'STANDARD_IA',
+      replicationTime: { status: 'Enabled', time: { minutes: 15 } },
+      metrics: { status: 'Enabled', eventThreshold: { minutes: 15 } },
+    },
+    deleteMarkerReplication: { status: 'Enabled' },
+  }],
+};`,
+            },
+        ],
     },
 
     {
@@ -307,6 +447,52 @@ def generate_download_url(tool_key: str, customer_id: str) -> str:
     )
     print(f"[AUDIT] Pre-signed URL generated for customer={customer_id} key={tool_key}")
     return url`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — private S3 bucket and Lambda role with scoped GetObject for pre-signed URLs",
+                note: "💡 The Lambda execution role must have s3:GetObject on the tools/* prefix. Pre-signed URLs are generated in application code — no CDK construct needed for URL generation itself.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+
+const toolArtifacts = new s3.Bucket(this, 'MarketplaceToolArtifacts', {
+  bucketName: 'marketplace-tool-artifacts',
+  versioned: true,
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+  encryption: s3.BucketEncryption.S3_MANAGED,
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+});
+
+// marketplace-order-lambda-role: grant scoped GetObject on tools/* only
+const orderLambdaRole = new iam.Role(this, 'MarketplaceOrderLambdaRole', {
+  roleName: 'marketplace-order-lambda-role',
+  assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+  managedPolicies: [
+    iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
+  ],
+});
+
+orderLambdaRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['s3:GetObject'],
+  resources: [\`\${toolArtifacts.bucketArn}/tools/*\`],
+}));
+
+const orderProcessor = new lambda.Function(this, 'MarketplaceOrderProcessor', {
+  functionName: 'marketplace-order-processor',
+  runtime: lambda.Runtime.NODEJS_18_X,
+  handler: 'index.handler',
+  code: lambda.Code.fromAsset('lambda/order-processor'),
+  role: orderLambdaRole,
+  timeout: cdk.Duration.minutes(5),
+  memorySize: 512,
+  environment: {
+    BUCKET_NAME: toolArtifacts.bucketName,
+    PRESIGN_EXPIRY_SECONDS: '900',
+  },
+});`,
             },
         ],
     },
@@ -386,6 +572,51 @@ aws s3api put-bucket-notification-configuration \\
       }
     }]
   }'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — S3 event notification fan-out via SNS to SQS subscribers",
+                note: "💡 CDK's addEventNotification automatically grants the SNS topic permission to publish from S3 — the resource policy is handled for you.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as s3n from 'aws-cdk-lib/aws-s3-notifications';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
+
+const orderTopic = new sns.Topic(this, 'MarketplaceOrderTopic', {
+  topicName: 'marketplace-order-topic',
+});
+
+const orderQueue = new sqs.Queue(this, 'OrderEventsQueue', {
+  queueName: 'order-events-queue',
+  visibilityTimeout: cdk.Duration.minutes(5),
+  deadLetterQueue: {
+    queue: new sqs.Queue(this, 'OrderEventsDlq', { queueName: 'order-events-dlq' }),
+    maxReceiveCount: 3,
+  },
+});
+
+const auditQueue = new sqs.Queue(this, 'MarketplaceAuditQueue', {
+  queueName: 'marketplace-audit-queue',
+});
+
+// Subscribe both SQS queues to the SNS topic
+orderTopic.addSubscription(new subs.SqsSubscription(orderQueue, { rawMessageDelivery: true }));
+orderTopic.addSubscription(new subs.SqsSubscription(auditQueue, { rawMessageDelivery: true }));
+
+const stagingBucket = new s3.Bucket(this, 'MarketplaceStagingBucket', {
+  bucketName: 'marketplace-staging-bucket',
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+});
+
+// S3 ObjectCreated → SNS fan-out (CDK auto-grants SNS publish permission)
+stagingBucket.addEventNotification(
+  s3.EventType.OBJECT_CREATED,
+  new s3n.SnsDestination(orderTopic),
+  { prefix: 'orders/pending/' },
+);`,
             },
         ],
     },
@@ -476,6 +707,46 @@ glacier.initiate_vault_lock(
         })
     }
 )`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — S3 Object Lock (compliance WORM) as the CDK-native equivalent of Glacier Vault Lock",
+                note: "💡 Glacier Vault Lock is not directly configurable via CDK. Use S3 Object Lock in COMPLIANCE mode on marketplace-products-bucket for WORM enforcement within S3.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+
+// S3 Object Lock (COMPLIANCE mode) — CDK-native WORM for audit logs
+// Equivalent to Glacier Vault Lock but enforced at the S3 object level
+const auditBucket = new s3.Bucket(this, 'MarketplaceAuditBucket', {
+  bucketName: 'marketplace-tool-artifacts-audit',
+  versioned: true,               // Object Lock requires versioning
+  objectLockEnabled: true,
+  objectLockDefaultRetention: {
+    mode: s3.ObjectLockMode.COMPLIANCE,
+    duration: cdk.Duration.days(2555), // 7 years WORM
+  },
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+  encryption: s3.BucketEncryption.S3_MANAGED,
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+  lifecycleRules: [
+    {
+      id: 'archive-audit-logs-to-glacier',
+      enabled: true,
+      prefix: 'audit-logs/',
+      transitions: [
+        {
+          storageClass: s3.StorageClass.GLACIER,
+          transitionAfter: cdk.Duration.days(30),
+        },
+        {
+          storageClass: s3.StorageClass.DEEP_ARCHIVE,
+          transitionAfter: cdk.Duration.days(180),
+        },
+      ],
+    },
+  ],
+});`,
             },
         ],
     },

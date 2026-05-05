@@ -172,7 +172,7 @@ function ScenarioModal({ scenario: s, onClose }) {
     const isDark = theme.palette.mode === 'dark';
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [expanded, setExpanded] = useState(false);
-    const [showJson, setShowJson] = useState(false);
+    const [activeCode, setActiveCode] = useState(null); // null | 'cli' | 'cdk'
     const isFullScreen = isMobile || expanded;
     const subBg = isDark ? alpha('#000', 0.35) : theme.palette.grey[50];
     const codeBg = isDark ? '#0d1117' : '#1a1f2e';
@@ -355,30 +355,59 @@ function ScenarioModal({ scenario: s, onClose }) {
                             sx={{ color: s.color, letterSpacing: '0.12em' }}>
                             🛠️ How to Build This System
                         </Typography>
-                        {s.roleJson && s.roleJson.length > 0 && (
-                            <Button
-                                size="small"
-                                variant={showJson ? "contained" : "outlined"}
-                                onClick={() => setShowJson(prev => !prev)}
-                                sx={{
-                                    borderRadius: 2,
-                                    textTransform: 'none',
-                                    fontSize: 11,
-                                    fontWeight: 700,
-                                    fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
-                                    px: 1.5, py: 0.5,
-                                    minWidth: 'unset',
-                                    borderColor: s.color,
-                                    color: showJson ? '#fff' : s.color,
-                                    backgroundColor: showJson ? s.color : 'transparent',
-                                    '&:hover': {
-                                        backgroundColor: showJson ? alpha(s.color, 0.85) : alpha(s.color, 0.1),
-                                        borderColor: s.color,
-                                    },
-                                }}
-                            >
-                                {'{ } JSON'}
-                            </Button>
+                        {(s.roleJson?.length > 0 || s.cdkCode?.length > 0) && (
+                            <Stack direction="row" gap={0.75}>
+                                {s.roleJson && s.roleJson.length > 0 && (
+                                    <Button
+                                        size="small"
+                                        variant={activeCode === 'cli' ? "contained" : "outlined"}
+                                        onClick={() => setActiveCode(prev => prev === 'cli' ? null : 'cli')}
+                                        sx={{
+                                            borderRadius: 2,
+                                            textTransform: 'none',
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
+                                            px: 1.5, py: 0.5,
+                                            minWidth: 'unset',
+                                            borderColor: s.color,
+                                            color: activeCode === 'cli' ? '#fff' : s.color,
+                                            backgroundColor: activeCode === 'cli' ? s.color : 'transparent',
+                                            '&:hover': {
+                                                backgroundColor: activeCode === 'cli' ? alpha(s.color, 0.85) : alpha(s.color, 0.1),
+                                                borderColor: s.color,
+                                            },
+                                        }}
+                                    >
+                                        {'$ CLI'}
+                                    </Button>
+                                )}
+                                {s.cdkCode && s.cdkCode.length > 0 && (
+                                    <Button
+                                        size="small"
+                                        variant={activeCode === 'cdk' ? "contained" : "outlined"}
+                                        onClick={() => setActiveCode(prev => prev === 'cdk' ? null : 'cdk')}
+                                        sx={{
+                                            borderRadius: 2,
+                                            textTransform: 'none',
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
+                                            px: 1.5, py: 0.5,
+                                            minWidth: 'unset',
+                                            borderColor: activeCode === 'cdk' ? s.color : alpha(s.color, 0.55),
+                                            color: activeCode === 'cdk' ? '#fff' : alpha(s.color, 0.8),
+                                            backgroundColor: activeCode === 'cdk' ? s.color : 'transparent',
+                                            '&:hover': {
+                                                backgroundColor: activeCode === 'cdk' ? alpha(s.color, 0.85) : alpha(s.color, 0.1),
+                                                borderColor: s.color,
+                                            },
+                                        }}
+                                    >
+                                        {'◆ CDK'}
+                                    </Button>
+                                )}
+                            </Stack>
                         )}
                     </Stack>
 
@@ -398,12 +427,12 @@ function ScenarioModal({ scenario: s, onClose }) {
                         ))}
                     </Stack>
 
-                    {/* ── JSON Policy Examples ── */}
-                    {showJson && s.roleJson && (
+                    {/* ── CLI Commands ── */}
+                    {activeCode === 'cli' && s.roleJson && (
                         <Box mt={2.5}>
                             <Typography variant="caption" color="text.disabled" fontWeight={700}
                                 sx={{ letterSpacing: '0.1em', display: 'block', mb: 2 }}>
-                                IAM POLICY EXAMPLES
+                                AWS CLI COMMANDS
                             </Typography>
                             <Stack spacing={2}>
                                 {s.roleJson.map((entry, i) => (
@@ -415,6 +444,48 @@ function ScenarioModal({ scenario: s, onClose }) {
                                         <Box component="pre" sx={{
                                             fontSize: 11.5,
                                             color: '#86efac',
+                                            backgroundColor: codeBg,
+                                            p: { xs: 1.5, md: 2 },
+                                            borderRadius: 2,
+                                            overflowX: 'auto',
+                                            lineHeight: 1.7,
+                                            m: 0,
+                                            fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
+                                            border: `1px solid ${alpha(s.color, 0.2)}`,
+                                        }}>
+                                            {entry.code}
+                                        </Box>
+                                        {entry.note && (
+                                            <Stack direction="row" spacing={0.75} mt={0.75} alignItems="flex-start">
+                                                <Typography sx={{ color: ACCENT.amber, fontSize: 13, flexShrink: 0, mt: '1px' }}>💡</Typography>
+                                                <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+                                                    {entry.note}
+                                                </Typography>
+                                            </Stack>
+                                        )}
+                                    </Box>
+                                ))}
+                            </Stack>
+                        </Box>
+                    )}
+
+                    {/* ── CDK (TypeScript) ── */}
+                    {activeCode === 'cdk' && s.cdkCode && (
+                        <Box mt={2.5}>
+                            <Typography variant="caption" color="text.disabled" fontWeight={700}
+                                sx={{ letterSpacing: '0.1em', display: 'block', mb: 2 }}>
+                                CDK (TYPESCRIPT) — AWS CDK v2
+                            </Typography>
+                            <Stack spacing={2}>
+                                {s.cdkCode.map((entry, i) => (
+                                    <Box key={i}>
+                                        <Typography variant="caption" fontWeight={700}
+                                            sx={{ color: s.color, letterSpacing: '0.06em', display: 'block', mb: 0.75 }}>
+                                            {entry.label}
+                                        </Typography>
+                                        <Box component="pre" sx={{
+                                            fontSize: 11.5,
+                                            color: '#93c5fd',
                                             backgroundColor: codeBg,
                                             p: { xs: 1.5, md: 2 },
                                             borderRadius: 2,

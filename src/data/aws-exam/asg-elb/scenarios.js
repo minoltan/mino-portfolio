@@ -63,6 +63,35 @@ const scenarios = [
          Key=Service,Value=marketplace-api,PropagateAtLaunch=true`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Auto Scaling Group with Launch Template across 3 AZs",
+                note: "Creates marketplace-api-asg referencing the existing Launch Template. The ASG spans three AZs and registers with the target group. ELB health checks are used so unhealthy targets are replaced.",
+                code: `import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const vpc = ec2.Vpc.fromLookup(this, 'MarketplaceVpc', { vpcName: 'marketplace-vpc' });
+
+const launchTemplate = ec2.LaunchTemplate.fromLaunchTemplateAttributes(this, 'ApiLaunchTemplate', {
+  launchTemplateId: 'lt-0marketplace123',
+  versionNumber: '$Latest',
+});
+
+const asg = new autoscaling.AutoScalingGroup(this, 'MarketplaceApiAsg', {
+  autoScalingGroupName: 'marketplace-api-asg',
+  vpc,
+  launchTemplate,
+  minCapacity: 2,
+  maxCapacity: 10,
+  desiredCapacity: 3,
+  healthCheck: autoscaling.HealthCheck.elb({ grace: cdk.Duration.seconds(120) }),
+  cooldown: cdk.Duration.seconds(300),
+  vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+});
+cdk.Tags.of(asg).add('Environment', 'prod');
+cdk.Tags.of(asg).add('Service', 'marketplace-api');`,
+            },
+        ],
     },
 
     {
@@ -128,6 +157,60 @@ const scenarios = [
 }`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — ALB with HTTPS listener and path-based routing rules",
+                note: "Creates marketplace-alb, the HTTPS listener with ACM cert, and adds path-based rules for /api/* and /static/*. HTTP 80 redirects to HTTPS automatically.",
+                code: `import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as acm from 'aws-cdk-lib/aws-certificatemanager';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const vpc = ec2.Vpc.fromLookup(this, 'MarketplaceVpc', { vpcName: 'marketplace-vpc' });
+
+const certificate = acm.Certificate.fromCertificateArn(this, 'AlbCert',
+  'arn:aws:acm:ap-southeast-1:123456789012:certificate/abc-def'
+);
+
+const alb = new elbv2.ApplicationLoadBalancer(this, 'MarketplaceAlb', {
+  loadBalancerName: 'marketplace-alb',
+  vpc,
+  internetFacing: true,
+  vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
+});
+
+const apiTg = new elbv2.ApplicationTargetGroup(this, 'ApiTargetGroup', {
+  targetGroupName: 'marketplace-api-tg',
+  port: 8080,
+  protocol: elbv2.ApplicationProtocol.HTTP,
+  vpc,
+  healthCheck: { path: '/health' },
+});
+const staticTg = new elbv2.ApplicationTargetGroup(this, 'StaticTargetGroup', {
+  targetGroupName: 'marketplace-static-tg',
+  port: 8081,
+  protocol: elbv2.ApplicationProtocol.HTTP,
+  vpc,
+});
+
+const httpsListener = alb.addListener('HttpsListener', {
+  port: 443,
+  certificates: [certificate],
+  defaultTargetGroups: [apiTg],
+});
+httpsListener.addTargetGroups('ApiRule', {
+  priority: 10,
+  conditions: [elbv2.ListenerCondition.pathPatterns(['/api/*'])],
+  targetGroups: [apiTg],
+});
+httpsListener.addTargetGroups('StaticRule', {
+  priority: 20,
+  conditions: [elbv2.ListenerCondition.pathPatterns(['/static/*'])],
+  targetGroups: [staticTg],
+});
+
+alb.addRedirect({ sourcePort: 80, targetPort: 443 });`,
+            },
+        ],
     },
 
     {
@@ -185,6 +268,34 @@ const scenarios = [
   }'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Target Tracking scaling policies on marketplace-api-asg",
+                note: "Attaches two target tracking policies: one on ALBRequestCountPerTarget (1000 req/target) and one on CPU (70%). Scale-out cooldown is 60 s; scale-in is 300 s.",
+                code: `import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
+
+// Assumes asg and apiTg are already defined (see Scenario 1 and Scenario 2)
+
+// Policy 1: scale on ALB request count per target
+asg.scaleToTrackMetric('RequestScaling', {
+  metric: autoscaling.predefinedAsgMetric(autoscaling.PredefinedMetric.ALB_REQUEST_COUNT_PER_TARGET, {
+    loadBalancer: alb,
+    targetGroup: apiTg,
+  }),
+  targetValue: 1000,
+  scaleOutCooldown: cdk.Duration.seconds(60),
+  scaleInCooldown: cdk.Duration.seconds(300),
+});
+
+// Policy 2: scale on average CPU utilization
+asg.scaleOnCpuUtilization('CpuScaling', {
+  targetUtilizationPercent: 70,
+  scaleOutCooldown: cdk.Duration.seconds(60),
+  scaleInCooldown: cdk.Duration.seconds(300),
+  disableScaleIn: false,
+});`,
+            },
+        ],
     },
 
     {
@@ -234,6 +345,27 @@ const scenarios = [
   --role-arn arn:aws:iam::123456789012:role/marketplace-asg-lifecycle-role \\
   --heartbeat-timeout 30 \\
   --default-result CONTINUE`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — ASG terminating lifecycle hook with SNS notification",
+                note: "Adds a INSTANCE_TERMINATING hook to marketplace-api-asg. The hook publishes to marketplace-asg-lifecycle-events SNS topic, which triggers the drain Lambda. Heartbeat timeout is 30 s.",
+                code: `import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
+import * as sns from 'aws-cdk-lib/aws-sns';
+
+const lifecycleTopic = new sns.Topic(this, 'AsgLifecycleTopic', {
+  topicName: 'marketplace-asg-lifecycle-events',
+});
+
+// Assumes asg is already defined (see Scenario 1)
+asg.addLifecycleHook('DrainHook', {
+  lifecycleHookName: 'marketplace-api-drain-hook',
+  lifecycleTransition: autoscaling.LifecycleTransition.INSTANCE_TERMINATING,
+  notificationTarget: new autoscaling_hooktargets.TopicHook(lifecycleTopic),
+  heartbeatTimeout: cdk.Duration.seconds(30),
+  defaultResult: autoscaling.DefaultResult.CONTINUE,
+});`,
             },
         ],
     },
@@ -304,6 +436,41 @@ const scenarios = [
 }`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Weighted ALB forward action for Blue/Green traffic shift",
+                note: "Adds a weighted forward rule to the HTTPS listener distributing traffic 90% to the blue target group and 10% to the new green target group. Adjust weights to shift traffic gradually.",
+                code: `import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const vpc = ec2.Vpc.fromLookup(this, 'MarketplaceVpc', { vpcName: 'marketplace-vpc' });
+
+const blueTg = new elbv2.ApplicationTargetGroup(this, 'BlueTg', {
+  targetGroupName: 'marketplace-api-tg-blue',
+  port: 8080, protocol: elbv2.ApplicationProtocol.HTTP, vpc,
+  healthCheck: { path: '/health' },
+});
+const greenTg = new elbv2.ApplicationTargetGroup(this, 'GreenTg', {
+  targetGroupName: 'marketplace-api-tg-green',
+  port: 8080, protocol: elbv2.ApplicationProtocol.HTTP, vpc,
+  healthCheck: { path: '/health' },
+});
+
+// Existing listener (assumes alb is already defined from Scenario 2)
+const httpsListener = elbv2.ApplicationListener.fromLookup(this, 'HttpsListener', {
+  loadBalancerArn: alb.loadBalancerArn,
+  listenerPort: 443,
+});
+
+// Weighted forward: 90% blue, 10% green
+httpsListener.addAction('WeightedBlueGreen', {
+  action: elbv2.ListenerAction.weightedForward([
+    { targetGroup: blueTg, weight: 9 },
+    { targetGroup: greenTg, weight: 1 },
+  ]),
+});`,
+            },
+        ],
     },
 
     {
@@ -364,6 +531,47 @@ aws elbv2 create-target-group \\
   --health-check-protocol TCP \\
   --health-check-interval-seconds 10 \\
   --target-type instance`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — Network Load Balancer with static EIPs and TCP target group",
+                note: "Creates marketplace-nlb with one pre-allocated EIP per AZ. The TCP target group marketplace-mcp-tg listens on port 9000 with TCP health checks every 10 seconds.",
+                code: `import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const vpc = ec2.Vpc.fromLookup(this, 'MarketplaceVpc', { vpcName: 'marketplace-vpc' });
+
+const eip1a = new ec2.CfnEIP(this, 'NlbEip1a');
+const eip1b = new ec2.CfnEIP(this, 'NlbEip1b');
+
+const nlb = new elbv2.NetworkLoadBalancer(this, 'MarketplaceNlb', {
+  loadBalancerName: 'marketplace-nlb',
+  vpc,
+  internetFacing: true,
+  vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
+});
+
+const mcpTg = new elbv2.NetworkTargetGroup(this, 'McpTargetGroup', {
+  targetGroupName: 'marketplace-mcp-tg',
+  port: 9000,
+  protocol: elbv2.Protocol.TCP,
+  vpc,
+  healthCheck: {
+    protocol: elbv2.Protocol.TCP,
+    interval: cdk.Duration.seconds(10),
+  },
+  targetType: elbv2.TargetType.INSTANCE,
+});
+
+nlb.addListener('TcpListener', {
+  port: 9000,
+  protocol: elbv2.Protocol.TCP,
+  defaultTargetGroups: [mcpTg],
+});
+
+cdk.Tags.of(nlb).add('Service', 'marketplace-mcp');
+cdk.Tags.of(nlb).add('Environment', 'prod');`,
             },
         ],
     },

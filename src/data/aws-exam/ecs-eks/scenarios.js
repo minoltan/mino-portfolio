@@ -111,6 +111,35 @@ aws ecr put-lifecycle-policy \\
 }`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — ECR private repository with lifecycle policy for marketplace/api",
+                note: "ecr.Repository creates the private repo. tagMutability and imageScanOnPush add best-practice settings. lifecycleRules evict untagged images after 30 days to control storage costs.",
+                code: `import * as ecr from 'aws-cdk-lib/aws-ecr';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+const apiRepo = new ecr.Repository(this, 'MarketplaceApiRepo', {
+  repositoryName: 'marketplace/api',
+  imageScanOnPush: true,
+  imageTagMutability: ecr.TagMutability.MUTABLE,
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+  lifecycleRules: [
+    // Keep only the 10 most recent tagged images
+    { maxImageCount: 10, rulePriority: 1, tagStatus: ecr.TagStatus.TAGGED, tagPrefixList: ['v'] },
+    // Evict untagged images after 30 days
+    { maxImageAge: cdk.Duration.days(30), rulePriority: 2, tagStatus: ecr.TagStatus.UNTAGGED },
+  ],
+});
+
+// Grant CI/CD pipeline (CodeBuild role) push access
+const ciRole = iam.Role.fromRoleName(this, 'CiRole', 'marketplace-codebuild-role');
+apiRepo.grantPullPush(ciRole);
+
+// Grant ECS execution role pull access
+const executionRole = iam.Role.fromRoleName(this, 'EcsExecutionRole', 'Marketplace-API-ECS-ExecutionRole');
+apiRepo.grantPull(executionRole);`,
+            },
+        ],
     },
 
     {
@@ -193,6 +222,54 @@ aws ecr put-lifecycle-policy \\
     },
     "essential": true
   }]'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — ECS Task Definition with Fargate, SSM secrets, and awslogs",
+                note: "ecs.FargateTaskDefinition handles networkMode=awsvpc automatically. Use addContainer with secrets: { KEY: ecs.Secret.fromSsmParameter() } to inject SSM SecureString values as environment variables at task launch.",
+                code: `import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+const taskRole = iam.Role.fromRoleName(this, 'TaskRole', 'Marketplace-API-EC2-Role');
+const executionRole = iam.Role.fromRoleName(this, 'ExecRole', 'Marketplace-API-ECS-ExecutionRole');
+
+const taskDef = new ecs.FargateTaskDefinition(this, 'MarketplaceApiTask', {
+  family: 'marketplace-api-task',
+  cpu: 1024,      // 1 vCPU
+  memoryLimitMiB: 2048,
+  taskRole,
+  executionRole,
+});
+
+const logGroup = new logs.LogGroup(this, 'ApiLogGroup', {
+  logGroupName: '/ecs/marketplace-api',
+  retention: logs.RetentionDays.ONE_MONTH,
+});
+
+taskDef.addContainer('marketplace-api', {
+  image: ecs.ContainerImage.fromEcrRepository(
+    ecr.Repository.fromRepositoryName(this, 'ApiRepo', 'marketplace/api'),
+    'v1.2.3',
+  ),
+  portMappings: [{ containerPort: 8080 }],
+  secrets: {
+    DB_URL: ecs.Secret.fromSsmParameter(
+      ssm.StringParameter.fromSecureStringParameterAttributes(this, 'DbUrl', {
+        parameterName: '/marketplace/prod/db-url', version: 1,
+      }),
+    ),
+    API_KEY: ecs.Secret.fromSsmParameter(
+      ssm.StringParameter.fromSecureStringParameterAttributes(this, 'ApiKey', {
+        parameterName: '/marketplace/prod/api-key', version: 1,
+      }),
+    ),
+  },
+  logging: ecs.LogDrivers.awsLogs({ streamPrefix: 'marketplace-api', logGroup }),
+  essential: true,
+});`,
             },
         ],
     },
@@ -284,6 +361,48 @@ aws application-autoscaling put-scaling-policy \\
   }'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — ECS Fargate Service with ALB and Application Auto Scaling",
+                note: "ecs_patterns.ApplicationLoadBalancedFargateService creates the cluster, ALB, target group, and service in one construct. Add autoScaleTaskCount separately to configure CPU and request-count scaling policies.",
+                code: `import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as ecs_patterns from 'aws-cdk-lib/aws-ecs-patterns';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const vpc = ec2.Vpc.fromLookup(this, 'Vpc', { vpcName: 'marketplace-vpc' });
+const cluster = new ecs.Cluster(this, 'MarketplaceEcsCluster', {
+  clusterName: 'marketplace-ecs-cluster',
+  vpc,
+  enableFargateCapacityProviders: true,
+});
+
+const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, 'MarketplaceApiService', {
+  cluster,
+  serviceName: 'marketplace-api-service',
+  taskDefinition: taskDef,  // from Scenario 2 CDK
+  desiredCount: 3,
+  publicLoadBalancer: true,
+  listenerPort: 443,
+  taskSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+  healthCheckGracePeriod: cdk.Duration.seconds(60),
+  deploymentController: { type: ecs.DeploymentControllerType.ECS },  // rolling updates
+});
+
+// Application Auto Scaling — CPU at 70%
+const scaling = fargateService.service.autoScaleTaskCount({ minCapacity: 2, maxCapacity: 10 });
+scaling.scaleOnCpuUtilization('CpuScaling', {
+  targetUtilizationPercent: 70,
+  scaleOutCooldown: cdk.Duration.seconds(60),
+  scaleInCooldown: cdk.Duration.seconds(300),
+});
+scaling.scaleOnRequestCount('RequestScaling', {
+  requestsPerTarget: 1000,
+  targetGroup: fargateService.targetGroup,
+  scaleOutCooldown: cdk.Duration.seconds(60),
+  scaleInCooldown: cdk.Duration.seconds(300),
+});`,
+            },
+        ],
     },
 
     {
@@ -352,6 +471,45 @@ aws deploy create-deployment \\
   --application-name marketplace-api-codedeploy-app \\
   --deployment-group-name marketplace-api-bg-dg \\
   --revision 'revisionType=AppSpecContent,appSpecContent={content="{version: 0.0, Resources: [{TargetService: {Type: AWS::ECS::Service, Properties: {TaskDefinition: arn:aws:ecs:ap-southeast-1:234567890123:task-definition/marketplace-api-task:6}}}]}"}'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — CodeDeploy blue/green deployment group for ECS service",
+                note: "ecs.DeploymentControllerType.CODE_DEPLOY switches the service to CodeDeploy-managed deployments. codedeploy.EcsDeploymentGroup wires up the blueTargetGroup, greenTargetGroup, and deployment config.",
+                code: `import * as codedeploy from 'aws-cdk-lib/aws-codedeploy';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+const greenTargetGroup = new elbv2.ApplicationTargetGroup(this, 'GreenTg', {
+  vpc,
+  port: 8080,
+  protocol: elbv2.ApplicationProtocol.HTTP,
+  targetType: elbv2.TargetType.IP,
+  healthCheck: { path: '/actuator/health', healthyHttpCodes: '200' },
+});
+
+// Switch service to CodeDeploy-controlled updates
+// (set deploymentController: { type: ecs.DeploymentControllerType.CODE_DEPLOY } on the service)
+
+const deployApp = new codedeploy.EcsApplication(this, 'MarketplaceApiDeployApp', {
+  applicationName: 'marketplace-api-codedeploy-app',
+});
+
+const deployGroup = new codedeploy.EcsDeploymentGroup(this, 'MarketplaceApiBgDg', {
+  application: deployApp,
+  deploymentGroupName: 'marketplace-api-bg-dg',
+  service: fargateService.service,
+  blueGreenDeploymentConfig: {
+    listener: fargateService.listener,
+    blueTargetGroup: fargateService.targetGroup,
+    greenTargetGroup,
+    // Canary: route 10% to green for 5 minutes, then 100%
+    deploymentApprovalWaitTime: cdk.Duration.minutes(0),
+    terminationWaitTime: cdk.Duration.minutes(5),
+  },
+  deploymentConfig: codedeploy.EcsDeploymentConfig.CANARY_10PERCENT_5MINUTES,
+  autoRollback: { failedDeployment: true, deploymentInAlarm: true },
+});`,
             },
         ],
     },
@@ -442,6 +600,51 @@ helm install leaderboard ./charts/leaderboard \\
   --set image.tag=v2.1.0`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — EKS cluster with managed node group and IRSA for Leaderboard",
+                note: "eks.Cluster creates the Kubernetes control plane. ManagedNodegroup provisions EC2 workers. ServiceAccount with role creates the IRSA binding — annotates the K8s SA with the IAM role ARN via OIDC.",
+                code: `import * as eks from 'aws-cdk-lib/aws-eks';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+const vpc = ec2.Vpc.fromLookup(this, 'Vpc', { vpcName: 'marketplace-vpc' });
+
+const toolsCluster = new eks.Cluster(this, 'MarketplaceToolsCluster', {
+  clusterName: 'marketplace-tools-cluster',
+  version: eks.KubernetesVersion.V1_29,
+  vpc,
+  vpcSubnets: [{ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }],
+  defaultCapacity: 0,   // use managed node group instead
+});
+
+// Managed node group with Spot + On-Demand mix
+toolsCluster.addNodegroupCapacity('ToolsNodegroup', {
+  nodegroupName: 'marketplace-tools-ng',
+  instanceTypes: [new ec2.InstanceType('m5.large'), new ec2.InstanceType('m5a.large')],
+  minSize: 2,
+  maxSize: 8,
+  desiredSize: 3,
+  capacityType: eks.CapacityType.SPOT,
+});
+
+// IRSA for Leaderboard — binds Kubernetes SA to IAM role via OIDC
+const leaderboardRole = new iam.Role(this, 'LeaderboardPodRole', {
+  assumedBy: toolsCluster.openIdConnectProvider.openIdConnectProviderArn
+    ? new iam.FederatedPrincipal(
+        toolsCluster.openIdConnectProvider.openIdConnectProviderArn,
+        { StringEquals: { [\`\${toolsCluster.clusterOpenIdConnectIssuerUrl}:sub\`]: 'system:serviceaccount:leaderboard:leaderboard-sa' } },
+        'sts:AssumeRoleWithWebIdentity',
+      )
+    : new iam.ServicePrincipal('pods.eks.amazonaws.com'),
+  roleName: 'LeaderboardPodRole',
+});
+leaderboardRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['dynamodb:GetItem', 'dynamodb:Query', 'dynamodb:Scan'],
+  resources: ['arn:aws:dynamodb:ap-southeast-1:234567890123:table/marketplace-leaderboard'],
+}));`,
+            },
+        ],
     },
 
     {
@@ -512,6 +715,40 @@ aws eks create-fargate-profile \\
   --pod-execution-role-arn arn:aws:iam::234567890123:role/AmazonEKSFargatePodExecutionRole \\
   --subnets subnet-private1a subnet-private1b \\
   --selectors 'namespace=spin-the-wheel' 'namespace=leaderboard'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — ECS Fargate Service vs EKS Cluster side-by-side",
+                note: "For the Spring Boot API use ecs.FargateService (AWS-native, no K8s ops). For multi-tool orchestration use eks.Cluster with managed node groups. Both can run in the same VPC.",
+                code: `// ── ECS path: marketplace-api-service (Spring Boot, AWS-native) ──
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+const ecsCluster = new ecs.Cluster(this, 'ApiCluster', {
+  clusterName: 'marketplace-ecs-cluster',
+  vpc,
+  enableFargateCapacityProviders: true,
+});
+// Deploy via ecs_patterns.ApplicationLoadBalancedFargateService (see Scenario 3 CDK)
+
+// ── EKS path: marketplace-tools-cluster (Leaderboard/Skill Matrix/Spin Wheel) ──
+import * as eks from 'aws-cdk-lib/aws-eks';
+const toolsCluster = new eks.Cluster(this, 'ToolsCluster', {
+  clusterName: 'marketplace-tools-cluster',
+  version: eks.KubernetesVersion.V1_29,
+  vpc,
+  defaultCapacity: 3,
+  defaultCapacityInstance: new ec2.InstanceType('m5.large'),
+});
+// Add Kubernetes manifests for namespaces
+toolsCluster.addManifest('Namespaces', {
+  apiVersion: 'v1', kind: 'Namespace',
+  metadata: { name: 'leaderboard', labels: { app: 'marketplace-leaderboard' } },
+});
+// EKS Fargate profile for spin-the-wheel (no EC2 nodes)
+toolsCluster.addFargateProfile('SpinTheWheelFargate', {
+  fargateProfileName: 'spin-the-wheel-fargate',
+  selectors: [{ namespace: 'spin-the-wheel' }],
+});`,
             },
         ],
     },

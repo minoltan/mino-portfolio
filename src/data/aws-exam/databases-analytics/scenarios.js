@@ -87,6 +87,84 @@ aws rds create-db-instance \\
   --performance-insights-retention-period 7`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — RDS PostgreSQL Multi-AZ with KMS encryption and Read Replica",
+                note: "💡 CDK does not create a Read Replica via DatabaseInstance — use the low-level CfnDBInstance with SourceDBInstanceIdentifier to add the replica after the primary is available.",
+                code: `import * as rds from 'aws-cdk-lib/aws-rds';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as kms from 'aws-cdk-lib/aws-kms';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+
+// KMS CMK for RDS encryption
+const rdsKey = new kms.Key(this, 'MarketplaceRdsKey', {
+  alias: 'alias/marketplace-rds-key',
+  enableKeyRotation: true,
+  description: 'CMK for marketplace RDS encryption',
+});
+
+// DB Subnet Group (private subnets across 3 AZs)
+const dbSubnetGroup = new rds.SubnetGroup(this, 'MarketplaceDbSubnetGroup', {
+  description: 'Marketplace RDS subnets',
+  vpc,
+  subnetGroupName: 'marketplace-db-subnet-group',
+  vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+});
+
+// Security Group — port 5432 from API and Lambda SGs only
+const rdsSg = new ec2.SecurityGroup(this, 'MarketplaceRdsSg', {
+  vpc,
+  securityGroupName: 'marketplace-rds-sg',
+  description: 'Allow 5432 from API and Lambda only',
+});
+rdsSg.addIngressRule(apiSg, ec2.Port.tcp(5432));
+rdsSg.addIngressRule(lambdaSg, ec2.Port.tcp(5432));
+
+// Credentials stored in Secrets Manager with auto-rotation
+const dbSecret = new secretsmanager.Secret(this, 'MarketplaceOrdersDbSecret', {
+  secretName: 'marketplace-orders-db-secret',
+  generateSecretString: {
+    secretStringTemplate: JSON.stringify({ username: 'marketplace_admin' }),
+    generateStringKey: 'password',
+    excludeCharacters: '/@"',
+  },
+});
+
+// Primary RDS PostgreSQL 15 Multi-AZ instance
+const dbInstance = new rds.DatabaseInstance(this, 'MarketplaceOrdersDb', {
+  engine: rds.DatabaseInstanceEngine.postgres({
+    version: rds.PostgresEngineVersion.VER_15,
+  }),
+  instanceIdentifier: 'marketplace-orders-db',
+  instanceType: ec2.InstanceType.of(ec2.InstanceClass.R6G, ec2.InstanceSize.LARGE),
+  multiAz: true,
+  vpc,
+  vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+  subnetGroup: dbSubnetGroup,
+  securityGroups: [rdsSg],
+  storageType: rds.StorageType.GP3,
+  allocatedStorage: 200,
+  storageEncrypted: true,
+  encryptionKey: rdsKey,
+  credentials: rds.Credentials.fromSecret(dbSecret),
+  backupRetention: cdk.Duration.days(7),
+  preferredBackupWindow: '03:00-04:00',
+  deletionProtection: true,
+  enablePerformanceInsights: true,
+  performanceInsightRetention: rds.PerformanceInsightRetention.DEFAULT, // 7 days
+});
+
+// Read Replica in ap-southeast-1c for finance reporting
+const readReplica = new rds.DatabaseInstanceReadReplica(this, 'MarketplaceOrdersDbReplica', {
+  sourceDatabaseInstance: dbInstance,
+  instanceIdentifier: 'marketplace-orders-db-replica',
+  instanceType: ec2.InstanceType.of(ec2.InstanceClass.R6G, ec2.InstanceSize.LARGE),
+  vpc,
+  vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+  availabilityZone: 'ap-southeast-1c',
+});`,
+            },
+        ],
     },
 
     {
@@ -158,6 +236,46 @@ aws rds create-db-instance \\
   --db-instance-identifier marketplace-aurora-reader-1 \\
   --db-instance-class db.r6g.large \\
   --engine aurora-mysql`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — Aurora MySQL cluster with auto-scaling readers and backtrack",
+                note: "💡 Use clusterIdentifier on the DatabaseCluster construct to match the CLI resource name; auto-scaling on readers is configured via addAutoScalingPolicy on the cluster.",
+                code: `import * as rds from 'aws-cdk-lib/aws-rds';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const auroraCluster = new rds.DatabaseCluster(this, 'MarketplaceAuroraCluster', {
+  engine: rds.DatabaseClusterEngine.auroraMysql({
+    version: rds.AuroraMysqlEngineVersion.VER_3_04_0,
+  }),
+  clusterIdentifier: 'marketplace-aurora-cluster',
+  credentials: rds.Credentials.fromGeneratedSecret('marketplace_admin', {
+    secretName: 'marketplace-aurora-secret',
+  }),
+  writer: rds.ClusterInstance.provisioned('Writer', {
+    instanceIdentifier: 'marketplace-aurora-writer',
+    instanceType: ec2.InstanceType.of(ec2.InstanceClass.R6G, ec2.InstanceSize.LARGE),
+  }),
+  readers: [
+    rds.ClusterInstance.provisioned('Reader1', {
+      instanceIdentifier: 'marketplace-aurora-reader-1',
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R6G, ec2.InstanceSize.LARGE),
+    }),
+  ],
+  vpc,
+  vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+  storageEncrypted: true,
+  backtrackWindow: cdk.Duration.hours(72), // 259200 seconds
+  defaultDatabaseName: 'marketplace',
+});
+
+// Auto-scale read replicas: 1–5 based on CPU > 60%
+const scalableTarget = auroraCluster.addAutoScalingPolicy('ReaderAutoScaling', {
+  minCapacity: 1,
+  maxCapacity: 5,
+  targetUtilizationPercent: 60,
+});`,
             },
         ],
     },
@@ -233,6 +351,59 @@ aws dynamodb update-table \\
   }]'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — DynamoDB Products table with GSI, Streams, and DAX cluster",
+                note: "💡 The CDK DAX construct (aws-cdk-lib/aws-dax) is low-level (L1 CfnCluster) — pass the IAM role ARN and subnet group name created by CDK to the CfnCluster.",
+                code: `import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as dax from 'aws-cdk-lib/aws-dax';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+// DynamoDB Products table — On-Demand with Streams
+const productsTable = new dynamodb.Table(this, 'ProductsTable', {
+  tableName: 'Products',
+  partitionKey: { name: 'productId', type: dynamodb.AttributeType.STRING },
+  billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+  stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES,
+  pointInTimeRecovery: true,
+  encryption: dynamodb.TableEncryption.AWS_MANAGED,
+});
+
+// GSI: SellerId-Price-Index for per-seller sorted queries
+productsTable.addGlobalSecondaryIndex({
+  indexName: 'SellerId-Price-Index',
+  partitionKey: { name: 'sellerId', type: dynamodb.AttributeType.STRING },
+  sortKey: { name: 'price', type: dynamodb.AttributeType.NUMBER },
+  projectionType: dynamodb.ProjectionType.INCLUDE,
+  nonKeyAttributes: ['title', 'category', 'thumbnailUrl'],
+});
+
+// DAX subnet group
+const daxSubnetGroup = new dax.CfnSubnetGroup(this, 'MarketplaceDaxSubnetGroup', {
+  subnetGroupName: 'marketplace-dax-subnet-group',
+  description: 'DAX private subnets',
+  subnetIds: vpc.privateSubnets.map(s => s.subnetId),
+});
+
+// IAM role for DAX cluster
+const daxRole = new iam.Role(this, 'DaxRole', {
+  assumedBy: new iam.ServicePrincipal('dax.amazonaws.com'),
+  managedPolicies: [iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')],
+});
+
+// DAX cluster — 3 nodes (r6g.large) with SSE
+const daxCluster = new dax.CfnCluster(this, 'MarketplaceDaxCluster', {
+  clusterName: 'marketplace-dax-cluster',
+  nodeType: 'dax.r6g.large',
+  replicationFactor: 3,
+  iamRoleArn: daxRole.roleArn,
+  subnetGroupName: daxSubnetGroup.subnetGroupName!,
+  sseSpecification: { sseEnabled: true },
+  securityGroupIds: [daxSg.securityGroupId],
+});`,
+            },
+        ],
     },
 
     {
@@ -299,6 +470,58 @@ aws elasticache create-replication-group \\
   --auth-token REPLACE_WITH_SECRETS_MANAGER_VALUE \\
   --cache-subnet-group-name marketplace-redis-subnet-group \\
   --security-group-ids sg-redis123`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — ElastiCache Redis replication group with Multi-AZ and encryption",
+                note: "💡 CDK uses the L1 CfnReplicationGroup for Redis — the higher-level construct does not expose all Redis-specific properties like authToken and atRestEncryptionEnabled.",
+                code: `import * as elasticache from 'aws-cdk-lib/aws-elasticache';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+
+// Security Group — port 6379 from API SG only
+const redisSg = new ec2.SecurityGroup(this, 'MarketplaceRedisSg', {
+  vpc,
+  securityGroupName: 'marketplace-redis-sg',
+  description: 'Allow Redis port from API only',
+});
+redisSg.addIngressRule(apiSg, ec2.Port.tcp(6379));
+
+// Redis AUTH token stored in Secrets Manager
+const redisAuthSecret = new secretsmanager.Secret(this, 'MarketplaceRedisAuthSecret', {
+  secretName: 'marketplace-redis-auth-secret',
+  generateSecretString: {
+    excludeCharacters: '/@"',
+    passwordLength: 32,
+  },
+});
+
+// ElastiCache Subnet Group
+const redisSubnetGroup = new elasticache.CfnSubnetGroup(this, 'MarketplaceRedisSubnetGroup', {
+  cacheSubnetGroupName: 'marketplace-redis-subnet-group',
+  description: 'Marketplace Redis private subnets',
+  subnetIds: vpc.privateSubnets.map(s => s.subnetId),
+});
+
+// Redis Replication Group — 2 nodes, Multi-AZ, encrypted
+const redisCluster = new elasticache.CfnReplicationGroup(this, 'MarketplaceRedisCluster', {
+  replicationGroupId: 'marketplace-redis-cluster',
+  replicationGroupDescription: 'Marketplace session and product cache',
+  cacheNodeType: 'cache.r7g.large',
+  engine: 'redis',
+  engineVersion: '7.0',
+  numCacheClusters: 2,
+  automaticFailoverEnabled: true,
+  multiAzEnabled: true,
+  atRestEncryptionEnabled: true,
+  transitEncryptionEnabled: true,
+  authToken: redisAuthSecret.secretValueFromJson('password').unsafeUnwrap(),
+  cacheSubnetGroupName: redisSubnetGroup.cacheSubnetGroupName!,
+  securityGroupIds: [redisSg.securityGroupId],
+  snapshotRetentionLimit: 3,
+  snapshotWindow: '04:00-05:00',
+});`,
             },
         ],
     },
@@ -370,6 +593,56 @@ aws firehose create-delivery-stream \\
     "BufferingHints": {"SizeInMBs": 5, "IntervalInSeconds": 60},
     "CompressionFormat": "UNCOMPRESSED"
   }'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — Kinesis Data Stream with Firehose S3 delivery",
+                note: "💡 Use KinesisEventSource on the fraud-detector Lambda with bisectBatchOnError=true so a single bad record doesn't block the entire shard — it retries only the failing half-batch.",
+                code: `import * as kinesis from 'aws-cdk-lib/aws-kinesis';
+import * as firehose from 'aws-cdk-lib/aws-kinesisfirehose';
+import * as destinations from 'aws-cdk-lib/aws-kinesisfirehose-destinations';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as sources from 'aws-cdk-lib/aws-lambda-event-sources';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+
+// Kinesis Data Stream — 4 shards, 24-hour retention
+const orderStream = new kinesis.Stream(this, 'MarketplaceOrderStream', {
+  streamName: 'marketplace-order-stream',
+  shardCount: 4,
+  retentionPeriod: cdk.Duration.hours(24),
+  encryption: kinesis.StreamEncryption.MANAGED,
+});
+
+// S3 destination bucket for Firehose
+const analyticsRawBucket = s3.Bucket.fromBucketName(
+  this, 'AnalyticsRawBucket', 'marketplace-analytics-raw'
+);
+
+// Kinesis Firehose → S3 (buffered 60s / 5MB)
+const orderFirehose = new firehose.DeliveryStream(this, 'MarketplaceOrderFirehose', {
+  deliveryStreamName: 'marketplace-order-firehose',
+  sourceStream: orderStream,
+  destinations: [
+    new destinations.S3Bucket(analyticsRawBucket, {
+      bufferingInterval: cdk.Duration.seconds(60),
+      bufferingSize: cdk.Size.mebibytes(5),
+      dataOutputPrefix: 'orders/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/',
+      errorOutputPrefix: 'errors/!{firehose:error-output-type}/',
+    }),
+  ],
+});
+
+// Fraud detector Lambda with enhanced fan-out event source
+const fraudDetectorFn = lambda.Function.fromFunctionName(
+  this, 'FraudDetectorFn', 'marketplace-fraud-detector'
+);
+fraudDetectorFn.addEventSource(new sources.KinesisEventSource(orderStream, {
+  startingPosition: lambda.StartingPosition.LATEST,
+  batchSize: 100,
+  parallelizationFactor: 2,
+  bisectBatchOnError: true,
+}));`,
             },
         ],
     },
@@ -451,6 +724,69 @@ aws athena create-work-group \\
     "EnforceWorkGroupConfiguration": true,
     "PublishCloudWatchMetricsEnabled": true
   }'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — Glue Database, Crawler, and Athena Workgroup",
+                note: "💡 Grant the Glue crawler role s3:GetObject on the source bucket and glue:* on the database — the crawler needs both to read data and write schema metadata to the Data Catalog.",
+                code: `import * as glue from 'aws-cdk-lib/aws-glue';
+import * as athena from 'aws-cdk-lib/aws-athena';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+
+// Glue Data Catalog database
+const analyticsDatabase = new glue.CfnDatabase(this, 'MarketplaceAnalyticsDb', {
+  catalogId: this.account,
+  databaseInput: {
+    name: 'marketplace_analytics',
+    description: 'Marketplace analytics tables',
+  },
+});
+
+// IAM role for Glue Crawler
+const crawlerRole = new iam.Role(this, 'GlueCrawlerRole', {
+  assumedBy: new iam.ServicePrincipal('glue.amazonaws.com'),
+  managedPolicies: [
+    iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSGlueServiceRole'),
+  ],
+});
+analyticsRawBucket.grantRead(crawlerRole);
+
+// Glue Crawler — nightly at 01:00 UTC
+const crawler = new glue.CfnCrawler(this, 'MarketplaceAnalyticsCrawler', {
+  name: 'marketplace-analytics-crawler',
+  role: crawlerRole.roleArn,
+  databaseName: 'marketplace_analytics',
+  targets: {
+    s3Targets: [{ path: 's3://marketplace-analytics-raw/' }],
+  },
+  schedule: { scheduleExpression: 'cron(0 1 * * ? *)' },
+  schemaChangePolicy: {
+    updateBehavior: 'UPDATE_IN_DATABASE',
+    deleteBehavior: 'LOG',
+  },
+});
+
+// Athena results bucket
+const athenaResultsBucket = new s3.Bucket(this, 'MarketplaceAthenaResults', {
+  bucketName: 'marketplace-athena-results',
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+  encryption: s3.BucketEncryption.S3_MANAGED,
+});
+
+// Athena Workgroup with cost controls (10 GB per query limit)
+const financeWorkgroup = new athena.CfnWorkGroup(this, 'MarketplaceFinanceWg', {
+  name: 'marketplace-finance-wg',
+  workGroupConfiguration: {
+    resultConfiguration: {
+      outputLocation: \`s3://\${athenaResultsBucket.bucketName}/\`,
+    },
+    bytesScannedCutoffPerQuery: 10 * 1024 * 1024 * 1024, // 10 GB
+    enforceWorkGroupConfiguration: true,
+    publishCloudWatchMetricsEnabled: true,
+  },
+});`,
             },
         ],
     },

@@ -76,6 +76,48 @@ aws lambda create-event-source-mapping \\
   --bisect-batch-on-function-error`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Lambda function with SQS event source and reserved concurrency",
+                note: "lambda.Function with reservedConcurrentExecutions sets the ceiling. eventsources.SqsEventSource wires the SQS trigger with bisectBatchOnError to isolate poisoned messages in a batch.",
+                code: `import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as lambda_events from 'aws-cdk-lib/aws-lambda-event-sources';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+const orderQueue = sqs.Queue.fromQueueArn(
+  this, 'OrderQueue', 'arn:aws:sqs:ap-southeast-1:234567890123:order-events-queue'
+);
+
+const orderProcessorRole = new iam.Role(this, 'OrderProcessorRole', {
+  roleName: 'Marketplace-OrderProcessor-Lambda-Role',
+  assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+  managedPolicies: [
+    iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
+    iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaSQSQueueExecutionRole'),
+  ],
+});
+
+const orderProcessorFn = new lambda.Function(this, 'OrderProcessor', {
+  functionName: 'marketplace-order-processor',
+  runtime: lambda.Runtime.NODEJS_18_X,
+  handler: 'index.handler',
+  code: lambda.Code.fromAsset('lambda/order-processor'),
+  timeout: cdk.Duration.seconds(300),
+  memorySize: 512,
+  ephemeralStorageSize: cdk.Size.mebibytes(1024),
+  reservedConcurrentExecutions: 50,
+  role: orderProcessorRole,
+  tracing: lambda.Tracing.ACTIVE,
+});
+
+orderProcessorFn.addEventSource(new lambda_events.SqsEventSource(orderQueue, {
+  batchSize: 10,
+  maxBatchingWindow: cdk.Duration.seconds(30),
+  bisectBatchOnError: true,   // isolates the failing message without blocking the whole batch
+}));`,
+            },
+        ],
     },
 
     {
@@ -153,6 +195,53 @@ aws apigateway put-integration \\
   --uri arn:aws:apigateway:ap-southeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-southeast-1:234567890123:function:GetProducts/invocations`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — API Gateway REST API with Lambda Proxy integration and Cognito authorizer",
+                note: "apigateway.RestApi with LambdaIntegration creates the /products GET endpoint. CognitoUserPoolsAuthorizer wires the Cognito User Pool for JWT validation. UsagePlan and ApiKey enforce per-customer rate limits.",
+                code: `import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
+
+const getProductsFn = lambda.Function.fromFunctionName(this, 'GetProductsFn', 'GetProducts');
+const buyerPool = cognito.UserPool.fromUserPoolId(this, 'BuyerPool', 'ap-southeast-1_buyerPoolId');
+
+const api = new apigateway.RestApi(this, 'MarketplaceApiGw', {
+  restApiName: 'marketplace-api-gw',
+  endpointConfiguration: { types: [apigateway.EndpointType.REGIONAL] },
+  deployOptions: {
+    stageName: 'prod',
+    cachingEnabled: true,
+    cacheClusterEnabled: true,
+    cacheClusterSize: '0.5',
+    methodOptions: {
+      '/products/GET': { cachingEnabled: true, cacheTtl: cdk.Duration.seconds(300) },
+    },
+    tracingEnabled: true,
+    loggingLevel: apigateway.MethodLoggingLevel.INFO,
+  },
+});
+
+const cognitoAuth = new apigateway.CognitoUserPoolsAuthorizer(this, 'BuyerAuth', {
+  cognitoUserPools: [buyerPool],
+  resultsCacheTtl: cdk.Duration.seconds(300),
+});
+
+const products = api.root.addResource('products');
+products.addMethod('GET', new apigateway.LambdaIntegration(getProductsFn, { proxy: true }), {
+  authorizer: cognitoAuth,
+  authorizationType: apigateway.AuthorizationType.COGNITO,
+});
+
+// Usage plan with throttling and quota for enterprise customers
+const plan = api.addUsagePlan('EnterprisePlan', {
+  name: 'marketplace-enterprise-plan',
+  throttle: { rateLimit: 100, burstLimit: 200 },
+  quota: { limit: 10000, period: apigateway.Period.DAY },
+});
+plan.addApiStage({ api, stage: api.deploymentStage });`,
+            },
+        ],
     },
 
     {
@@ -217,6 +306,39 @@ aws sqs create-queue \\
     RedrivePolicy="{\\"deadLetterTargetArn\\":\\"$DLQ_ARN\\",\\"maxReceiveCount\\":\\"3\\"}"`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — SQS queue with Dead Letter Queue and long polling",
+                note: "Create the DLQ first, then pass it as deadLetterQueue to the source queue. CDK automatically sets up the redrive policy. Long polling is set via receiveMessageWaitTime.",
+                code: `import * as sqs from 'aws-cdk-lib/aws-sqs';
+
+// Step 1: Create DLQ first (14-day retention for debugging)
+const orderEventsDlq = new sqs.Queue(this, 'OrderEventsDlq', {
+  queueName: 'order-events-dlq',
+  retentionPeriod: cdk.Duration.days(14),
+  visibilityTimeout: cdk.Duration.seconds(300),
+});
+
+// Step 2: Create source queue with DLQ redrive and long polling
+const orderEventsQueue = new sqs.Queue(this, 'OrderEventsQueue', {
+  queueName: 'order-events-queue',
+  visibilityTimeout: cdk.Duration.seconds(300),   // must be >= Lambda timeout
+  receiveMessageWaitTime: cdk.Duration.seconds(20),  // long polling
+  deadLetterQueue: {
+    queue: orderEventsDlq,
+    maxReceiveCount: 3,
+  },
+});
+
+// FIFO variant for Leaderboard tool (ordered per teamId)
+const leaderboardFifo = new sqs.Queue(this, 'LeaderboardFifo', {
+  queueName: 'order-events-fifo.fifo',
+  fifo: true,
+  contentBasedDeduplication: true,
+  visibilityTimeout: cdk.Duration.seconds(60),
+});`,
+            },
+        ],
     },
 
     {
@@ -273,6 +395,65 @@ aws sqs set-queue-attributes \\
   --attributes '{
     "Policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"sns.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"arn:aws:sqs:ap-southeast-1:234567890123:order-events-queue\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:sns:ap-southeast-1:234567890123:marketplace-notifications\"}}}]}"
   }'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — SNS fan-out with SQS subscriptions and filter policies",
+                note: "💡 CDK automatically adds the SQS resource-based policy when you call addSubscription — no manual aws sqs set-queue-attributes needed.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
+import { Construct } from 'constructs';
+
+export class MarketplaceFanoutStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const notificationsTopic = sns.Topic.fromTopicArn(this, 'Notifications',
+      'arn:aws:sns:ap-southeast-1:234567890123:marketplace-notifications');
+
+    const dlq = new sqs.Queue(this, 'OrderEventsDlq', {
+      queueName: 'order-events-dlq',
+      retentionPeriod: cdk.Duration.days(14),
+    });
+
+    const orderQueue = new sqs.Queue(this, 'OrderEventsQueue', {
+      queueName: 'order-events-queue',
+      deadLetterQueue: { queue: dlq, maxReceiveCount: 3 },
+      visibilityTimeout: cdk.Duration.seconds(300),
+    });
+
+    const analyticsQueue = new sqs.Queue(this, 'AnalyticsQueue', {
+      queueName: 'order-analytics-queue',
+    });
+
+    // Order processor queue — receives only order_placed events via filter policy
+    notificationsTopic.addSubscription(
+      new subs.SqsSubscription(orderQueue, {
+        rawMessageDelivery: true,
+        filterPolicy: {
+          eventType: sns.SubscriptionFilter.stringFilter({
+            allowlist: ['order_placed'],
+          }),
+        },
+      })
+    );
+
+    // Analytics queue — receives all order event types
+    notificationsTopic.addSubscription(
+      new subs.SqsSubscription(analyticsQueue, {
+        rawMessageDelivery: false,
+        filterPolicy: {
+          eventType: sns.SubscriptionFilter.stringFilter({
+            allowlist: ['order_placed', 'order_cancelled', 'order_refunded'],
+          }),
+        },
+      })
+    );
+  }
+}`,
             },
         ],
     },
@@ -364,6 +545,69 @@ aws sqs set-queue-attributes \\
 }`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — Step Functions Standard Workflow with Retry/Catch and Parallel state",
+                note: "💡 addRetry() and addCatch() chain directly on LambdaInvoke tasks — no need to write raw ASL JSON in CDK.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
+import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { Construct } from 'constructs';
+
+export class MarketplaceWorkflowStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const fn = (id: string, name: string) =>
+      lambda.Function.fromFunctionArn(this, id,
+        'arn:aws:lambda:ap-southeast-1:234567890123:function:' + name);
+
+    const validateOrderFn  = fn('ValidateFn',  'ValidateOrder');
+    const chargePaymentFn  = fn('ChargeFn',    'ChargePayment');
+    const deployToolFn     = fn('DeployFn',    'DeployTool');
+    const updateOrdersFn   = fn('UpdateFn',    'UpdateOrders');
+    const notifyBuyerFn    = fn('NotifyFn',    'NotifyBuyer');
+    const notifyFailureFn  = fn('FailFn',      'NotifyFailure');
+
+    const orderFailed = new tasks.LambdaInvoke(this, 'OrderFailed',
+      { lambdaFunction: notifyFailureFn });
+
+    const chargePayment = new tasks.LambdaInvoke(this, 'ChargePayment', {
+      lambdaFunction: chargePaymentFn,
+      outputPath: '$.Payload',
+    })
+      .addRetry({
+        errors: ['States.TaskFailed'],
+        interval: cdk.Duration.seconds(2),
+        maxAttempts: 3,
+        backoffRate: 2,
+      })
+      .addCatch(orderFailed, { errors: ['States.ALL'] });
+
+    const finaliseOrder = new sfn.Parallel(this, 'FinaliseOrder')
+      .branch(new tasks.LambdaInvoke(this, 'UpdateOrders', { lambdaFunction: updateOrdersFn }))
+      .branch(new tasks.LambdaInvoke(this, 'NotifyBuyer',  { lambdaFunction: notifyBuyerFn }));
+
+    const definition = new tasks.LambdaInvoke(this, 'ValidateOrder', {
+      lambdaFunction: validateOrderFn, outputPath: '$.Payload',
+    })
+      .next(chargePayment)
+      .next(new tasks.LambdaInvoke(this, 'DeployTool', {
+        lambdaFunction: deployToolFn, outputPath: '$.Payload',
+      }))
+      .next(finaliseOrder);
+
+    new sfn.StateMachine(this, 'MarketplaceOrderWorkflow', {
+      stateMachineName: 'marketplace-order-workflow',
+      definition,
+      stateMachineType: sfn.StateMachineType.STANDARD,
+      tracingEnabled: true,
+    });
+  }
+}`,
+            },
+        ],
     },
 
     {
@@ -440,6 +684,88 @@ aws events put-rule \\
 aws events put-targets \\
   --rule marketplace-nightly-cleanup \\
   --targets Id=CleanupLambda,Arn=arn:aws:lambda:ap-southeast-1:234567890123:function:NightlyCleanup`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — CloudWatch Alarm, Dashboard, and EventBridge scheduled rule",
+                note: "💡 TreatMissingData.NOT_BREACHING keeps the alarm OK when Lambda is idle — without this, a quiet period triggers INSUFFICIENT_DATA which can page the on-call team unnecessarily.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as cw_actions from 'aws-cdk-lib/aws-cloudwatch-actions';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { Construct } from 'constructs';
+
+export class MarketplaceMonitoringStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const notificationsTopic = sns.Topic.fromTopicArn(this, 'Notifications',
+      'arn:aws:sns:ap-southeast-1:234567890123:marketplace-notifications');
+
+    // Lambda error rate alarm
+    const orderErrors = new cloudwatch.Metric({
+      namespace: 'AWS/Lambda',
+      metricName: 'Errors',
+      dimensionsMap: { FunctionName: 'marketplace-order-processor' },
+      period: cdk.Duration.minutes(5),
+      statistic: 'Sum',
+    });
+
+    const errorAlarm = new cloudwatch.Alarm(this, 'OrderProcessorErrorAlarm', {
+      alarmName: 'marketplace-order-error-alarm',
+      alarmDescription: 'Alert when order processor Lambda errors >= 5 in 5 minutes',
+      metric: orderErrors,
+      threshold: 5,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    errorAlarm.addAlarmAction(new cw_actions.SnsAction(notificationsTopic));
+
+    // Nightly cleanup EventBridge rule at 02:00 UTC
+    const cleanupFn = lambda.Function.fromFunctionArn(this, 'NightlyCleanupFn',
+      'arn:aws:lambda:ap-southeast-1:234567890123:function:NightlyCleanup');
+
+    new events.Rule(this, 'NightlyCleanupRule', {
+      ruleName: 'marketplace-nightly-cleanup',
+      schedule: events.Schedule.cron({ minute: '0', hour: '2' }),
+      targets: [new targets.LambdaFunction(cleanupFn)],
+    });
+
+    // Ops dashboard
+    new cloudwatch.Dashboard(this, 'MarketplaceOpsDashboard', {
+      dashboardName: 'marketplace-ops-dashboard',
+      widgets: [[
+        new cloudwatch.GraphWidget({
+          title: 'Lambda Invocations vs Errors',
+          left: [new cloudwatch.Metric({
+            namespace: 'AWS/Lambda', metricName: 'Invocations',
+            dimensionsMap: { FunctionName: 'marketplace-order-processor' }, statistic: 'Sum',
+          })],
+          right: [orderErrors],
+        }),
+        new cloudwatch.GraphWidget({
+          title: 'ALB Request Count',
+          left: [new cloudwatch.Metric({
+            namespace: 'AWS/ApplicationELB', metricName: 'RequestCount',
+            dimensionsMap: { LoadBalancer: 'marketplace-alb' }, statistic: 'Sum',
+          })],
+        }),
+        new cloudwatch.GraphWidget({
+          title: 'DynamoDB Consumed Write Capacity',
+          left: [new cloudwatch.Metric({
+            namespace: 'AWS/DynamoDB', metricName: 'ConsumedWriteCapacityUnits',
+            dimensionsMap: { TableName: 'Orders' }, statistic: 'Sum',
+          })],
+        }),
+      ]],
+    });
+  }
+}`,
             },
         ],
     },

@@ -77,6 +77,66 @@ aws cognito-idp create-user-pool-client \\
   --token-validity-units '{"AccessToken":"minutes","RefreshToken":"minutes"}'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — Cognito User Pool with MFA, Google federation, and app client",
+                note: "💡 Set generateSecret: false for SPA app clients — browser apps cannot securely store client secrets; only server-side apps (Spring Boot) should have secrets enabled.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
+import { Construct } from 'constructs';
+
+export class MarketplaceCognitoStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const buyerPool = new cognito.UserPool(this, 'BuyerPool', {
+      userPoolName: 'marketplace-buyer-pool',
+      selfSignUpEnabled: true,
+      signInAliases: { email: true },
+      autoVerify: { email: true },
+      passwordPolicy: {
+        minLength: 12,
+        requireUppercase: true,
+        requireDigits: true,
+        requireSymbols: true,
+      },
+      mfa: cognito.Mfa.OPTIONAL,
+      mfaSecondFactor: { otp: true, sms: false },
+      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+      advancedSecurityMode: cognito.AdvancedSecurityMode.ENFORCED,
+    });
+
+    // Google federation — buyers can sign in with Google accounts
+    new cognito.UserPoolIdentityProviderGoogle(this, 'Google', {
+      userPool: buyerPool,
+      clientId: 'GOOGLE-CLIENT-ID',
+      clientSecretValue: cdk.SecretValue.secretsManager('marketplace-google-oauth'),
+      attributeMapping: { email: cognito.ProviderAttribute.GOOGLE_EMAIL },
+    });
+
+    // SPA app client — no secret (browsers cannot keep secrets securely)
+    buyerPool.addClient('WebAppClient', {
+      userPoolClientName: 'marketplace-web-app-client',
+      generateSecret: false,
+      authFlows: { userSrp: true },
+      accessTokenValidity: cdk.Duration.hours(1),
+      refreshTokenValidity: cdk.Duration.days(30),
+      oAuth: {
+        flows: { authorizationCodeGrant: true },
+        scopes: [cognito.OAuthScope.OPENID, cognito.OAuthScope.EMAIL],
+        callbackUrls: ['https://marketplace.ami.com/callback'],
+        logoutUrls: ['https://marketplace.ami.com/logout'],
+      },
+    });
+
+    // Hosted UI — pre-built sign-in/sign-up page (no custom auth UI needed)
+    buyerPool.addDomain('HostedUIDomain', {
+      cognitoDomain: { domainPrefix: 'marketplace' },
+    });
+  }
+}`,
+            },
+        ],
     },
 
     {
@@ -156,6 +216,65 @@ aws cognito-idp create-user-pool-client \\
 }`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — Cognito Identity Pool with per-user S3 prefix isolation",
+                note: "💡 The \\${cognito-identity.amazonaws.com:sub} IAM policy variable is the key to per-user isolation — it resolves to the authenticated user's Cognito identity ID at policy evaluation time.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
+
+export class MarketplaceIdentityPoolStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const identityPool = new cognito.CfnIdentityPool(this, 'IdentityPool', {
+      identityPoolName: 'marketplace_identity_pool',
+      allowUnauthenticatedIdentities: true,
+      cognitoIdentityProviders: [{
+        clientId: 'COGNITO-APP-CLIENT-ID',
+        providerName: 'cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_XXXXXXXX',
+        serverSideTokenCheck: true,
+      }],
+    });
+
+    const makeRole = (label: string, amr: string) =>
+      new iam.Role(this, label, {
+        assumedBy: new iam.FederatedPrincipal('cognito-identity.amazonaws.com', {
+          StringEquals: { 'cognito-identity.amazonaws.com:aud': identityPool.ref },
+          'ForAnyValue:StringLike': { 'cognito-identity.amazonaws.com:amr': amr },
+        }, 'sts:AssumeRoleWithWebIdentity'),
+      });
+
+    const authRole = makeRole('AuthRole', 'authenticated');
+    // Policy variable scopes each seller to their own S3 prefix
+    authRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['s3:PutObject', 's3:GetObject', 's3:DeleteObject'],
+      resources: ['arn:aws:s3:::marketplace-products-bucket/uploads/\${cognito-identity.amazonaws.com:sub}/*'],
+    }));
+    authRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['s3:GetObject'],
+      resources: ['arn:aws:s3:::marketplace-products-bucket/public/*'],
+    }));
+
+    const guestRole = makeRole('GuestRole', 'unauthenticated');
+    guestRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['s3:GetObject'],
+      resources: ['arn:aws:s3:::marketplace-products-bucket/public/*'],
+    }));
+
+    new cognito.CfnIdentityPoolRoleAttachment(this, 'RoleAttachment', {
+      identityPoolId: identityPool.ref,
+      roles: {
+        authenticated: authRole.roleArn,
+        unauthenticated: guestRole.roleArn,
+      },
+    });
+  }
+}`,
+            },
+        ],
     },
 
     {
@@ -231,6 +350,66 @@ aws s3api put-bucket-encryption \\
   }'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — KMS CMKs with annual rotation and S3 SSE-KMS with Bucket Keys",
+                note: "💡 Set bucketKeyEnabled: true on S3 buckets — this generates one data key per prefix/hour instead of per object, reducing KMS API calls by up to 99% and cutting KMS costs significantly.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as kms from 'aws-cdk-lib/aws-kms';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
+
+export class MarketplaceKmsStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    // Separate CMK per service — limits blast radius if one key is compromised
+    const s3Key = new kms.Key(this, 'S3Key', {
+      description: 'Marketplace S3 bucket encryption key',
+      enableKeyRotation: true,  // automatic annual rotation
+      alias: 'alias/marketplace-s3-key',
+    });
+
+    const rdsKey = new kms.Key(this, 'RdsKey', {
+      description: 'Marketplace RDS/Aurora encryption key',
+      enableKeyRotation: true,
+      alias: 'alias/marketplace-rds-key',
+    });
+
+    new kms.Key(this, 'DynamoKey', {
+      description: 'Marketplace DynamoDB encryption key',
+      enableKeyRotation: true,
+      alias: 'alias/marketplace-dynamo-key',
+    }).grantDecrypt(
+      // Cross-account: analytics account can decrypt DynamoDB exports
+      new iam.AccountPrincipal('987654321098')
+    );
+
+    new kms.Key(this, 'SecretsKey', {
+      description: 'Marketplace Secrets Manager encryption key',
+      enableKeyRotation: true,
+      alias: 'alias/marketplace-secrets-key',
+    });
+
+    // S3 bucket with SSE-KMS default encryption + Bucket Keys enabled
+    new s3.Bucket(this, 'ToolArtifacts', {
+      bucketName: 'marketplace-tool-artifacts',
+      encryptionKey: s3Key,
+      encryption: s3.BucketEncryption.KMS,
+      bucketKeyEnabled: true,
+    });
+
+    new s3.Bucket(this, 'ProductsBucket', {
+      bucketName: 'marketplace-products-bucket',
+      encryptionKey: s3Key,
+      encryption: s3.BucketEncryption.KMS,
+      bucketKeyEnabled: true,
+    });
+  }
+}`,
+            },
+        ],
     },
 
     {
@@ -301,6 +480,61 @@ aws cloudhsmv2 describe-clusters \\
 aws cloudhsmv2 describe-clusters \\
   --filters clusterIds=cluster-xxxxxxxxxxxx \\
   --query 'Clusters[0].Hsms[*].{AZ:AvailabilityZone,State:State,IP:EniIp}'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — CloudHSM cluster with two HSM instances across AZs (L1 constructs)",
+                note: "💡 CloudHSM has no L2 CDK constructs — use CfnCluster + CfnHsm (L1). After deployment, download the cluster CSR, sign it with your CA, and upload the cert to initialise the cluster before use.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as cloudhsmv2 from 'aws-cdk-lib/aws-cloudhsmv2';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { Construct } from 'constructs';
+
+// CloudHSM V2 — L1 constructs only (no L2 support)
+export class MarketplaceCloudHsmStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const vpc = ec2.Vpc.fromLookup(this, 'MarketplaceVpc', { vpcName: 'marketplace-vpc' });
+
+    // Security group — CloudHSM client daemon ports (2223-2225) from EC2 instances only
+    const hsmSg = new ec2.SecurityGroup(this, 'HsmSg', {
+      vpc,
+      securityGroupName: 'marketplace-hsm-sg',
+      description: 'CloudHSM cluster — allow client daemon ports from marketplace-api-asg',
+    });
+    hsmSg.addIngressRule(
+      ec2.Peer.securityGroupId('sg-marketplace-api'),
+      ec2.Port.tcpRange(2223, 2225)
+    );
+
+    const privateSubnets = vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS });
+
+    // CloudHSM cluster — requires subnets in 2+ AZs
+    const cluster = new cloudhsmv2.CfnCluster(this, 'HsmCluster', {
+      hsmType: 'hsm1.medium',
+      subnetIds: privateSubnets.subnetIds.slice(0, 2),
+    });
+
+    // Two HSM instances for HA — one per AZ
+    new cloudhsmv2.CfnHsm(this, 'Hsm1', {
+      clusterId: cluster.ref,
+      availabilityZone: cdk.Stack.of(this).availabilityZones[0],
+    });
+
+    new cloudhsmv2.CfnHsm(this, 'Hsm2', {
+      clusterId: cluster.ref,
+      availabilityZone: cdk.Stack.of(this).availabilityZones[1],
+    });
+
+    // After deployment: download CSR from console, sign with your CA, upload cert
+    new cdk.CfnOutput(this, 'ClusterId', {
+      value: cluster.ref,
+      description: 'CloudHSM Cluster ID — download the CSR and sign to initialise',
+    });
+  }
+}`,
             },
         ],
     },
@@ -385,6 +619,72 @@ aws wafv2 associate-web-acl \\
   --resource-arn arn:aws:elasticloadbalancing:ap-southeast-1:234567890123:loadbalancer/app/marketplace-alb/xxx`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — WAF Web ACL with managed rule groups, rate limiting, and Shield Advanced (L1)",
+                note: "💡 Deploy WAF rules in COUNT mode first (overrideAction: { count: {} }) — review the sampled requests in the WAF console to identify false positives before switching to BLOCK mode in production.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as wafv2 from 'aws-cdk-lib/aws-wafv2';
+import * as shield from 'aws-cdk-lib/aws-shield';
+import { Construct } from 'constructs';
+
+// WAF + Shield have L1 constructs only (CfnWebACL, CfnProtection)
+export class MarketplaceWafStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const makeVisConfig = (metricName: string) => ({
+      sampledRequestsEnabled: true,
+      cloudWatchMetricsEnabled: true,
+      metricName,
+    });
+
+    const webAcl = new wafv2.CfnWebACL(this, 'MarketplaceWebAcl', {
+      name: 'marketplace-web-acl',
+      scope: 'REGIONAL',
+      defaultAction: { allow: {} },
+      visibilityConfig: makeVisConfig('marketplace-web-acl'),
+      rules: [
+        {
+          name: 'AWSManagedRulesCommonRuleSet',
+          priority: 1,
+          overrideAction: { none: {} },
+          statement: { managedRuleGroupStatement: { vendorName: 'AWS', name: 'AWSManagedRulesCommonRuleSet' } },
+          visibilityConfig: makeVisConfig('CommonRuleSet'),
+        },
+        {
+          name: 'AWSManagedRulesBotControlRuleSet',
+          priority: 2,
+          overrideAction: { none: {} },
+          statement: { managedRuleGroupStatement: { vendorName: 'AWS', name: 'AWSManagedRulesBotControlRuleSet' } },
+          visibilityConfig: makeVisConfig('BotControl'),
+        },
+        {
+          name: 'RateLimitPerIP',
+          priority: 3,
+          action: { block: {} },
+          statement: { rateBasedStatement: { limit: 2000, aggregateKeyType: 'IP' } },
+          visibilityConfig: makeVisConfig('RateLimit'),
+        },
+      ],
+    });
+
+    const albArn = 'arn:aws:elasticloadbalancing:ap-southeast-1:234567890123:loadbalancer/app/marketplace-alb/xxx';
+
+    new wafv2.CfnWebACLAssociation(this, 'AlbWafAssociation', {
+      resourceArn: albArn,
+      webAclArn: webAcl.attrArn,
+    });
+
+    // Shield Advanced protection — requires Shield Advanced subscription at account level
+    new shield.CfnProtection(this, 'AlbShieldProtection', {
+      name: 'marketplace-alb-protection',
+      resourceArn: albArn,
+    });
+  }
+}`,
+            },
+        ],
     },
 
     {
@@ -457,6 +757,48 @@ aws ds create-connector \\
     "VpcId": "vpc-customer987"
   }' \\
   --region ap-southeast-1`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — AWS Managed Microsoft AD with CfnMicrosoftAD (L1 — no L2 available)",
+                note: "💡 AD Connector (aws ds create-connector) cannot be created via CloudFormation — it is not a supported CloudFormation resource type. Create it via CLI or SDK outside CDK.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as ds from 'aws-cdk-lib/aws-directoryservice';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { Construct } from 'constructs';
+
+// AWS Directory Service has L1 constructs only (CfnMicrosoftAD, CfnSimpleAD)
+// AD Connector is NOT supported by CloudFormation — use the CLI for that
+export class MarketplaceManagedAdStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const vpc = ec2.Vpc.fromLookup(this, 'MarketplaceVpc', { vpcName: 'marketplace-vpc' });
+    const privateSubnets = vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS });
+
+    // AWS Managed Microsoft AD — AWS provisions 2 domain controllers across 2 AZs
+    const managedAd = new ds.CfnMicrosoftAD(this, 'MarketplaceManagedAd', {
+      name: 'marketplace.ami.internal',
+      shortName: 'MARKETPLACEAMI',
+      password: cdk.SecretValue.secretsManager('marketplace-managed-ad-password').unsafeUnwrap(),
+      vpcSettings: {
+        vpcId: vpc.vpcId,
+        subnetIds: privateSubnets.subnetIds.slice(0, 2),
+      },
+      edition: 'Standard',
+    });
+
+    new cdk.CfnOutput(this, 'DirectoryId', {
+      value: managedAd.ref,
+      description: 'Use this directory ID to configure IAM Identity Center identity source',
+    });
+
+    // AD Connector cannot be created via CloudFormation — use CLI:
+    // aws ds create-connector --name finserv.local --vpc-settings ...
+    // --connect-settings CustomerDnsIps=[...],CustomerUserName=svc-account
+  }
+}`,
             },
         ],
     },

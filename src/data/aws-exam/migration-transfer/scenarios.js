@@ -79,6 +79,62 @@ aws mgn start-cutover \\
   --region ap-southeast-1`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — MGN initialisation and launch configuration via AwsCustomResource",
+                note: "💡 MGN has no CloudFormation L1 constructs — use AwsCustomResource (backed by a Lambda custom resource) to call the MGN SDK. The Replication Agent itself is installed manually on each source server.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as cr from 'aws-cdk-lib/custom-resources';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
+
+// MGN has no CloudFormation/CDK L2 — use AwsCustomResource for SDK calls
+export class MarketplaceMgnStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    // Initialise MGN in the target account (creates staging area + IAM roles)
+    new cr.AwsCustomResource(this, 'InitMgn', {
+      onCreate: {
+        service: 'mgn',
+        action: 'initializeService',
+        parameters: {},
+        physicalResourceId: cr.PhysicalResourceId.of('mgn-initialized'),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromStatements([
+        new iam.PolicyStatement({
+          actions: ['mgn:InitializeService'],
+          resources: ['*'],
+        }),
+      ]),
+    });
+
+    // Configure launch template for cutover instance (after agent reports in)
+    new cr.AwsCustomResource(this, 'ConfigureLaunchTemplate', {
+      onCreate: {
+        service: 'mgn',
+        action: 'updateLaunchConfiguration',
+        parameters: {
+          sourceServerID: 's-1234567890abcdef0',
+          launchDisposition: 'STARTED',
+          targetInstanceTypeRightSizingMethod: 'NONE',
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('mgn-launch-config'),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromStatements([
+        new iam.PolicyStatement({
+          actions: ['mgn:UpdateLaunchConfiguration'],
+          resources: ['*'],
+        }),
+      ]),
+    });
+    // Note: install the Replication Agent on each source server manually,
+    // then use mgn:StartTest and mgn:StartCutover via CLI or console for the
+    // actual cutover — these are one-time operations that should not be in IaC.
+  }
+}`,
+            },
+        ],
     },
 
     {
@@ -155,6 +211,71 @@ aws dms create-replication-task \\
   --table-mappings file://table-mappings.json`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — DMS replication instance, endpoints, and Full Load + CDC task",
+                note: "💡 Enable WAL logical replication on the source PostgreSQL (wal_level=logical) before creating the DMS task — without it, CDC will fail to read transaction log changes.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as dms from 'aws-cdk-lib/aws-dms';
+import { Construct } from 'constructs';
+
+export class MarketplaceDmsStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    // Replication instance — MultiAZ for HA during migration
+    const repInstance = new dms.CfnReplicationInstance(this, 'DmsRepInstance', {
+      replicationInstanceIdentifier: 'marketplace-dms-instance',
+      replicationInstanceClass: 'dms.r5.large',
+      allocatedStorage: 100,
+      multiAz: true,
+      replicationSubnetGroupIdentifier: 'marketplace-dms-subnet-group',
+      vpcSecurityGroupIds: ['sg-dms123'],
+    });
+
+    // Source: on-premises PostgreSQL 14
+    const sourceEndpoint = new dms.CfnEndpoint(this, 'SourceEndpoint', {
+      endpointIdentifier: 'marketplace-orders-source',
+      endpointType: 'source',
+      engineName: 'postgres',
+      serverName: '192.168.1.100',
+      port: 5432,
+      databaseName: 'marketplace_orders',
+      username: 'dms_user',
+      password: cdk.SecretValue.secretsManager('marketplace-dms-source-pw').unsafeUnwrap(),
+    });
+
+    // Target: Aurora PostgreSQL 15
+    const targetEndpoint = new dms.CfnEndpoint(this, 'TargetEndpoint', {
+      endpointIdentifier: 'marketplace-orders-target',
+      endpointType: 'target',
+      engineName: 'aurora-postgresql',
+      serverName: 'marketplace-aurora-cluster.cluster-xxx.ap-southeast-1.rds.amazonaws.com',
+      port: 5432,
+      databaseName: 'marketplace_orders',
+      username: 'dms_user',
+      password: cdk.SecretValue.secretsManager('marketplace-dms-target-pw').unsafeUnwrap(),
+    });
+
+    // Full Load + CDC — copies all rows then streams ongoing changes
+    new dms.CfnReplicationTask(this, 'MigrationTask', {
+      replicationTaskIdentifier: 'marketplace-orders-migration',
+      sourceEndpointArn: sourceEndpoint.ref,
+      targetEndpointArn: targetEndpoint.ref,
+      replicationInstanceArn: repInstance.ref,
+      migrationType: 'full-load-and-cdc',
+      tableMappings: JSON.stringify({
+        rules: [{
+          'rule-type': 'selection', 'rule-id': '1', 'rule-name': 'all-tables',
+          'object-locator': { 'schema-name': 'public', 'table-name': '%' },
+          'rule-action': 'include',
+        }],
+      }),
+    });
+  }
+}`,
+            },
+        ],
     },
 
     {
@@ -226,6 +347,66 @@ aws dms create-replication-task \\
   --table-mappings '{"rules":[{"rule-type":"selection","rule-id":"1","rule-name":"all-tables","object-locator":{"schema-name":"FINSERV","table-name":"%"},"rule-action":"include"}]}'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — DMS task for heterogeneous Oracle-to-Aurora migration (SCT output pre-applied)",
+                note: "💡 SCT is a desktop GUI tool — it cannot be deployed via CDK. Apply the SCT-converted DDL to Aurora BEFORE deploying this stack, then set TablePrep to 'do-nothing' so DMS does not recreate or truncate tables.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as dms from 'aws-cdk-lib/aws-dms';
+import { Construct } from 'constructs';
+
+// SCT is a desktop tool — run the assessment and apply DDL to Aurora manually first
+// Then deploy this CDK stack to start the DMS data migration
+export class MarketplaceSchemaConversionStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    // Oracle 19c source (heterogeneous migration — requires SCT schema conversion first)
+    const oracleSource = new dms.CfnEndpoint(this, 'OracleSource', {
+      endpointIdentifier: 'finserv-oracle-source',
+      endpointType: 'source',
+      engineName: 'oracle',
+      serverName: '192.168.1.100',
+      port: 1521,
+      databaseName: 'FINSERVDB',
+      username: 'migration_user',
+      password: cdk.SecretValue.secretsManager('finserv-oracle-password').unsafeUnwrap(),
+      oracleSettings: { useLogminerReader: true, accessAlternateDirectly: false },
+    });
+
+    const auroraTarget = new dms.CfnEndpoint(this, 'AuroraTarget', {
+      endpointIdentifier: 'finserv-aurora-target',
+      endpointType: 'target',
+      engineName: 'aurora-postgresql',
+      serverName: 'finserv-aurora.cluster-xxx.ap-southeast-1.rds.amazonaws.com',
+      port: 5432,
+      databaseName: 'finservdb',
+      username: 'dms_user',
+      password: cdk.SecretValue.secretsManager('finserv-aurora-password').unsafeUnwrap(),
+    });
+
+    // TablePrep=do-nothing — schema already applied by SCT; DMS migrates data only
+    new dms.CfnReplicationTask(this, 'FinservMigrationTask', {
+      replicationTaskIdentifier: 'finserv-orders-migration',
+      sourceEndpointArn: oracleSource.ref,
+      targetEndpointArn: auroraTarget.ref,
+      replicationInstanceArn: 'arn:aws:dms:ap-southeast-1:234567890123:rep:marketplace-dms-instance',
+      migrationType: 'full-load-and-cdc',
+      replicationTaskSettings: JSON.stringify({
+        TargetMetadata: { TargetSchema: 'public', TablePrep: 'do-nothing' },
+      }),
+      tableMappings: JSON.stringify({
+        rules: [{
+          'rule-type': 'selection', 'rule-id': '1', 'rule-name': 'finserv-tables',
+          'object-locator': { 'schema-name': 'FINSERV', 'table-name': '%' },
+          'rule-action': 'include',
+        }],
+      }),
+    });
+  }
+}`,
+            },
+        ],
     },
 
     {
@@ -291,6 +472,57 @@ aws datasync create-task \\
   --name marketplace-artifact-migration \\
   --options VerifyMode=ONLY_FILES_TRANSFERRED,OverwriteMode=ALWAYS,LogLevel=TRANSFER,BytesPerSecond=104857600 \\
   --schedule ScheduleExpression="cron(0 * * * ? *)"`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — DataSync NFS-to-S3 task with checksum verification and bandwidth throttle",
+                note: "💡 The DataSync Agent VM must be deployed and registered in the console before this stack — the agentArn is obtained from the console after agent activation.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as datasync from 'aws-cdk-lib/aws-datasync';
+import { Construct } from 'constructs';
+
+export class MarketplaceDataSyncStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    // Agent registered in console after VM deployment on-premises
+    const agentArn = 'arn:aws:datasync:ap-southeast-1:234567890123:agent/agent-xxx';
+
+    // Source: on-premises NFS /tools share (50 TB tool artifacts)
+    const nfsSource = new datasync.CfnLocationNFS(this, 'NfsSource', {
+      serverHostname: '192.168.1.50',
+      subdirectory: '/tools',
+      onPremConfig: { agentArns: [agentArn] },
+      mountOptions: { version: 'NFS4_1' },
+    });
+
+    // Destination: S3 marketplace-tool-artifacts
+    const s3Dest = new datasync.CfnLocationS3(this, 'S3Destination', {
+      s3BucketArn: 'arn:aws:s3:::marketplace-tool-artifacts',
+      subdirectory: '/migrated-tools/',
+      s3Config: {
+        bucketAccessRoleArn: 'arn:aws:iam::234567890123:role/DataSyncS3Role',
+      },
+    });
+
+    // Transfer task — checksum verify all files, throttle at 100 Mbps
+    new datasync.CfnTask(this, 'ArtifactMigrationTask', {
+      name: 'marketplace-artifact-migration',
+      sourceLocationArn: nfsSource.ref,
+      destinationLocationArn: s3Dest.ref,
+      options: {
+        verifyMode: 'ONLY_FILES_TRANSFERRED',
+        overwriteMode: 'ALWAYS',
+        logLevel: 'TRANSFER',
+        bytesPerSecond: 104857600,  // 100 Mbps — prevents saturating the WAN link
+      },
+      schedule: {
+        scheduleExpression: 'cron(0 * * * ? *)',  // hourly incremental sync
+      },
+    });
+  }
+}`,
             },
         ],
     },
@@ -362,6 +594,57 @@ aws s3 ls s3://marketplace-analytics-raw/historical/ --recursive --summarize \\
   | tail -3`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — Snow Family import jobs via AwsCustomResource (no CloudFormation support)",
+                note: "💡 Order multiple devices in parallel rather than one at a time — 5 × 80 TB devices loaded simultaneously reduces total transfer time to the duration of a single device (~22 hours) instead of 5 × 22 hours.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as cr from 'aws-cdk-lib/custom-resources';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
+
+// Snow Family has no CloudFormation/CDK support — use AwsCustomResource (SDK calls)
+export class MarketplaceSnowballStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    // Create 5 Snowball Edge import jobs (one per 80 TB device — load in parallel)
+    for (let i = 1; i <= 5; i++) {
+      new cr.AwsCustomResource(this, 'SnowballJob' + i, {
+        onCreate: {
+          service: 'Snowball',
+          action: 'createJob',
+          parameters: {
+            JobType: 'IMPORT',
+            Resources: {
+              S3Resources: [{
+                BucketArn: 'arn:aws:s3:::marketplace-analytics-raw',
+                KeyRange: {
+                  BeginMarker: 'historical/batch-' + i + '/',
+                  EndMarker: 'historical/batch-' + i + '/z',
+                },
+              }],
+            },
+            Description: '400TB historical migration — batch ' + i + ' of 5',
+            AddressId: 'ADID-SINGAPORE-COLOCATION',
+            KmsKeyARN: 'arn:aws:kms:ap-southeast-1:234567890123:alias/marketplace-s3-key',
+            SnowballType: 'EDGE_STORAGE_OPTIMIZED',
+            ShippingOption: 'FASTEST',
+          },
+          physicalResourceId: cr.PhysicalResourceId.of('snowball-job-' + i),
+        },
+        policy: cr.AwsCustomResourcePolicy.fromStatements([
+          new iam.PolicyStatement({
+            actions: ['snowball:CreateJob'],
+            resources: ['*'],
+          }),
+        ]),
+      });
+    }
+  }
+}`,
+            },
+        ],
     },
 
     {
@@ -428,6 +711,70 @@ aws transfer create-user \\
   --home-directory-mappings '[{"Entry":"/","Target":"/marketplace-products-bucket/sellers/seller-finserv-corp"}]' \\
   --role arn:aws:iam::234567890123:role/marketplace-transfer-user-role \\
   --ssh-public-key-body "ssh-rsa AAAAB3NzaC1yc2EAAA... seller@finserv-corp"`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — Transfer Family SFTP server with VPC endpoint and logical home directory mapping",
+                note: "💡 Always use homeDirectoryType: LOGICAL with explicit path mappings — without it, each seller sees the bucket root and can navigate to other sellers' prefixes.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as transfer from 'aws-cdk-lib/aws-transfer';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
+
+export class MarketplaceSftpStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const vpc = ec2.Vpc.fromLookup(this, 'MarketplaceVpc', { vpcName: 'marketplace-vpc' });
+
+    const sftpSg = new ec2.SecurityGroup(this, 'SftpSg', {
+      vpc,
+      securityGroupName: 'marketplace-sftp-sg',
+    });
+    sftpSg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22), 'SFTP from seller networks');
+
+    // SFTP server with VPC endpoint — Elastic IPs give static IPs for seller firewall rules
+    const sftpServer = new transfer.CfnServer(this, 'SftpServer', {
+      protocols: ['SFTP'],
+      endpointType: 'VPC',
+      endpointDetails: {
+        vpcId: vpc.vpcId,
+        subnetIds: vpc.publicSubnets.map(s => s.subnetId),
+        securityGroupIds: [sftpSg.securityGroupId],
+      },
+      identityProviderType: 'SERVICE_MANAGED',
+      loggingRole: 'arn:aws:iam::234567890123:role/TransferLoggingRole',
+    });
+
+    // IAM role — Transfer Family assumes it to write to S3 on behalf of the user
+    const transferRole = new iam.Role(this, 'TransferUserRole', {
+      roleName: 'marketplace-transfer-user-role',
+      assumedBy: new iam.ServicePrincipal('transfer.amazonaws.com'),
+    });
+    transferRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['s3:PutObject', 's3:GetObject', 's3:ListBucket'],
+      resources: [
+        'arn:aws:s3:::marketplace-products-bucket',
+        'arn:aws:s3:::marketplace-products-bucket/*',
+      ],
+    }));
+
+    // Seller user — LOGICAL home directory scopes them to their own S3 prefix
+    new transfer.CfnUser(this, 'SellerFinservCorp', {
+      serverId: sftpServer.attrServerId,
+      userName: 'seller-finserv-corp',
+      homeDirectoryType: 'LOGICAL',
+      homeDirectoryMappings: [{
+        entry: '/',
+        target: '/marketplace-products-bucket/sellers/seller-finserv-corp',
+      }],
+      role: transferRole.roleArn,
+      sshPublicKeys: ['ssh-rsa AAAAB3NzaC1yc2EAAA... seller@finserv-corp'],
+    });
+  }
+}`,
             },
         ],
     },

@@ -63,6 +63,27 @@ const scenarios = [
 }`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Launch Template referencing golden AMI and instance profile",
+                note: "Creates the Launch Template with the golden AMI ID, t3.medium instance type, and the Marketplace API instance profile. IMDSv2 is enforced via httpTokens.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+const apiRole = iam.Role.fromRoleName(this, 'ApiRole', 'Marketplace-API-EC2-Role');
+
+const launchTemplate = new ec2.LaunchTemplate(this, 'MarketplaceApiLaunchTemplate', {
+  launchTemplateName: 'marketplace-api-launch-template',
+  machineImage: ec2.MachineImage.genericLinux({
+    'ap-southeast-1': 'ami-0abc123marketplaceapi',
+  }),
+  instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
+  role: apiRole,
+  requireImdsv2: true,
+  securityGroup: ec2.SecurityGroup.fromSecurityGroupId(this, 'ApiSg', 'sg-0123marketplaceapi'),
+});`,
+            },
+        ],
     },
 
     {
@@ -110,6 +131,31 @@ const scenarios = [
   --name marketplace-api-golden-ami-v1-dr`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Cross-region AMI copy using a custom resource",
+                note: "CDK does not have a native L2 for copying AMIs across regions. Use AwsCustomResource to call ec2:CopyImage in the target region. The resulting AMI ID is used in the DR Launch Template.",
+                code: `import * as cr from 'aws-cdk-lib/custom-resources';
+
+const copyAmi = new cr.AwsCustomResource(this, 'CopyAmiToDr', {
+  onCreate: {
+    service: 'EC2',
+    action: 'copyImage',
+    parameters: {
+      SourceRegion: 'ap-southeast-1',
+      SourceImageId: 'ami-0abc123marketplaceapi',
+      Name: 'marketplace-api-golden-ami-v1-dr',
+      Description: 'DR copy of Marketplace API golden AMI',
+    },
+    region: 'ap-south-1',
+    physicalResourceId: cr.PhysicalResourceId.fromResponse('ImageId'),
+  },
+  policy: cr.AwsCustomResourcePolicy.fromSdkCalls({ resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE }),
+});
+
+const drAmiId = copyAmi.getResponseField('ImageId');`,
+            },
+        ],
     },
 
     {
@@ -153,6 +199,40 @@ const scenarios = [
                 code: `aws ec2 modify-image-attribute \\
   --image-id ami-0def456analyticstool \\
   --launch-permission "Add=[{UserId=111122223333}]"`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — Share AMI launch permission with a customer account",
+                note: "Uses AwsCustomResource to call modifyImageAttribute. Call this on subscription activation and remove it on cancellation by implementing onDelete.",
+                code: `import * as cr from 'aws-cdk-lib/custom-resources';
+
+new cr.AwsCustomResource(this, 'ShareAnalyticsToolAmi', {
+  onCreate: {
+    service: 'EC2',
+    action: 'modifyImageAttribute',
+    parameters: {
+      ImageId: 'ami-0def456analyticstool',
+      Attribute: 'launchPermission',
+      LaunchPermission: {
+        Add: [{ UserId: '111122223333' }],
+      },
+    },
+    physicalResourceId: cr.PhysicalResourceId.of('ami-0def456analyticstool-share-111122223333'),
+  },
+  onDelete: {
+    service: 'EC2',
+    action: 'modifyImageAttribute',
+    parameters: {
+      ImageId: 'ami-0def456analyticstool',
+      Attribute: 'launchPermission',
+      LaunchPermission: {
+        Remove: [{ UserId: '111122223333' }],
+      },
+    },
+  },
+  policy: cr.AwsCustomResourcePolicy.fromSdkCalls({ resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE }),
+});`,
             },
         ],
     },
@@ -218,6 +298,39 @@ const scenarios = [
 }`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Launch Template with encrypted root and data EBS volumes",
+                note: "Defines the block device mapping inline on the Launch Template construct. The data volume sets deleteOnTermination=false so report caches survive instance replacement.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const reportingLaunchTemplate = new ec2.LaunchTemplate(this, 'ReportingLaunchTemplate', {
+  launchTemplateName: 'marketplace-reporting-template',
+  machineImage: ec2.MachineImage.genericLinux({
+    'ap-southeast-1': 'ami-0reporting123',
+  }),
+  instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.LARGE),
+  blockDevices: [
+    {
+      deviceName: '/dev/xvda',
+      volume: ec2.BlockDeviceVolume.ebs(30, {
+        volumeType: ec2.EbsDeviceVolumeType.GP3,
+        encrypted: true,
+        deleteOnTermination: true,
+      }),
+    },
+    {
+      deviceName: '/dev/sdf',
+      volume: ec2.BlockDeviceVolume.ebs(100, {
+        volumeType: ec2.EbsDeviceVolumeType.GP3,
+        encrypted: true,
+        deleteOnTermination: false,
+      }),
+    },
+  ],
+});`,
+            },
+        ],
     },
 
     {
@@ -272,6 +385,35 @@ aws ssm get-parameter \\
 
 systemctl enable marketplace-api
 systemctl start marketplace-api`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — Launch Template with IMDSv2 and UserData bootstrap script",
+                note: "Passes the environment bootstrap as UserData on the Launch Template. IMDSv2 is enforced via requireImdsv2. Secrets are fetched from SSM at runtime, not baked in.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const userData = ec2.UserData.forLinux();
+userData.addCommands(
+  'set -euo pipefail',
+  'ENVIRONMENT="prod"',
+  'APP_DIR="/opt/marketplace-api"',
+  'aws ssm get-parameter \\',
+  '  --name "/marketplace/\${ENVIRONMENT}/api-config" \\',
+  '  --with-decryption \\',
+  '  --query "Parameter.Value" \\',
+  '  --output text > "\${APP_DIR}/application-prod.yml"',
+  'systemctl enable marketplace-api',
+  'systemctl start marketplace-api',
+);
+
+const launchTemplate = new ec2.LaunchTemplate(this, 'MarketplaceApiLaunchTemplate', {
+  launchTemplateName: 'marketplace-api-launch-template',
+  machineImage: ec2.MachineImage.genericLinux({ 'ap-southeast-1': 'ami-0abc123marketplaceapi' }),
+  instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
+  userData,
+  requireImdsv2: true,
+});`,
             },
         ],
     },

@@ -81,6 +81,64 @@ aws cloudwatch get-metric-statistics \\
   --statistics Average p99`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — CloudWatch Dashboard with default and custom metric widgets",
+                note: "💡 Use Metric objects with statistic='p99' to display percentile statistics on the dashboard — CDK's GraphWidget accepts any Metric with any statistic string.",
+                code: `import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+
+// Custom metric: OrderProcessingDurationMs (MarketplacePlatform namespace)
+const orderDurationMetric = new cloudwatch.Metric({
+  namespace: 'MarketplacePlatform',
+  metricName: 'OrderProcessingDurationMs',
+  dimensionsMap: { FunctionName: 'marketplace-order-processor', Environment: 'prod' },
+  statistic: 'p99',
+  period: cdk.Duration.minutes(5),
+});
+
+// Default Lambda errors metric
+const lambdaErrorsMetric = new cloudwatch.Metric({
+  namespace: 'AWS/Lambda',
+  metricName: 'Errors',
+  dimensionsMap: { FunctionName: 'marketplace-order-processor' },
+  statistic: 'Sum',
+  period: cdk.Duration.minutes(5),
+});
+
+// Default RDS connections metric
+const rdsConnectionsMetric = new cloudwatch.Metric({
+  namespace: 'AWS/RDS',
+  metricName: 'DatabaseConnections',
+  dimensionsMap: { DBInstanceIdentifier: 'marketplace-orders-db' },
+  statistic: 'Average',
+  period: cdk.Duration.minutes(5),
+});
+
+// CloudWatch Dashboard: marketplace-ops-dashboard
+const opsDashboard = new cloudwatch.Dashboard(this, 'MarketplaceOpsDashboard', {
+  dashboardName: 'marketplace-ops-dashboard',
+  widgets: [
+    [
+      new cloudwatch.GraphWidget({
+        title: 'Order Processing Duration (p99)',
+        left: [orderDurationMetric],
+        width: 12,
+      }),
+      new cloudwatch.GraphWidget({
+        title: 'Lambda Errors',
+        left: [lambdaErrorsMetric],
+        width: 6,
+      }),
+      new cloudwatch.SingleValueWidget({
+        title: 'RDS Connections',
+        metrics: [rdsConnectionsMetric],
+        width: 6,
+      }),
+    ],
+  ],
+});`,
+            },
+        ],
     },
 
     {
@@ -145,6 +203,50 @@ aws logs start-query \\
   --start-time $(date -d '30 minutes ago' +%s) \\
   --end-time $(date +%s) \\
   --query-string 'filter @message like /ERROR/ | fields @timestamp, @requestId | sort @timestamp desc | limit 50'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — CloudWatch Log Group with retention and Metric Filter",
+                note: "💡 Create the log group explicitly in CDK with a retention policy — if Lambda creates it implicitly, there is no retention set and you will be billed for indefinite log storage.",
+                code: `import * as logs from 'aws-cdk-lib/aws-logs';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+
+// Lambda log group with 90-day retention
+const orderProcessorLogGroup = new logs.LogGroup(this, 'OrderProcessorLogGroup', {
+  logGroupName: '/aws/lambda/marketplace-order-processor',
+  retention: logs.RetentionDays.THREE_MONTHS, // 90 days
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+});
+
+// Spring Boot EC2 application log group
+const springBootLogGroup = new logs.LogGroup(this, 'SpringBootLogGroup', {
+  logGroupName: '/marketplace/ec2/spring-boot-api',
+  retention: logs.RetentionDays.THREE_MONTHS,
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+});
+
+// Metric Filter: count PAYMENT_FAILED log lines as LambdaPaymentErrors metric
+const paymentErrorFilter = new logs.MetricFilter(this, 'PaymentFailedFilter', {
+  logGroup: orderProcessorLogGroup,
+  filterName: 'marketplace-payment-failures',
+  filterPattern: logs.FilterPattern.literal('PAYMENT_FAILED'),
+  metricNamespace: 'MarketplacePlatform',
+  metricName: 'LambdaPaymentErrors',
+  metricValue: '1',
+  defaultValue: 0,
+});
+
+// Alarm on LambdaPaymentErrors > 0 (any payment failure triggers SNS)
+const paymentErrorAlarm = new cloudwatch.Alarm(this, 'PaymentErrorAlarm', {
+  alarmName: 'marketplace-payment-errors-alarm',
+  metric: paymentErrorFilter.metric({ statistic: 'Sum', period: cdk.Duration.minutes(1) }),
+  threshold: 1,
+  evaluationPeriods: 1,
+  comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+  treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+  alarmDescription: 'Fires when any PAYMENT_FAILED log line appears',
+});`,
             },
         ],
     },
@@ -219,6 +321,73 @@ aws cloudwatch put-composite-alarm \\
   --alarm-actions arn:aws:sns:ap-southeast-1:234567890123:marketplace-notifications`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — individual alarms and composite alarm for incident detection",
+                note: "💡 Use CompositeAlarm in CDK with alarmRule built from Alarm.anyAlarmInAlarm() or a custom expression string — CompositeAlarm supports both AND and OR logic via the alarmRule property.",
+                code: `import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as cw_actions from 'aws-cdk-lib/aws-cloudwatch-actions';
+
+const notificationsTopic = sns.Topic.fromTopicArn(
+  this, 'NotificationsTopic',
+  \`arn:aws:sns:\${this.region}:\${this.account}:marketplace-notifications\`
+);
+
+// Individual alarm 1: Lambda errors > 5 in 5 min
+const orderErrorAlarm = new cloudwatch.Alarm(this, 'OrderErrorAlarm', {
+  alarmName: 'marketplace-order-error-alarm',
+  metric: new cloudwatch.Metric({
+    namespace: 'AWS/Lambda',
+    metricName: 'Errors',
+    dimensionsMap: { FunctionName: 'marketplace-order-processor' },
+    statistic: 'Sum',
+    period: cdk.Duration.minutes(5),
+  }),
+  threshold: 5,
+  evaluationPeriods: 1,
+  treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+});
+
+// Individual alarm 2: DLQ depth >= 1
+const dlqDepthAlarm = new cloudwatch.Alarm(this, 'DlqDepthAlarm', {
+  alarmName: 'marketplace-dlq-depth-alarm',
+  metric: new cloudwatch.Metric({
+    namespace: 'AWS/SQS',
+    metricName: 'ApproximateNumberOfMessagesVisible',
+    dimensionsMap: { QueueName: 'order-events-dlq' },
+    statistic: 'Sum',
+    period: cdk.Duration.minutes(1),
+  }),
+  threshold: 1,
+  evaluationPeriods: 1,
+  comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+  treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+});
+
+// Individual alarm 3: ALB 5xx > 10 in 5 min
+const alb5xxAlarm = new cloudwatch.Alarm(this, 'Alb5xxAlarm', {
+  alarmName: 'marketplace-alb-5xx-alarm',
+  metric: new cloudwatch.Metric({
+    namespace: 'AWS/ApplicationELB',
+    metricName: 'HTTPCode_Target_5XX_Count',
+    dimensionsMap: { LoadBalancer: 'marketplace-alb' },
+    statistic: 'Sum',
+    period: cdk.Duration.minutes(5),
+  }),
+  threshold: 10,
+  evaluationPeriods: 1,
+  treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+});
+
+// Composite alarm: ALL three must be ALARM simultaneously
+const criticalIncidentAlarm = new cloudwatch.CompositeAlarm(this, 'CriticalIncidentAlarm', {
+  compositeAlarmName: 'marketplace-critical-incident-alarm',
+  alarmRule: cloudwatch.AlarmRule.allOf(orderErrorAlarm, dlqDepthAlarm, alb5xxAlarm),
+});
+criticalIncidentAlarm.addAlarmAction(new cw_actions.SnsAction(notificationsTopic));`,
+            },
+        ],
     },
 
     {
@@ -290,6 +459,39 @@ aws cloudtrail put-event-selectors \\
       ]
     }
   ]'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — Org-wide CloudTrail trail with KMS encryption and data events",
+                note: "CDK L2 Trail supports most options, but isOrganizationTrail requires CfnTrail or deploying from the management account. Use addS3EventSelector and addLambdaEventSelector for data events.",
+                code: `import * as cloudtrail from 'aws-cdk-lib/aws-cloudtrail';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as kms from 'aws-cdk-lib/aws-kms';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+
+const cloudtrailKey = kms.Key.fromAlias(this, 'CloudTrailKey', 'alias/marketplace-cloudtrail-key');
+const trailBucket = s3.Bucket.fromBucketName(this, 'TrailBucket', 'marketplace-tool-artifacts');
+
+const orgTrail = new cloudtrail.Trail(this, 'MarketplaceOrgTrail', {
+  trailName: 'marketplace-org-trail',
+  bucket: trailBucket,
+  s3KeyPrefix: 'cloudtrail-logs',
+  encryptionKey: cloudtrailKey,
+  isMultiRegionTrail: true,
+  includeGlobalServiceEvents: true,
+  enableFileValidation: true,
+  sendToCloudWatchLogs: false,
+});
+
+// Enable S3 data events for marketplace-tool-artifacts
+orgTrail.addS3EventSelector([{ bucket: trailBucket }]);
+
+// Enable Lambda data events for order processor
+const orderFn = lambda.Function.fromFunctionName(
+  this, 'OrderProcessor', 'marketplace-order-processor'
+);
+orgTrail.addLambdaEventSelector([orderFn]);`,
             },
         ],
     },
@@ -366,6 +568,52 @@ exports.handler = async (event) => {
 #   --tracing-config Mode=Active`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Enable X-Ray active tracing on Lambda and API Gateway",
+                note: "Set tracing: lambda.Tracing.ACTIVE on the Function and deployOptions.tracingEnabled=true on the RestApi stage. The X-Ray Daemon is bundled as a built-in Lambda layer automatically.",
+                code: `import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as xray from 'aws-cdk-lib/aws-xray';
+
+const orderProcessorFn = new lambda.Function(this, 'OrderProcessor', {
+  functionName: 'marketplace-order-processor',
+  runtime: lambda.Runtime.NODEJS_18_X,
+  handler: 'index.handler',
+  code: lambda.Code.fromAsset('lambda/order-processor'),
+  tracing: lambda.Tracing.ACTIVE,  // X-Ray active tracing — adds daemon as built-in layer
+  environment: { POWERTOOLS_SERVICE_NAME: 'marketplace-order-processor' },
+});
+
+const api = new apigateway.RestApi(this, 'MarketplaceApiGw', {
+  restApiName: 'marketplace-api-gw',
+  deployOptions: {
+    stageName: 'prod',
+    tracingEnabled: true,       // X-Ray active tracing on API Gateway
+    metricsEnabled: true,
+    loggingLevel: apigateway.MethodLoggingLevel.INFO,
+    dataTraceEnabled: false,
+  },
+});
+
+// X-Ray sampling rule to capture 100% of slow orders (>2s)
+new xray.CfnSamplingRule(this, 'SlowOrderSamplingRule', {
+  samplingRule: {
+    ruleName: 'marketplace-slow-requests',
+    priority: 1,
+    reservoirSize: 1,
+    fixedRate: 1.0,
+    urlPath: '/api/orders/*',
+    httpMethod: 'POST',
+    host: '*',
+    serviceName: 'marketplace-api-gw',
+    serviceType: 'AWS::ApiGateway::Stage',
+    resourceArn: '*',
+    version: 1,
+  },
+});`,
+            },
+        ],
     },
 
     {
@@ -435,6 +683,56 @@ aws events put-rule \\
   --name marketplace-iam-change-alert \\
   --event-pattern '{"source":["aws.cloudtrail"],"detail-type":["AWS API Call via CloudTrail"],"detail":{"eventSource":["iam.amazonaws.com"],"eventName":["AttachRolePolicy","CreateUser","DeleteRole"]}}' \\
   --state ENABLED`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — EventBridge scheduled rule + IAM change alert rule",
+                note: "Use events.Schedule.cron() for scheduled rules and eventPattern for CloudTrail-sourced IAM change detection. Targets.SnsTopic delivers the alert to marketplace-notifications.",
+                code: `import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as sns from 'aws-cdk-lib/aws-sns';
+
+const cleanupFn = lambda.Function.fromFunctionName(
+  this, 'CleanupFn', 'marketplace-cleanup-lambda'
+);
+const notificationsTopic = sns.Topic.fromTopicArn(
+  this, 'Notifications',
+  'arn:aws:sns:ap-southeast-1:234567890123:marketplace-notifications'
+);
+
+// Nightly cleanup — 02:00 UTC every day
+const nightlyRule = new events.Rule(this, 'NightlyCleanup', {
+  ruleName: 'marketplace-nightly-cleanup',
+  schedule: events.Schedule.cron({ minute: '0', hour: '2' }),
+  description: 'Archive orders older than 90 days',
+});
+nightlyRule.addTarget(new targets.LambdaFunction(cleanupFn, {
+  event: events.RuleTargetInput.fromObject({
+    environment: 'prod',
+    executionDate: events.EventField.time,
+  }),
+}));
+
+// IAM change alert — triggers on CloudTrail IAM events
+const iamAlertRule = new events.Rule(this, 'IamChangeAlert', {
+  ruleName: 'marketplace-iam-change-alert',
+  eventPattern: {
+    source: ['aws.cloudtrail'],
+    detailType: ['AWS API Call via CloudTrail'],
+    detail: {
+      eventSource: ['iam.amazonaws.com'],
+      eventName: ['AttachRolePolicy', 'CreateUser', 'DeleteRole', 'DetachRolePolicy'],
+    },
+  },
+});
+iamAlertRule.addTarget(new targets.SnsTopic(notificationsTopic));
+
+// Custom event bus for cross-account tool deployment events
+const toolDeploymentBus = new events.EventBus(this, 'ToolDeploymentBus', {
+  eventBusName: 'marketplace-tool-deployment-bus',
+});`,
             },
         ],
     },

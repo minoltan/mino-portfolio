@@ -74,6 +74,40 @@ aws ec2 create-volume \\
   --tag-specifications 'ResourceType=volume,Tags=[{Key=Name,Value=marketplace-mcp-db-vol},{Key=Service,Value=mcp-report-generator}]'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — Launch Template with gp3 root volume (16K IOPS) for marketplace-api-asg",
+                note: "💡 CDK's LaunchTemplate.blockDevices sets the EBS volume type and provisioned IOPS. Use EbsDeviceVolumeType.GP3 to get independent IOPS/throughput tuning.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as kms from 'aws-cdk-lib/aws-kms';
+
+const ebsKey = kms.Key.fromLookup(this, 'MarketplaceEbsKey', {
+  aliasName: 'alias/marketplace-ebs-key',
+});
+
+const launchTemplate = new ec2.LaunchTemplate(this, 'MarketplaceApiLaunchTemplate', {
+  launchTemplateName: 'marketplace-api-launch-template',
+  instanceType: ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.XLARGE),
+  machineImage: ec2.MachineImage.genericLinux({
+    'ap-southeast-1': 'ami-0marketplace123', // marketplace-api-golden-ami-v1
+  }),
+  ebsOptimized: true,
+  blockDevices: [
+    {
+      deviceName: '/dev/xvda',
+      volume: ec2.BlockDeviceVolume.ebs(100, {
+        volumeType: ec2.EbsDeviceVolumeType.GP3,
+        iops: 16000,
+        throughput: 1000,
+        encrypted: true,
+        kmsKey: ebsKey,
+        deleteOnTermination: true,
+      }),
+    },
+  ],
+});`,
+            },
+        ],
     },
 
     {
@@ -160,6 +194,44 @@ aws ec2 register-image \\
   }]'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — DLM lifecycle policy for daily EBS snapshots of marketplace-api-asg instances",
+                note: "💡 CDK's dlm.CfnLifecyclePolicy targets instances by tag (Service=marketplace-api) and creates incremental snapshots on a schedule with a retention count.",
+                code: `import * as dlm from 'aws-cdk-lib/aws-dlm';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+const dlmRole = iam.Role.fromRoleName(
+  this, 'DlmRole', 'AWSDataLifecycleManagerDefaultRole'
+);
+
+new dlm.CfnLifecyclePolicy(this, 'MarketplaceApiSnapshotPolicy', {
+  description: 'Daily EBS snapshots for marketplace-api-asg root volumes',
+  state: 'ENABLED',
+  executionRoleArn: dlmRole.roleArn,
+  policyDetails: {
+    policyType: 'EBS_SNAPSHOT_MANAGEMENT',
+    resourceTypes: ['INSTANCE'],
+    targetTags: [{ key: 'Service', value: 'marketplace-api' }],
+    schedules: [
+      {
+        name: 'daily-2am-utc',
+        createRule: {
+          interval: 24,
+          intervalUnit: 'HOURS',
+          times: ['02:00'],
+        },
+        retainRule: { count: 7 },
+        copyTags: true,
+        tagsToAdd: [
+          { key: 'CreatedBy', value: 'DLM-marketplace-api' },
+        ],
+      },
+    ],
+  },
+});`,
+            },
+        ],
     },
 
     {
@@ -231,6 +303,44 @@ aws ec2 copy-snapshot \\
   "Action": ["kms:DescribeKey", "kms:ReEncrypt*", "kms:CreateGrant"],
   "Resource": "*"
 }`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — KMS CMK (marketplace-ebs-key) with cross-account grant for snapshot sharing",
+                note: "💡 Create the KMS key in CDK with the alias marketplace-ebs-key and add the management account as a principal for kms:ReEncrypt* and kms:CreateGrant.",
+                code: `import * as kms from 'aws-cdk-lib/aws-kms';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+const ebsKey = new kms.Key(this, 'MarketplaceEbsKey', {
+  alias: 'marketplace-ebs-key',
+  description: 'CMK for all EBS volumes in marketplace-vpc (ap-southeast-1)',
+  enableKeyRotation: true,
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+  policy: new iam.PolicyDocument({
+    statements: [
+      // Key admin — marketplace-prod account root
+      new iam.PolicyStatement({
+        principals: [new iam.AccountRootPrincipal()],
+        actions: ['kms:*'],
+        resources: ['*'],
+      }),
+      // Cross-account: allow management account to use key for snapshot sharing
+      new iam.PolicyStatement({
+        sid: 'AllowManagementAccountSnapshotShare',
+        principals: [new iam.AccountPrincipal('123456789012')],
+        actions: ['kms:DescribeKey', 'kms:ReEncrypt*', 'kms:CreateGrant'],
+        resources: ['*'],
+      }),
+    ],
+  }),
+});
+
+// Enforce EBS encryption by default (escape hatch — no CDK L2 for this)
+new cdk.CfnCustomResource(this, 'EbsEncryptionByDefault', {
+  serviceToken: enableEbsEncryptionLambda.functionArn,
+});
+// In practice, run: aws ec2 enable-ebs-encryption-by-default --region ap-southeast-1`,
             },
         ],
     },
@@ -314,6 +424,52 @@ sudo mount -t efs -o tls,accesspoint=fsap-0abc123marketplace \\
   fs-0abc123marketplace:/ /mnt/reports`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — EFS file system (marketplace-reports-efs) with mount targets and access point",
+                note: "💡 CDK's efs.FileSystem automatically creates one mount target per AZ in the provided VPC. Add an AccessPoint for POSIX UID/GID enforcement.",
+                code: `import * as efs from 'aws-cdk-lib/aws-efs';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as kms from 'aws-cdk-lib/aws-kms';
+
+const ebsKey = kms.Key.fromLookup(this, 'MarketplaceEbsKey', {
+  aliasName: 'alias/marketplace-ebs-key',
+});
+
+const efsMountSg = new ec2.SecurityGroup(this, 'EfsMountSg', {
+  vpc: marketplaceVpc,
+  securityGroupName: 'sg-efs-mount',
+  description: 'Allow NFS from marketplace-api-sg',
+});
+efsMountSg.addIngressRule(marketplaceApiSg, ec2.Port.tcp(2049), 'NFS from marketplace-api-sg');
+
+const reportsEfs = new efs.FileSystem(this, 'MarketplaceReportsEfs', {
+  fileSystemName: 'marketplace-reports-efs',
+  vpc: marketplaceVpc,
+  vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+  securityGroup: efsMountSg,
+  performanceMode: efs.PerformanceMode.GENERAL_PURPOSE,
+  throughputMode: efs.ThroughputMode.BURSTING,
+  encrypted: true,
+  kmsKey: ebsKey,
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+});
+
+// EFS Access Point — POSIX UID 1001 for the report generator process
+const reportsAccessPoint = reportsEfs.addAccessPoint('ReportsAccessPoint', {
+  path: '/reports/tenant',
+  createAcl: {
+    ownerUid: '1001',
+    ownerGid: '1001',
+    permissions: '755',
+  },
+  posixUser: {
+    uid: '1001',
+    gid: '1001',
+  },
+});`,
+            },
+        ],
     },
 
     {
@@ -388,6 +544,43 @@ aws cloudwatch put-metric-alarm \\
   --alarm-actions arn:aws:sns:ap-southeast-1:234567890123:marketplace-ops-alerts`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — EFS file systems with Max I/O + Provisioned and General Purpose + Bursting",
+                note: "PerformanceMode.MAX_IO with ThroughputMode.PROVISIONED for analytics (500 MiB/s). PerformanceMode.GENERAL_PURPOSE with ThroughputMode.BURSTING for reports. Note: Max I/O cannot be changed after creation.",
+                code: `import * as efs from 'aws-cdk-lib/aws-efs';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as kms from 'aws-cdk-lib/aws-kms';
+
+const vpc = ec2.Vpc.fromLookup(this, 'Vpc', { vpcName: 'marketplace-vpc' });
+const efsKey = kms.Key.fromAlias(this, 'EfsKey', 'alias/marketplace-ebs-key');
+
+// Analytics EFS — Max I/O + Provisioned 500 MiB/s for high-concurrency dashboard
+const analyticsEfs = new efs.FileSystem(this, 'AnalyticsEfs', {
+  fileSystemName: 'marketplace-analytics-efs',
+  vpc,
+  vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+  encrypted: true,
+  kmsKey: efsKey,
+  performanceMode: efs.PerformanceMode.MAX_IO,
+  throughputMode: efs.ThroughputMode.PROVISIONED,
+  provisionedThroughputPerSecond: cdk.Size.mebibytes(500),
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+});
+
+// Reports EFS — General Purpose + Bursting (default, free, credit-based)
+const reportsEfs = new efs.FileSystem(this, 'ReportsEfs', {
+  fileSystemName: 'marketplace-reports-efs',
+  vpc,
+  vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+  encrypted: true,
+  kmsKey: efsKey,
+  performanceMode: efs.PerformanceMode.GENERAL_PURPOSE,
+  throughputMode: efs.ThroughputMode.BURSTING,
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+});`,
+            },
+        ],
     },
 
     {
@@ -455,6 +648,49 @@ aws dynamodb scan \\
   --output json > /mnt/cache/catalogue-warm.json
 
 echo "Instance store cache warm-up complete at $(date)" >> /var/log/marketplace-cache-init.log`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — i3.2xlarge ASG with UserData that formats NVMe instance store on launch",
+                note: "Instance store cannot be provisioned in CDK — it is physically attached based on instance type. The key CDK work is the Launch Template with UserData that formats, mounts, and warms up the NVMe device on every new instance launch.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+const vpc = ec2.Vpc.fromLookup(this, 'Vpc', { vpcName: 'marketplace-vpc' });
+
+const cacheRole = new iam.Role(this, 'CacheInstanceRole', {
+  assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+  managedPolicies: [
+    iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
+    iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchAgentServerPolicy'),
+  ],
+});
+cacheRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['dynamodb:Scan', 'dynamodb:GetItem'],
+  resources: ['arn:aws:dynamodb:ap-southeast-1:234567890123:table/marketplace-catalogue-table'],
+}));
+
+const userData = ec2.UserData.forLinux();
+userData.addCommands(
+  'DEVICE=$(lsblk -dpno NAME,TYPE | awk \'$2=="disk" && /nvme/ {print $1}\' | head -1)',
+  'mkfs.xfs -f $DEVICE',
+  'mkdir -p /mnt/cache && mount $DEVICE /mnt/cache && chmod 755 /mnt/cache',
+  'echo "$DEVICE /mnt/cache xfs defaults,noatime 0 0" >> /etc/fstab',
+  'aws dynamodb scan --table-name marketplace-catalogue-table --region ap-southeast-1 --output json > /mnt/cache/catalogue-warm.json',
+);
+
+const cacheAsg = new autoscaling.AutoScalingGroup(this, 'CacheAsg', {
+  vpc,
+  instanceType: new ec2.InstanceType('i3.2xlarge'),  // 1x 1.9 TiB NVMe instance store included
+  machineImage: ec2.MachineImage.genericLinux({ 'ap-southeast-1': 'ami-0abc123marketplaceapi' }),
+  role: cacheRole,
+  userData,
+  minCapacity: 2,
+  maxCapacity: 6,
+  vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+});`,
             },
         ],
     },

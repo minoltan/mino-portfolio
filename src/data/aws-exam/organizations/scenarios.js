@@ -72,6 +72,40 @@ aws organizations move-account \\
   --destination-parent-id ou-xxxx-platform`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Create OUs and move member accounts using CfnOrganizationalUnit",
+                note: "CDK does not have L2 constructs for Organizations. Use CfnOrganizationalUnit for OUs. Moving accounts requires AwsCustomResource since there is no CfnMoveAccount construct.",
+                code: `import * as organizations from 'aws-cdk-lib/aws-organizations';
+import * as cr from 'aws-cdk-lib/custom-resources';
+
+// Create OUs under the organization root
+const platformOu = new organizations.CfnOrganizationalUnit(this, 'PlatformOU', {
+  parentId: 'r-xxxx',   // org root ID — get from: aws organizations list-roots
+  name: 'Platform',
+});
+
+const customerOu = new organizations.CfnOrganizationalUnit(this, 'CustomerAccountsOU', {
+  parentId: 'r-xxxx',
+  name: 'CustomerAccounts',
+});
+
+// Move marketplace-prod account into Platform OU (no CfnMoveAccount — use custom resource)
+new cr.AwsCustomResource(this, 'MoveMarketplaceProd', {
+  onCreate: {
+    service: 'Organizations',
+    action: 'moveAccount',
+    parameters: {
+      AccountId: '234567890123',
+      SourceParentId: 'r-xxxx',
+      DestinationParentId: platformOu.attrId,
+    },
+    physicalResourceId: cr.PhysicalResourceId.of('move-234567890123-to-platform'),
+  },
+  policy: cr.AwsCustomResourcePolicy.fromSdkCalls({ resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE }),
+});`,
+            },
+        ],
     },
 
     {
@@ -166,6 +200,56 @@ aws organizations move-account \\
 }`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — SCPs with CfnPolicy and CfnPolicyAttachment",
+                note: "Use organizations.CfnPolicy with Type='SERVICE_CONTROL_POLICY' and CfnPolicyAttachment to attach to OUs. Attach the region-deny SCP to each OU and the role-protect SCP to CustomerAccounts OU only.",
+                code: `import * as organizations from 'aws-cdk-lib/aws-organizations';
+
+// SCP: protect Marketplace-Deploy-Role from deletion in customer accounts
+const protectRoleScp = new organizations.CfnPolicy(this, 'ProtectDeployRoleScp', {
+  name: 'marketplace-protect-deploy-role',
+  type: 'SERVICE_CONTROL_POLICY',
+  content: JSON.stringify({
+    Version: '2012-10-17',
+    Statement: [{
+      Sid: 'ProtectMarketplaceDeployRole',
+      Effect: 'Deny',
+      Action: ['iam:DeleteRole', 'iam:DetachRolePolicy', 'iam:DeleteRolePolicy', 'iam:PutRolePolicy'],
+      Resource: 'arn:aws:iam::*:role/Marketplace-Deploy-Role',
+    }],
+  }),
+});
+
+// Attach protect-role SCP to CustomerAccounts OU
+new organizations.CfnPolicyAttachment(this, 'ProtectRoleAttachment', {
+  policyId: protectRoleScp.attrId,
+  targetId: 'ou-xxxx-customeraccounts',
+});
+
+// SCP: restrict all API calls to approved regions only
+const regionDenyScp = new organizations.CfnPolicy(this, 'ApprovedRegionsScp', {
+  name: 'marketplace-approved-regions',
+  type: 'SERVICE_CONTROL_POLICY',
+  content: JSON.stringify({
+    Version: '2012-10-17',
+    Statement: [{
+      Sid: 'DenyNonApprovedRegions',
+      Effect: 'Deny',
+      NotAction: ['iam:*', 'sts:*', 's3:*', 'route53:*', 'cloudfront:*', 'support:*', 'organizations:*'],
+      Resource: '*',
+      Condition: { StringNotIn: { 'aws:RequestedRegion': ['ap-southeast-1', 'ap-south-1'] } },
+    }],
+  }),
+});
+
+// Attach region-deny SCP to Platform OU (repeat for other OUs)
+new organizations.CfnPolicyAttachment(this, 'RegionDenyPlatformAttachment', {
+  policyId: regionDenyScp.attrId,
+  targetId: 'ou-xxxx-platform',
+});`,
+            },
+        ],
     },
 
     {
@@ -225,6 +309,39 @@ aws ce get-reservation-utilization \\
 aws ce get-savings-plans-coverage \\
   --time-period Start=2025-01-01,End=2025-02-01 \\
   --granularity MONTHLY`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — RI/Savings Plans reporting via AwsCustomResource (Cost Explorer)",
+                note: "Consolidated billing activates automatically with Organizations — no CDK needed for that. For automated RI checks, use AwsCustomResource to call the Cost Explorer API and emit findings to CloudWatch.",
+                code: `import * as cr from 'aws-cdk-lib/custom-resources';
+import * as logs from 'aws-cdk-lib/aws-logs';
+
+// Consolidated billing is automatic when Organizations is enabled.
+// Use AwsCustomResource for one-off Cost Explorer RI utilization checks.
+const riUtilizationCheck = new cr.AwsCustomResource(this, 'RiUtilizationCheck', {
+  onCreate: {
+    service: 'CostExplorer',
+    action: 'getReservationUtilization',
+    parameters: {
+      TimePeriod: { Start: '2025-01-01', End: '2025-02-01' },
+      Granularity: 'MONTHLY',
+      Filter: {
+        Dimensions: {
+          Key: 'LINKED_ACCOUNT',
+          Values: ['234567890123', '987654321098'],
+        },
+      },
+    },
+    physicalResourceId: cr.PhysicalResourceId.of('ri-utilization-check'),
+  },
+  logRetention: logs.RetentionDays.ONE_WEEK,
+  policy: cr.AwsCustomResourcePolicy.fromSdkCalls({ resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE }),
+});
+
+// For scheduled RI reports, use EventBridge + Lambda that calls ce.getReservationUtilization
+// and publishes findings to marketplace-notifications SNS`,
             },
         ],
     },
@@ -328,6 +445,38 @@ aws ce get-savings-plans-coverage \\
 }`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Cross-account IAM role with aws:PrincipalOrgID trust condition",
+                note: "Create the Marketplace-Deploy-Role in each customer account stack with a trust policy using the PrincipalOrgID condition. The caller (marketplace-prod) needs an sts:AssumeRole permission on the role ARN wildcard.",
+                code: `import * as iam from 'aws-cdk-lib/aws-iam';
+
+// ── Customer account stack (deployed in finserv-corp-account 987654321098) ──
+const deployRole = new iam.Role(this, 'MarketplaceDeployRole', {
+  roleName: 'Marketplace-Deploy-Role',
+  assumedBy: new iam.PrincipalWithConditions(
+    new iam.AnyPrincipal(),
+    {
+      StringEquals: {
+        'aws:PrincipalOrgID': 'o-xxxxxxxxxx',  // AMI PVT LTD org ID
+      },
+    },
+  ),
+  description: 'Assumed by AMI PVT LTD Deployment Agent for marketplace tool provisioning',
+});
+deployRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('PowerUserAccess'));
+
+// ── marketplace-prod stack (234567890123) — allow Deployment Agent to assume any customer role ──
+const deployAgentRole = new iam.Role(this, 'DeploymentAgentRole', {
+  roleName: 'Marketplace-DeploymentAgent-Role',
+  assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+});
+deployAgentRole.addToPolicy(new iam.PolicyStatement({
+  actions: ['sts:AssumeRole'],
+  resources: ['arn:aws:iam::*:role/Marketplace-Deploy-Role'],
+}));`,
+            },
+        ],
     },
 
     {
@@ -420,6 +569,59 @@ Resources:
       Scope:
         ComplianceResourceTypes:
           - AWS::S3::Bucket`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — AWS Config rules deployed to all org accounts via StackSets",
+                note: "Delegated admin registration uses AwsCustomResource. Org-wide Config rules are best deployed via CloudFormation StackSets (SERVICE_MANAGED) targeting the Organizations root — CDK has L2 support for StackSets.",
+                code: `import * as cfn from 'aws-cdk-lib/aws-cloudformation';
+import * as cr from 'aws-cdk-lib/custom-resources';
+
+// Step 1: Register marketplace-prod as Config delegated admin (run from management account)
+new cr.AwsCustomResource(this, 'RegisterConfigDelegatedAdmin', {
+  onCreate: {
+    service: 'Organizations',
+    action: 'registerDelegatedAdministrator',
+    parameters: {
+      AccountId: '234567890123',
+      ServicePrincipal: 'config.amazonaws.com',
+    },
+    physicalResourceId: cr.PhysicalResourceId.of('config-delegated-admin-234567890123'),
+  },
+  policy: cr.AwsCustomResourcePolicy.fromSdkCalls({ resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE }),
+});
+
+// Step 2: Deploy org-wide Config rules via StackSets SERVICE_MANAGED
+// (deployed from the delegated admin account — marketplace-prod)
+new cfn.CfnStackSet(this, 'MarketplaceComplianceStackSet', {
+  stackSetName: 'marketplace-compliance-config-rules',
+  permissionModel: 'SERVICE_MANAGED',
+  autoDeployment: { enabled: true, retainStacksOnAccountRemoval: false },
+  capabilities: ['CAPABILITY_IAM'],
+  templateBody: JSON.stringify({
+    Resources: {
+      S3VersioningRule: {
+        Type: 'AWS::Config::ConfigRule',
+        Properties: {
+          ConfigRuleName: 'marketplace-s3-versioning-enabled',
+          Source: { Owner: 'AWS', SourceIdentifier: 'S3_BUCKET_VERSIONING_ENABLED' },
+        },
+      },
+      S3NoPublicAccessRule: {
+        Type: 'AWS::Config::ConfigRule',
+        Properties: {
+          ConfigRuleName: 'marketplace-s3-no-public-access',
+          Source: { Owner: 'AWS', SourceIdentifier: 'S3_BUCKET_LEVEL_PUBLIC_ACCESS_PROHIBITED' },
+        },
+      },
+    },
+  }),
+  stackInstancesGroup: [{
+    deploymentTargets: { organizationalUnitIds: ['ou-xxxx-customeraccounts'] },
+    regions: ['ap-southeast-1'],
+  }],
+});`,
             },
         ],
     },

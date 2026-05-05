@@ -77,6 +77,36 @@ aws ec2 attach-internet-gateway \\
   --vpc-id vpc-0marketplace123`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — marketplace-vpc with public and private subnets",
+                note: "The CDK Vpc construct creates subnets, route tables, an internet gateway, and (by default) NAT Gateways. Set natGateways to control AZ coverage. Tags are applied with cdk.Tags.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const marketplaceVpc = new ec2.Vpc(this, 'MarketplaceVpc', {
+  vpcName: 'marketplace-vpc',
+  ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
+  maxAzs: 2,
+  natGateways: 1,
+  subnetConfiguration: [
+    {
+      name: 'marketplace-public',
+      subnetType: ec2.SubnetType.PUBLIC,
+      cidrMask: 24,
+      mapPublicIpOnLaunch: true,
+    },
+    {
+      name: 'marketplace-private',
+      subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+      cidrMask: 24,
+    },
+  ],
+  enableDnsHostnames: true,
+  enableDnsSupport: true,
+});
+cdk.Tags.of(marketplaceVpc).add('Environment', 'prod');`,
+            },
+        ],
     },
 
     {
@@ -133,6 +163,31 @@ aws ec2 create-route \\
   --route-table-id rtb-marketplace-private \\
   --destination-cidr-block 0.0.0.0/0 \\
   --nat-gateway-id nat-0marketplace123`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — NAT Gateway in public subnet with route in private route table",
+                note: "The CDK Vpc construct automatically places NAT Gateways in public subnets and adds the default route in private route tables. Set natGateways=1 for a single NAT GW or natGateways=2 for one per AZ.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+// natGateways=1 places one NAT GW in the first public subnet.
+// Increase to 2 for HA (one per AZ).
+const marketplaceVpc = new ec2.Vpc(this, 'MarketplaceVpc', {
+  vpcName: 'marketplace-vpc',
+  ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
+  maxAzs: 2,
+  natGateways: 1,    // set to maxAzs for production HA
+  subnetConfiguration: [
+    { name: 'public', subnetType: ec2.SubnetType.PUBLIC, cidrMask: 24 },
+    { name: 'private', subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS, cidrMask: 24 },
+  ],
+});
+
+// The CDK VPC construct automatically:
+//   1. Creates an EIP for the NAT GW
+//   2. Places marketplace-nat-gw in the public subnet
+//   3. Adds 0.0.0.0/0 → natGatewayId in every private route table`,
             },
         ],
     },
@@ -202,6 +257,38 @@ aws ec2 create-route \\
     }
   ]
 }`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — Security Groups with SG-to-SG references for ALB and EC2 tiers",
+                note: "Creates marketplace-alb-sg and marketplace-api-sg. The EC2 SG allows inbound 8080 only from the ALB SG — no hardcoded CIDRs needed. A bastion SG is also created for SSH.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const vpc = ec2.Vpc.fromLookup(this, 'MarketplaceVpc', { vpcName: 'marketplace-vpc' });
+
+const albSg = new ec2.SecurityGroup(this, 'AlbSg', {
+  vpc,
+  securityGroupName: 'marketplace-alb-sg',
+  description: 'marketplace-alb — allow HTTPS and HTTP from internet',
+});
+albSg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'Allow HTTPS');
+albSg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'Allow HTTP for redirect');
+
+const bastionSg = new ec2.SecurityGroup(this, 'BastionSg', {
+  vpc, securityGroupName: 'marketplace-bastion-sg',
+  description: 'Bastion host — allow SSH from corporate IP only',
+});
+bastionSg.addIngressRule(ec2.Peer.ipv4('203.0.113.0/24'), ec2.Port.tcp(22), 'Corporate SSH');
+
+const apiSg = new ec2.SecurityGroup(this, 'ApiSg', {
+  vpc,
+  securityGroupName: 'marketplace-api-sg',
+  description: 'Spring Boot API EC2 — allow inbound from ALB SG only',
+  allowAllOutbound: true,
+});
+apiSg.addIngressRule(albSg, ec2.Port.tcp(8080), 'Allow traffic from marketplace-alb-sg');
+apiSg.addIngressRule(bastionSg, ec2.Port.tcp(22), 'SSH from bastion SG only');`,
             },
         ],
     },
@@ -275,6 +362,45 @@ aws ec2 create-vpc-endpoint \\
   --tag-specifications 'ResourceType=vpc-endpoint,Tags=[{Key=Name,Value=marketplace-sqs-endpoint}]'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Gateway endpoint for S3 and Interface endpoint for SQS",
+                note: "Adds a free Gateway endpoint for S3/DynamoDB on the private route table and an Interface endpoint for SQS with Private DNS enabled. No application code changes needed.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+// Assumes marketplaceVpc is already defined
+const s3Endpoint = marketplaceVpc.addGatewayEndpoint('S3Endpoint', {
+  service: ec2.GatewayVpcEndpointAwsService.S3,
+  subnets: [{ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }],
+});
+// Optional: scope endpoint to specific bucket
+s3Endpoint.addToPolicy(new iam.PolicyStatement({
+  principals: [new iam.AnyPrincipal()],
+  actions: ['s3:GetObject', 's3:PutObject', 's3:ListBucket'],
+  resources: [
+    'arn:aws:s3:::marketplace-artifacts-bucket',
+    'arn:aws:s3:::marketplace-artifacts-bucket/*',
+  ],
+}));
+
+marketplaceVpc.addGatewayEndpoint('DynamoDbEndpoint', {
+  service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
+  subnets: [{ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }],
+});
+
+const sqsEndpointSg = new ec2.SecurityGroup(this, 'SqsEndpointSg', {
+  vpc: marketplaceVpc, description: 'SQS Interface Endpoint SG',
+});
+sqsEndpointSg.addIngressRule(ec2.Peer.ipv4('10.0.10.0/24'), ec2.Port.tcp(443));
+
+marketplaceVpc.addInterfaceEndpoint('SqsEndpoint', {
+  service: ec2.InterfaceVpcEndpointAwsService.SQS,
+  subnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+  securityGroups: [sqsEndpointSg],
+  privateDnsEnabled: true,
+});`,
+            },
+        ],
     },
 
     {
@@ -340,6 +466,35 @@ aws ec2 create-route \\
   --vpc-peering-connection-id pcx-0marketplacepeer`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — VPC Peering connection with routes on both sides",
+                note: "CDK has no L2 for VPC peering — use CfnVPCPeeringConnection + CfnRoute. Routes on both VPCs must be added manually; the peering connection alone does not add any routes.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+// Create the peering connection
+const peeringConnection = new ec2.CfnVPCPeeringConnection(this, 'ProdAnalyticsPeer', {
+  vpcId: 'vpc-0marketplace123',    // marketplace-prod (10.0.0.0/16)
+  peerVpcId: 'vpc-0analytics456',  // marketplace-analytics (10.1.0.0/16)
+  tags: [{ key: 'Name', value: 'marketplace-prod-analytics-peer' }],
+});
+
+// Route on PRODUCTION side: send analytics CIDR via peering
+new ec2.CfnRoute(this, 'ProdToAnalyticsRoute', {
+  routeTableId: 'rtb-marketplace-private',
+  destinationCidrBlock: '10.1.0.0/16',
+  vpcPeeringConnectionId: peeringConnection.ref,
+});
+
+// Route on ANALYTICS side: send prod CIDR back via same peering
+// (deployed in the analytics VPC stack or cross-stack reference)
+new ec2.CfnRoute(this, 'AnalyticsToProdRoute', {
+  routeTableId: 'rtb-analytics-private',
+  destinationCidrBlock: '10.0.0.0/16',
+  vpcPeeringConnectionId: peeringConnection.ref,
+});`,
+            },
+        ],
     },
 
     {
@@ -401,6 +556,42 @@ aws ec2 create-vpc-endpoint \\
   --subnet-ids subnet-customer-private1 \\
   --security-group-ids sg-0customer-endpoint \\
   --private-dns-enabled`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — PrivateLink endpoint service (Account A) and Interface Endpoint (Account B)",
+                note: "CfnVPCEndpointService creates the service backed by marketplace-nlb. CfnVPCEndpointServicePermissions allows the customer account to connect. The customer account uses InterfaceVpcEndpoint to connect to the service.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+// ── Account A (AMI PVT LTD 123456789012): create Endpoint Service ──
+const endpointService = new ec2.CfnVPCEndpointService(this, 'MarketplaceEndpointSvc', {
+  networkLoadBalancerArns: [
+    'arn:aws:elasticloadbalancing:ap-southeast-1:123456789012:loadbalancer/net/marketplace-nlb/abc123',
+  ],
+  acceptanceRequired: true,   // AMI PVT LTD approves each connection
+  tags: [{ key: 'Name', value: 'marketplace-api-endpoint-service' }],
+});
+
+// Allow customer account to discover and connect
+new ec2.CfnVPCEndpointServicePermissions(this, 'CustomerPermission', {
+  serviceId: endpointService.ref,
+  allowedPrincipals: ['arn:aws:iam::987654321098:root'],
+});
+
+// ── Account B (customer 987654321098): create Interface Endpoint ──
+// (deployed in the customer account stack)
+const customerVpc = ec2.Vpc.fromLookup(this, 'CustomerVpc', { vpcId: 'vpc-0customer789' });
+
+const customerEndpoint = new ec2.InterfaceVpcEndpoint(this, 'MarketplaceApiEndpoint', {
+  vpc: customerVpc,
+  service: new ec2.InterfaceVpcEndpointService(
+    'com.amazonaws.vpce.ap-southeast-1.vpce-svc-0marketplace123',
+    443,
+  ),
+  subnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+  privateDnsEnabled: true,
+});`,
             },
         ],
     },
@@ -465,6 +656,44 @@ aws ec2 create-route \\
   --route-table-id rtb-marketplace-private \\
   --destination-cidr-block 10.1.0.0/16 \\
   --transit-gateway-id tgw-0marketplace123`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — Transit Gateway with VPC attachment and VPC route update",
+                note: "Use CfnTransitGateway + CfnTransitGatewayAttachment (CDK has no L2). After creating the attachment, add CfnRoute entries in each VPC's private route table pointing inter-VPC CIDRs to the TGW.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const tgw = new ec2.CfnTransitGateway(this, 'MarketplaceTgw', {
+  description: 'AMI PVT LTD central network hub',
+  amazonSideAsn: 64512,
+  autoAcceptSharedAttachments: 'disable',
+  defaultRouteTableAssociation: 'enable',
+  defaultRouteTablePropagation: 'enable',
+  dnsSupport: 'enable',
+  vpnEcmpSupport: 'enable',
+  tags: [{ key: 'Name', value: 'marketplace-tgw' }],
+});
+
+// Attach marketplace-prod VPC (one subnet per AZ for HA)
+const prodAttachment = new ec2.CfnTransitGatewayAttachment(this, 'ProdVpcAttachment', {
+  transitGatewayId: tgw.ref,
+  vpcId: 'vpc-0marketplace123',
+  subnetIds: ['subnet-private1a', 'subnet-private1b'],
+  tags: [{ key: 'Name', value: 'tgw-attach-marketplace-prod' }],
+});
+
+// Route in prod private route table: analytics CIDR → TGW
+// (route depends on attachment being active first)
+new ec2.CfnRoute(this, 'ProdToAnalyticsRoute', {
+  routeTableId: 'rtb-marketplace-private',
+  destinationCidrBlock: '10.1.0.0/16',
+  transitGatewayId: tgw.ref,
+}).addDependency(prodAttachment);
+
+// Repeat CfnTransitGatewayAttachment + CfnRoute for analytics and dev VPCs
+// Share the TGW with the analytics account using RAM:
+// new ram.CfnResourceShare(this, 'TgwShare', { resourceArns: [tgw.attrTransitGatewayArn], ... })`,
             },
         ],
     },
@@ -541,6 +770,35 @@ aws ec2 enable-vgw-route-propagation \\
   --gateway-id vgw-0marketplace123`,
             },
         ],
+        cdkCode: [
+            {
+                label: "CDK — Site-to-Site VPN with Virtual Private Gateway and route propagation",
+                note: "ec2.Vpc.addVpnConnection() creates the VGW, attaches it to the VPC, and establishes the VPN connection in one call. Route propagation is enabled via vpnRoutePropagation on the VPC construct.",
+                code: `import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+const vpc = ec2.Vpc.fromLookup(this, 'MarketplaceVpc', { vpcName: 'marketplace-vpc' });
+
+// Creates VGW, attaches it, and creates two IPSec tunnels automatically
+const vpnConnection = vpc.addVpnConnection('OnPremVpn', {
+  ip: '203.0.113.10',           // on-premises router public IP
+  asn: 65000,                   // on-premises BGP ASN
+  tunnelOptions: [
+    { preSharedKey: 'marketplace-vpn-psk-1' },
+    { preSharedKey: 'marketplace-vpn-psk-2' },
+  ],
+});
+
+// Enable BGP route propagation on private route table
+// so on-premises CIDRs (192.168.0.0/16) are automatically added
+const vpnGateway = new ec2.VpnGateway(this, 'VpnGateway', {
+  type: 'ipsec.1',
+  amazonSideAsn: 64512,
+});
+
+// For Direct Connect: use aws-cdk-lib/aws-directconnect (CfnVirtualInterface)
+// Note: DX physical circuit must be ordered separately via AWS Console or DX partner`,
+            },
+        ],
     },
     {
         id: 9,
@@ -606,6 +864,30 @@ aws ram get-resource-shares \\
 aws ec2 describe-subnets \\
   --filters "Name=owner-id,Values=234567890123" \\
   --query "Subnets[*].{SubnetId:SubnetId,CIDR:CidrBlock,OwnerId:OwnerId}"`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — RAM Resource Share to share marketplace-private-subnet-1a with analytics account",
+                note: "ram.CfnResourceShare accepts a subnet ARN as the resource and the target account ID or OU ARN as the principal. Deploying within an Organization removes the need for invitation acceptance.",
+                code: `import * as ram from 'aws-cdk-lib/aws-ram';
+
+// Deployed in the marketplace-prod account (234567890123)
+const subnetShare = new ram.CfnResourceShare(this, 'MarketplaceSubnetShare', {
+  name: 'marketplace-subnet-share',
+  resourceArns: [
+    'arn:aws:ec2:ap-southeast-1:234567890123:subnet/subnet-private1a',
+  ],
+  principals: [
+    // Share with the entire SharedServices OU — new accounts added to OU get access automatically
+    'arn:aws:organizations::123456789012:ou/o-marketplace/ou-xxxx-sharedservices',
+  ],
+  allowExternalPrincipals: false,
+  tags: [{ key: 'Name', value: 'marketplace-subnet-share' }],
+});
+
+// Note: run 'aws ram enable-sharing-with-aws-organization' once in the management account
+// before any RAM shares work within the same Organization without invitation acceptance`,
             },
         ],
     },

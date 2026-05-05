@@ -81,6 +81,60 @@ aws cloudformation execute-change-set \\
   --change-set-name marketplace-update-v2`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — core marketplace stack with VPC, ALB, ASG, and termination protection",
+                note: "💡 Enable terminationProtection on the CDK Stack class itself — CDK sets the CloudFormation EnableTerminationProtection flag on deploy, equivalent to the CLI --enable-termination-protection flag.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
+
+export class MarketplaceCoreStack extends cdk.Stack {
+  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
+    super(scope, id, {
+      ...props,
+      stackName: 'marketplace-core-stack',
+      terminationProtection: true, // equivalent to --enable-termination-protection
+    });
+
+    // VPC: marketplace-vpc (10.0.0.0/16)
+    const vpc = new ec2.Vpc(this, 'MarketplaceVpc', {
+      vpcName: 'marketplace-vpc',
+      ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
+      maxAzs: 3,
+      natGateways: 1,
+      subnetConfiguration: [
+        { name: 'Public', subnetType: ec2.SubnetType.PUBLIC, cidrMask: 24 },
+        { name: 'Private', subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS, cidrMask: 24 },
+      ],
+    });
+
+    // ALB: marketplace-alb
+    const alb = new elbv2.ApplicationLoadBalancer(this, 'MarketplaceAlb', {
+      loadBalancerName: 'marketplace-alb',
+      vpc,
+      internetFacing: true,
+    });
+
+    // ASG: marketplace-api-asg (min=2, max=10)
+    const asg = new autoscaling.AutoScalingGroup(this, 'MarketplaceApiAsg', {
+      autoScalingGroupName: 'marketplace-api-asg',
+      vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
+      machineImage: ec2.MachineImage.latestAmazonLinux2(),
+      minCapacity: 2,
+      maxCapacity: 10,
+      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+    });
+
+    // Export VPC ID and ALB ARN for nested/other stacks
+    new cdk.CfnOutput(this, 'VpcId', { value: vpc.vpcId, exportName: 'marketplace-vpc-id' });
+    new cdk.CfnOutput(this, 'AlbArn', { value: alb.loadBalancerArn, exportName: 'marketplace-alb-arn' });
+  }
+}`,
+            },
+        ],
     },
 
     {
@@ -146,6 +200,39 @@ aws cloudformation create-stack-instances \\
     "MaxConcurrentPercentage": 20,
     "FailureTolerancePercentage": 10
   }'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — CloudFormation StackSet with Organizations service-managed permissions",
+                note: "💡 CDK uses the L1 CfnStackSet construct for StackSets — the L2 wrapper does not exist yet; set permissionModel to SERVICE_MANAGED and autoDeployment to enable automatic deployment to new OU accounts.",
+                code: `import * as cfn from 'aws-cdk-lib/aws-cloudformation';
+
+// StackSet deployed from management account targeting CustomerAccounts OU
+const customerBootstrapStackSet = new cfn.CfnStackSet(this, 'MarketplaceCustomerBootstrapStackSet', {
+  stackSetName: 'marketplace-customer-bootstrap-stackset',
+  permissionModel: 'SERVICE_MANAGED',
+  // Auto-deploy to all accounts in the OU (including newly joined accounts)
+  autoDeployment: {
+    enabled: true,
+    retainStacksOnAccountRemoval: false,
+  },
+  templateUrl: 'https://s3.ap-southeast-1.amazonaws.com/marketplace-tool-artifacts/cloudformation/customer-bootstrap.yaml',
+  capabilities: ['CAPABILITY_NAMED_IAM'],
+  // Deploy to CustomerAccounts OU in ap-southeast-1
+  stackInstancesGroup: [
+    {
+      deploymentTargets: {
+        organizationalUnitIds: ['ou-xxxx-xxxxxxxx'],
+      },
+      regions: ['ap-southeast-1'],
+    },
+  ],
+  operationPreferences: {
+    maxConcurrentPercentage: 20,
+    failureTolerancePercentage: 10,
+  },
+});`,
             },
         ],
     },
@@ -216,6 +303,53 @@ aws ssm start-session \\
 aws ssm list-compliance-summaries \\
   --filters Key=ComplianceType,Values=Patch \\
   --region ap-southeast-1`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — SSM Parameter Store SecureString parameters and Maintenance Window",
+                note: "💡 Use StringParameter for plain strings and the L1 CfnParameter for SecureString — CDK's L2 StringParameter does not support SecureString type (AWS limitation on CloudFormation too).",
+                code: `import * as ssm from 'aws-cdk-lib/aws-ssm';
+import * as kms from 'aws-cdk-lib/aws-kms';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+// KMS key for SSM SecureString encryption
+const kmsKey = kms.Key.fromLookup(this, 'MarketplaceKmsKey', {
+  aliasName: 'alias/marketplace-kms-key',
+});
+
+// SecureString parameters via L1 CfnParameter (L2 doesn't support SecureString)
+new ssm.CfnParameter(this, 'DbPasswordParam', {
+  name: '/marketplace/prod/db-password',
+  type: 'SecureString',
+  value: 'REPLACE_AT_DEPLOY_TIME',
+  keyId: kmsKey.keyId,
+  description: 'RDS marketplace-orders-db admin password',
+});
+
+new ssm.CfnParameter(this, 'StripeApiKeyParam', {
+  name: '/marketplace/prod/stripe-api-key',
+  type: 'SecureString',
+  value: 'REPLACE_AT_DEPLOY_TIME',
+  keyId: kmsKey.keyId,
+  description: 'Stripe API key for payment processing',
+});
+
+// Plain string parameter for feature flags
+new ssm.StringParameter(this, 'FeatureFlagsParam', {
+  parameterName: '/marketplace/prod/feature-flags',
+  stringValue: JSON.stringify({ newCheckout: false, betaAnalytics: true }),
+  description: 'Marketplace feature flag JSON',
+});
+
+// SSM Maintenance Window — Sunday 02:00–04:00 UTC for patching
+const maintenanceWindow = new ssm.CfnMaintenanceWindow(this, 'MarketplacePatchWindow', {
+  name: 'marketplace-patch-window',
+  schedule: 'cron(0 2 ? * SUN *)',
+  duration: 2,
+  cutoff: 1,
+  allowUnassociatedTargets: false,
+});`,
             },
         ],
     },
@@ -294,6 +428,56 @@ aws configservice put-config-rule \\
   }'`,
             },
         ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — AWS Config recorder with managed compliance rules",
+                note: "💡 Use aws-cdk-lib/aws-config ManagedRule for AWS-managed rules and CustomRule for Lambda-backed rules — both integrate with the Config recorder created in the same stack.",
+                code: `import * as config from 'aws-cdk-lib/aws-config';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as sns from 'aws-cdk-lib/aws-sns';
+
+// IAM role for Config recorder
+const configRole = new iam.Role(this, 'MarketplaceConfigRole', {
+  assumedBy: new iam.ServicePrincipal('config.amazonaws.com'),
+  managedPolicies: [
+    iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWS_ConfigRole'),
+  ],
+});
+
+// Config recorder — record all supported resources
+new config.CfnConfigurationRecorder(this, 'MarketplaceConfigRecorder', {
+  name: 'marketplace-config-recorder',
+  roleArn: configRole.roleArn,
+  recordingGroup: {
+    allSupported: true,
+    includeGlobalResourceTypes: true,
+  },
+});
+
+// Delivery channel — S3 + SNS
+new config.CfnDeliveryChannel(this, 'MarketplaceConfigChannel', {
+  name: 'marketplace-config-channel',
+  s3BucketName: 'marketplace-tool-artifacts',
+  s3KeyPrefix: 'config-snapshots',
+  snsTopicArn: notificationsTopic.topicArn,
+  configSnapshotDeliveryProperties: { deliveryFrequency: 'TwentyFour_Hours' },
+});
+
+// Managed rule: RDS Multi-AZ required
+new config.ManagedRule(this, 'RdsMultiAzRule', {
+  identifier: config.ManagedRuleIdentifiers.RDS_MULTI_AZ_SUPPORT,
+  configRuleName: 'rds-multi-az-support',
+  ruleScope: config.RuleScope.fromResource(config.ResourceType.RDS_DB_INSTANCE),
+});
+
+// Managed rule: S3 bucket server-side encryption
+new config.ManagedRule(this, 'S3EncryptionRule', {
+  identifier: config.ManagedRuleIdentifiers.S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED,
+  configRuleName: 's3-bucket-server-side-encryption-enabled',
+  ruleScope: config.RuleScope.fromResource(config.ResourceType.S3_BUCKET),
+});`,
+            },
+        ],
     },
 
     {
@@ -356,6 +540,45 @@ aws ram create-resource-share \\
 aws ec2 describe-subnets \\
   --filters Name=owner-id,Values=234567890123 \\
   --region ap-southeast-1`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — RAM Resource Share for VPC private subnets across OU",
+                note: "💡 CDK uses the L1 CfnResourceShare from aws-cdk-lib/aws-ram — pass subnet ARNs as resourceArns and the OU ARN as the principal; set allowExternalPrincipals=false to restrict to same org.",
+                code: `import * as ram from 'aws-cdk-lib/aws-ram';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
+// VPC with private subnets to share
+const vpc = new ec2.Vpc(this, 'MarketplaceVpc', {
+  vpcName: 'marketplace-vpc',
+  ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
+  maxAzs: 2,
+  subnetConfiguration: [
+    { name: 'Public', subnetType: ec2.SubnetType.PUBLIC, cidrMask: 24 },
+    { name: 'Private', subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS, cidrMask: 24 },
+  ],
+});
+
+// RAM Resource Share — private subnets shared to SharedServices OU
+const subnetShare = new ram.CfnResourceShare(this, 'MarketplaceSubnetShare', {
+  name: 'marketplace-subnet-share',
+  resourceArns: vpc.privateSubnets.map(subnet =>
+    \`arn:aws:ec2:\${this.region}:\${this.account}:subnet/\${subnet.subnetId}\`
+  ),
+  principals: [
+    'arn:aws:organizations::123456789012:ou/o-xxxx/ou-SharedServices',
+  ],
+  allowExternalPrincipals: false,
+});
+
+// Export subnet IDs so analytics account can reference them
+vpc.privateSubnets.forEach((subnet, i) => {
+  new cdk.CfnOutput(this, \`PrivateSubnet\${i}Id\`, {
+    value: subnet.subnetId,
+    exportName: \`marketplace-private-subnet-\${i}-id\`,
+  });
+});`,
             },
         ],
     },
@@ -429,6 +652,51 @@ eb swap marketplace-api-dev --destination-name marketplace-api-dev-green
 
 # Monitor environment health
 eb health marketplace-api-dev --refresh`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — Elastic Beanstalk application and environment for Spring Boot API",
+                note: "💡 CDK uses L1 CfnApplication and CfnEnvironment constructs for Elastic Beanstalk — set the deployment policy option in optionSettings to RollingWithAdditionalBatch for zero-downtime deploys.",
+                code: `import * as elasticbeanstalk from 'aws-cdk-lib/aws-elasticbeanstalk';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+// EC2 instance profile for Beanstalk instances
+const instanceRole = new iam.Role(this, 'BeanstalkInstanceRole', {
+  assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+  managedPolicies: [
+    iam.ManagedPolicy.fromAwsManagedPolicyName('AWSElasticBeanstalkWebTier'),
+    iam.ManagedPolicy.fromAwsManagedPolicyName('AWSElasticBeanstalkMulticontainerDocker'),
+  ],
+});
+const instanceProfile = new iam.CfnInstanceProfile(this, 'BeanstalkInstanceProfile', {
+  roles: [instanceRole.roleName],
+});
+
+// Beanstalk Application
+const beanstalkApp = new elasticbeanstalk.CfnApplication(this, 'MarketplaceApiBeanstalk', {
+  applicationName: 'marketplace-api',
+  description: 'Marketplace Spring Boot API',
+});
+
+// Beanstalk Environment — Java 17, Rolling with Additional Batch
+const beanstalkEnv = new elasticbeanstalk.CfnEnvironment(this, 'MarketplaceApiDev', {
+  applicationName: beanstalkApp.applicationName!,
+  environmentName: 'marketplace-api-dev',
+  solutionStackName: '64bit Amazon Linux 2023 v4.1.0 running Corretto 17',
+  optionSettings: [
+    { namespace: 'aws:autoscaling:launchconfiguration', optionName: 'InstanceType', value: 't3.medium' },
+    { namespace: 'aws:autoscaling:launchconfiguration', optionName: 'IamInstanceProfile', value: instanceProfile.ref },
+    { namespace: 'aws:autoscaling:asg', optionName: 'MinSize', value: '1' },
+    { namespace: 'aws:autoscaling:asg', optionName: 'MaxSize', value: '3' },
+    { namespace: 'aws:elasticbeanstalk:command', optionName: 'DeploymentPolicy', value: 'RollingWithAdditionalBatch' },
+    { namespace: 'aws:elasticbeanstalk:command', optionName: 'BatchSizeType', value: 'Percentage' },
+    { namespace: 'aws:elasticbeanstalk:command', optionName: 'BatchSize', value: '50' },
+    { namespace: 'aws:elasticbeanstalk:application:environment', optionName: 'ENV', value: 'dev' },
+    { namespace: 'aws:elasticbeanstalk:healthreporting:system', optionName: 'SystemType', value: 'enhanced' },
+    { namespace: 'aws:elasticloadbalancing:loadbalancer', optionName: 'LoadBalancerType', value: 'application' },
+  ],
+});`,
             },
         ],
     },
