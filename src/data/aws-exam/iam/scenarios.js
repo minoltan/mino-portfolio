@@ -48,6 +48,7 @@ const scenarios = [
         ],
         flow: ["IAM User", "MFA Auth", "Group Policy", "AWS Services"],
         examTips: [
+            "AWS supports 6 policy types — (1) Identity-based: attached to IAM users/groups/roles; (2) Resource-based: attached to the resource itself (S3, SQS, KMS, Lambda) and support cross-account; (3) Permissions boundaries: max permissions cap on an IAM entity, does not grant on its own; (4) Organizations SCPs: guardrails applied to OUs/accounts, cannot grant permissions only restrict; (5) Access Control Lists (ACLs): legacy cross-account access for S3 and VPC resources, not IAM policies; (6) Session policies: passed inline with AssumeRole/AssumeRoleWithWebIdentity to further scope down a role's permissions for that session only",
             "Policies attach to Groups, not individual users — scalable and auditable",
             "Deny-without-MFA guardrail uses BoolIfExists to cover both console and CLI sessions",
             "IAM Groups cannot be nested — no group-of-groups hierarchy in AWS",
