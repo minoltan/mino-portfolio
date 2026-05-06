@@ -43,6 +43,7 @@ const scenarios = [
             "ASG health checks can be EC2 (instance status) or ELB (target group health); ELB health checks are more application-aware",
             "The default cooldown (300 s) prevents rapid repeated scaling actions; it is separate from policy-level cooldowns",
             "When an AZ becomes unhealthy, the ASG rebalances by launching replacement instances in healthy AZs",
+            "Default termination policy step-by-step order: (1) Pick the AZ with the most instances; (2) If there's an instance using a Launch Configuration (not Launch Template), terminate the oldest Launch Configuration instance first — Launch Configurations always take priority over Launch Templates in this step; (3) If all remaining instances use Launch Templates, terminate the one with the oldest Launch Template; (4) If still tied, terminate the instance closest to the next billing hour. Key exam trick: Instance B (oldest launch configuration) is selected before Instance A (oldest launch template) because launch configurations are deprecated legacy and ASG prefers to retire them first.",
         ],
         roleJson: [
             {
