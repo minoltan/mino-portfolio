@@ -769,6 +769,205 @@ export class MarketplaceMonitoringStack extends cdk.Stack {
             },
         ],
     },
+
+    {
+        id: 7,
+        analogy: "Think of it like replacing a factory's wall-mounted timer switches (local cron) with a smart building management system (EventBridge Scheduler) — instead of a physical clock wired to a machine, a central controller sends a 'start' signal on the exact schedule, spins up a fully equipped workstation (Fargate container) for the job, and shuts it down the moment the job finishes. No one has to maintain the workstation between jobs.",
+        icon: "⏰",
+        color: ACCENT.orange,
+        tag: "SCENARIO 7",
+        title: "EventBridge Scheduler + ECS Fargate",
+        subtitle: "Migrating legacy Linux cron scripts to serverless scheduled containers",
+        useCase: {
+            title: "AMI PVT LTD Marketplace — replacing on-premises Linux cron jobs with EventBridge Scheduler invoking Fargate tasks for data cleanup and subscription validation",
+            story: "AMI PVT LTD runs three long-running maintenance scripts on an on-premises Linux server via cron: (1) marketplace-data-cleanup.sh — purges expired trial subscriptions from the Orders table (runs nightly, ~25 minutes); (2) marketplace-usage-report.sh — aggregates tool usage metrics from S3 logs into DynamoDB (runs hourly, ~10 minutes); (3) marketplace-subscription-validator.sh — cross-checks active subscriptions against payment records and flags anomalies (runs every 6 hours, ~20 minutes). All three exceed Lambda's 15-minute maximum execution time. The team packages each script into a Docker container image (FROM amazonlinux:2), pushes to ECR marketplace/scripts, and defines three ECS Fargate task definitions. Amazon EventBridge Scheduler replaces the Linux cron daemon — three schedules (cron and rate expressions) each invoke the corresponding Fargate task directly as the target. No EC2 instances, no cron daemon, no always-on infrastructure. When a future business requirement needs event-driven triggers (e.g. run cleanup when a subscription_cancelled event fires), EventBridge natively supports both scheduled and event-pattern rules against the same Fargate targets.",
+            diagram: [
+                { actor: "EventBridge Scheduler (cron/rate expression)", icon: "⏰" },
+                { arrow: "scheduled trigger fires (no always-on infrastructure)" },
+                { actor: "ECS Fargate Task (container spins up on-demand)", icon: "📦" },
+                { arrow: "script executes (up to 30 min — no Lambda 15-min limit)" },
+                { actor: "marketplace-data-cleanup / usage-report / subscription-validator", icon: "⚙️" },
+                { arrow: "results written to DynamoDB / S3 / SNS alert" },
+                { actor: "Fargate task exits — container deallocated (pay per second)", icon: "✅" },
+            ],
+        },
+        buildSystem: [
+            "Package each script into a Docker container: FROM amazonlinux:2, COPY script.sh, RUN chmod +x, CMD [\"/script.sh\"]; push to ECR repo marketplace/scripts with tags cleanup, usage-report, validator",
+            "Create ECS Fargate task definition marketplace-cleanup-task: CPU=0.5 vCPU, memory=1 GB, container image=marketplace/scripts:cleanup, log driver=awslogs (CloudWatch Logs /ecs/marketplace-scripts)",
+            "Create IAM execution role marketplace-ecs-task-role: allow DynamoDB access (Orders/Subscriptions tables), S3 access (marketplace-analytics-raw), SNS publish to marketplace-notifications",
+            "Create EventBridge Scheduler schedule marketplace-nightly-cleanup: cron(0 2 * * ? *) — targets ECS Fargate task marketplace-cleanup-task with flexible time window of 15 minutes to allow batching",
+            "Create EventBridge Scheduler schedule marketplace-hourly-usage-report: rate(1 hour) — targets marketplace-usage-report-task; set retry policy maxAttempts=2 with 60-second retry interval",
+            "Create EventBridge Scheduler schedule marketplace-subscription-validator: cron(0 0/6 * * ? *) — targets marketplace-validator-task; configure a dead-letter SQS queue to capture failed invocations",
+            "Set the EventBridge Scheduler execution role: allow ecs:RunTask, iam:PassRole on the Fargate task execution role — EventBridge Scheduler needs this to launch the task on your behalf",
+            "Test end-to-end: manually trigger the schedule using 'aws scheduler create-schedule --schedule-expression rate(1 minute)' to confirm the Fargate task launches, runs the script, writes output, and exits cleanly",
+        ],
+        flow: ["Scheduler fires cron/rate", "Fargate task spins up", "Script executes (≤ 30 min)", "Output written to AWS services", "Task exits — no idle cost"],
+        examTips: [
+            "Lambda max execution time is 15 minutes — for scripts or jobs that run longer than 15 minutes, ECS Fargate tasks are the correct serverless-container answer; do not choose Lambda for 20–30 minute workloads",
+            "EventBridge Scheduler is the correct service for replacing Linux cron — it is fully managed (no infrastructure), supports cron and rate expressions, and targets over 270 AWS services including ECS Fargate tasks directly",
+            "EventBridge Scheduler vs EventBridge Rules (Events): Scheduler is for time-based invocations (cron/rate); Rules with event patterns are for reactive triggers (respond to an S3 PutObject, API call, etc.) — both can target ECS Fargate",
+            "ECS Fargate is serverless containers — you define CPU/memory per task, pay only for the duration the task runs (per second), and AWS manages all underlying EC2 infrastructure; no cluster nodes to patch or scale",
+            "The exam often presents 4 options: (1) EC2 + cron — wrong, manages servers; (2) Lambda — wrong if > 15 min; (3) EventBridge Scheduler + Fargate — correct for containerised long-running jobs; (4) EventBridge Scheduler + Lambda — correct only if < 15 min",
+        ],
+        roleJson: [
+            {
+                label: "AWS CLI — create EventBridge Scheduler schedule targeting an ECS Fargate task",
+                note: "💡 EventBridge Scheduler needs its own IAM execution role with ecs:RunTask and iam:PassRole — without PassRole, the scheduler cannot hand the task execution role to ECS and the launch will fail.",
+                code: `# Step 1 — Create ECS Fargate task definition (container image from ECR)
+aws ecs register-task-definition \\
+  --family marketplace-cleanup-task \\
+  --network-mode awsvpc \\
+  --requires-compatibilities FARGATE \\
+  --cpu 512 \\
+  --memory 1024 \\
+  --execution-role-arn arn:aws:iam::234567890123:role/ecsTaskExecutionRole \\
+  --task-role-arn arn:aws:iam::234567890123:role/marketplace-ecs-task-role \\
+  --container-definitions '[{
+    "name": "cleanup-script",
+    "image": "234567890123.dkr.ecr.ap-southeast-1.amazonaws.com/marketplace/scripts:cleanup",
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/marketplace-scripts",
+        "awslogs-region": "ap-southeast-1",
+        "awslogs-stream-prefix": "cleanup"
+      }
+    }
+  }]' \\
+  --region ap-southeast-1
+
+# Step 2 — Create EventBridge Scheduler schedule (nightly at 02:00 UTC)
+aws scheduler create-schedule \\
+  --name marketplace-nightly-cleanup \\
+  --schedule-expression "cron(0 2 * * ? *)" \\
+  --schedule-expression-timezone "UTC" \\
+  --flexible-time-window Mode=FLEXIBLE,MaximumWindowInMinutes=15 \\
+  --target '{
+    "Arn": "arn:aws:ecs:ap-southeast-1:234567890123:cluster/marketplace-ecs-cluster",
+    "RoleArn": "arn:aws:iam::234567890123:role/EventBridgeSchedulerECSRole",
+    "EcsParameters": {
+      "TaskDefinitionArn": "arn:aws:ecs:ap-southeast-1:234567890123:task-definition/marketplace-cleanup-task",
+      "LaunchType": "FARGATE",
+      "NetworkConfiguration": {
+        "AwsvpcConfiguration": {
+          "Subnets": ["subnet-private-1a", "subnet-private-1b"],
+          "SecurityGroups": ["sg-scripts123"],
+          "AssignPublicIp": "DISABLED"
+        }
+      }
+    },
+    "RetryPolicy": {
+      "MaximumRetryAttempts": 2,
+      "MaximumEventAgeInSeconds": 3600
+    }
+  }' \\
+  --region ap-southeast-1
+
+# Step 3 — Verify schedule was created
+aws scheduler get-schedule \\
+  --name marketplace-nightly-cleanup \\
+  --region ap-southeast-1`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — EventBridge Scheduler invoking ECS Fargate task for containerised cron job",
+                note: "💡 Use scheduler.Schedule (aws-cdk-lib/aws-scheduler) with targets.EcsRunFargateTask from '@aws-cdk/aws-scheduler-targets-alpha' — this wires the IAM PassRole automatically.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecr from 'aws-cdk-lib/aws-ecr';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as scheduler from 'aws-cdk-lib/aws-scheduler';
+import { Construct } from 'constructs';
+
+export class MarketplaceCronFargateStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const vpc = ec2.Vpc.fromLookup(this, 'Vpc', { vpcName: 'marketplace-vpc' });
+    const cluster = ecs.Cluster.fromClusterAttributes(this, 'Cluster', {
+      clusterName: 'marketplace-ecs-cluster', vpc,
+    });
+
+    const scriptRepo = ecr.Repository.fromRepositoryName(this, 'ScriptRepo', 'marketplace/scripts');
+
+    // Task role — permissions the script needs at runtime
+    const taskRole = new iam.Role(this, 'TaskRole', {
+      roleName: 'marketplace-ecs-task-role',
+      assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+    });
+    taskRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['dynamodb:UpdateItem', 'dynamodb:PutItem', 'dynamodb:Scan'],
+      resources: [
+        'arn:aws:dynamodb:ap-southeast-1:234567890123:table/Orders',
+        'arn:aws:dynamodb:ap-southeast-1:234567890123:table/Subscriptions',
+      ],
+    }));
+    taskRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['s3:GetObject', 's3:PutObject'],
+      resources: ['arn:aws:s3:::marketplace-analytics-raw/*'],
+    }));
+
+    // Fargate task definition — one per script (cleanup shown here)
+    const cleanupTask = new ecs.FargateTaskDefinition(this, 'CleanupTask', {
+      family: 'marketplace-cleanup-task',
+      cpu: 512,
+      memoryLimitMiB: 1024,
+      taskRole,
+    });
+    cleanupTask.addContainer('CleanupScript', {
+      image: ecs.ContainerImage.fromEcrRepository(scriptRepo, 'cleanup'),
+      logging: ecs.LogDrivers.awsLogs({
+        streamPrefix: 'cleanup',
+        logGroup: new logs.LogGroup(this, 'CleanupLogs', {
+          logGroupName: '/ecs/marketplace-scripts/cleanup',
+          retention: logs.RetentionDays.TWO_WEEKS,
+        }),
+      }),
+    });
+
+    // EventBridge Scheduler execution role — needs ecs:RunTask + iam:PassRole
+    const schedulerRole = new iam.Role(this, 'SchedulerRole', {
+      assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com'),
+    });
+    schedulerRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['ecs:RunTask'],
+      resources: [cleanupTask.taskDefinitionArn],
+    }));
+    schedulerRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['iam:PassRole'],
+      resources: [cleanupTask.taskRole!.roleArn, cleanupTask.executionRole!.roleArn],
+    }));
+
+    // EventBridge Scheduler — nightly at 02:00 UTC targeting Fargate task
+    new scheduler.CfnSchedule(this, 'NightlyCleanupSchedule', {
+      name: 'marketplace-nightly-cleanup',
+      scheduleExpression: 'cron(0 2 * * ? *)',
+      scheduleExpressionTimezone: 'UTC',
+      flexibleTimeWindow: { mode: 'FLEXIBLE', maximumWindowInMinutes: 15 },
+      target: {
+        arn: cluster.clusterArn,
+        roleArn: schedulerRole.roleArn,
+        ecsParameters: {
+          taskDefinitionArn: cleanupTask.taskDefinitionArn,
+          launchType: 'FARGATE',
+          networkConfiguration: {
+            awsvpcConfiguration: {
+              subnets: vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }).subnetIds,
+              assignPublicIp: 'DISABLED',
+            },
+          },
+        },
+        retryPolicy: { maximumRetryAttempts: 2, maximumEventAgeInSeconds: 3600 },
+      },
+    });
+  }
+}`,
+            },
+        ],
+    },
 ];
 
 export default scenarios;
