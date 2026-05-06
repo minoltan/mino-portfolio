@@ -778,6 +778,197 @@ export class MarketplaceSftpStack extends cdk.Stack {
             },
         ],
     },
+
+    {
+        id: 7,
+        analogy: "Think of it like a dedicated private highway between two warehouses — instead of shipping boxes over a congested public road (internet), a company builds a reserved lane (Direct Connect) that goes directly to the destination warehouse's private loading dock (PrivateLink VPC endpoint). A courier service (DataSync agent) picks up new parcels on a schedule and drives them down the private highway, verifying every parcel on arrival.",
+        icon: "🔄",
+        color: ACCENT.pink,
+        tag: "SCENARIO 7",
+        title: "DataSync — NFS to EFS over Direct Connect",
+        subtitle: "Replicating on-premises video files to Amazon EFS via private VIF and PrivateLink",
+        useCase: {
+            title: "AMI PVT LTD Marketplace — DataSync agent replicating newly created on-prem video content files to Amazon EFS over Direct Connect private VIF using a PrivateLink VPC endpoint",
+            story: "AMI PVT LTD's media division writes hundreds of video files daily into an on-premises NFS file system at the Singapore co-location facility. Post-migration, the video processing application will run on EC2 with a mounted Amazon EFS file system (marketplace-media-efs). Before cutover, the team must continuously replicate newly created on-premises video files to EFS so the cloud application always has current content. The AWS Direct Connect connection (marketplace-dx-connection) is already in place. Instead of routing DataSync traffic over the public internet, the team creates a private Virtual Interface (private VIF) on the Direct Connect connection and provisions an AWS PrivateLink interface VPC endpoint for Amazon EFS inside marketplace-vpc. The DataSync agent (deployed as a VM on the on-premises network) sends all transfer traffic through the private VIF to the EFS PrivateLink endpoint — traffic never leaves the AWS private network. A DataSync task scheduled to run every 24 hours transfers only new and changed files (incremental sync), with checksum verification on every file.",
+            diagram: [
+                { actor: "On-premises NFS file system (video files written daily)", icon: "🖥️" },
+                { arrow: "DataSync Agent reads NFS share" },
+                { actor: "DataSync Agent VM (on-premises network)", icon: "🔄" },
+                { arrow: "transfer over AWS Direct Connect — private VIF (no public internet)" },
+                { actor: "PrivateLink Interface VPC Endpoint for Amazon EFS (marketplace-vpc)", icon: "🔒" },
+                { arrow: "files written with checksum verification" },
+                { actor: "Amazon EFS — marketplace-media-efs (mounted by EC2 post-migration)", icon: "🗄️" },
+            ],
+        },
+        buildSystem: [
+            "Verify the existing AWS Direct Connect connection marketplace-dx-connection is active; create a Private Virtual Interface (private VIF) on the connection pointing to a Direct Connect Gateway associated with marketplace-vpc",
+            "Create a PrivateLink interface VPC endpoint for Amazon EFS in marketplace-vpc: aws ec2 create-vpc-endpoint --vpc-endpoint-type Interface --service-name com.amazonaws.ap-southeast-1.elasticfilesystem --vpc-id vpc-marketplace123 --subnet-ids <private-subnet-ids>",
+            "Create the Amazon EFS file system marketplace-media-efs: encrypted at rest with KMS, throughput mode=Bursting, create mount targets in each private subnet so EC2 can mount it post-migration",
+            "Deploy DataSync Agent as a VMware OVA or hypervisor VM on the on-premises network — the agent must have NFS access to the source file system and TCP outbound access to the Direct Connect private VIF",
+            "Register the DataSync Agent in the AWS console using the agent's activation key: aws datasync create-agent --activation-key <key> --agent-name marketplace-media-datasync-agent",
+            "Create DataSync source location: NFS type, server=<NFS-server-IP>, subdirectory=/video-content, agentArn=marketplace-media-datasync-agent",
+            "Create DataSync destination location: EFS type, efsFilesystemArn=marketplace-media-efs ARN, subdirectory=/video-content, use the PrivateLink VPC endpoint DNS name to ensure traffic routes via Direct Connect",
+            "Create DataSync task marketplace-video-sync: verifyMode=ONLY_FILES_TRANSFERRED, overwriteMode=ALWAYS, transferMode=CHANGED (only new/modified files), schedule=cron(0 2 * * ? *) for nightly 24-hour sync; monitor via CloudWatch Logs",
+        ],
+        flow: ["NFS files written on-premises", "DataSync Agent detects changes", "Transfer via Direct Connect private VIF", "PrivateLink EFS endpoint receives files", "EFS available for EC2 post-migration"],
+        examTips: [
+            "DataSync over Direct Connect requires a Private VIF (not Public VIF) — Private VIF routes traffic to VPC private IPs including the PrivateLink interface endpoint for EFS; Public VIF routes to AWS public service endpoints and bypasses the VPC",
+            "PrivateLink interface VPC endpoint for EFS ensures DataSync traffic reaches EFS without traversing the public internet — the endpoint is an ENI in your subnet with a private IP resolved by the EFS service DNS name",
+            "DataSync transferMode=CHANGED is the key setting for incremental sync — it only transfers new or modified files since the last task execution, making 24-hour scheduled runs efficient even for large NFS shares",
+            "DataSync destination targets for on-premises-to-AWS migrations: S3, EFS, FSx for Windows, FSx for Lustre, FSx for OpenZFS, FSx for NetApp ONTAP — NOT EBS volumes (DataSync is file/object level, not block level)",
+            "The exam pattern for this question type: on-prem NFS + Direct Connect + EFS = DataSync agent on-prem + private VIF + PrivateLink EFS endpoint + DataSync scheduled task; choosing S3 as destination is wrong when the target application uses EFS",
+        ],
+        roleJson: [
+            {
+                label: "AWS CLI — create EFS PrivateLink endpoint, register DataSync agent, and configure NFS-to-EFS task",
+                note: "💡 Specify the PrivateLink VPC endpoint DNS name as the subdomain override when creating the EFS DataSync location — this forces DataSync traffic through the private endpoint and over Direct Connect instead of the internet.",
+                code: `# Step 1 — Create PrivateLink interface endpoint for EFS in marketplace-vpc
+aws ec2 create-vpc-endpoint \\
+  --vpc-endpoint-type Interface \\
+  --service-name com.amazonaws.ap-southeast-1.elasticfilesystem \\
+  --vpc-id vpc-marketplace123 \\
+  --subnet-ids subnet-private-1a subnet-private-1b \\
+  --security-group-ids sg-datasync123 \\
+  --private-dns-enabled \\
+  --region ap-southeast-1
+
+# Step 2 — Create Amazon EFS file system (destination)
+aws efs create-file-system \\
+  --performance-mode generalPurpose \\
+  --throughput-mode bursting \\
+  --encrypted \\
+  --kms-key-id alias/marketplace-s3-key \\
+  --tags Key=Name,Value=marketplace-media-efs \\
+  --region ap-southeast-1
+# Returns: FileSystemId = fs-XXXXXXXX
+
+# Step 3 — Create EFS mount target in each private subnet
+aws efs create-mount-target \\
+  --file-system-id fs-XXXXXXXX \\
+  --subnet-id subnet-private-1a \\
+  --security-groups sg-efs123 \\
+  --region ap-southeast-1
+
+# Step 4 — Register DataSync agent (run after deploying agent VM on-premises)
+aws datasync create-agent \\
+  --activation-key <activation-key-from-agent-console> \\
+  --agent-name marketplace-media-datasync-agent \\
+  --region ap-southeast-1
+
+# Step 5 — Create DataSync source location (on-premises NFS)
+aws datasync create-location-nfs \\
+  --server-hostname 192.168.1.60 \\
+  --subdirectory /video-content \\
+  --on-prem-config AgentArns=arn:aws:datasync:ap-southeast-1:234567890123:agent/agent-xxx \\
+  --mount-options Version=NFS4_1
+
+# Step 6 — Create DataSync destination location (EFS via PrivateLink)
+aws datasync create-location-efs \\
+  --efs-filesystem-arn arn:aws:elasticfilesystem:ap-southeast-1:234567890123:file-system/fs-XXXXXXXX \\
+  --ec2-config SecurityGroupArns=arn:aws:ec2:ap-southeast-1:234567890123:security-group/sg-efs123,SubnetArn=arn:aws:ec2:ap-southeast-1:234567890123:subnet/subnet-private-1a \\
+  --subdirectory /video-content
+
+# Step 7 — Create scheduled DataSync task (nightly incremental sync)
+aws datasync create-task \\
+  --name marketplace-video-nfs-to-efs \\
+  --source-location-arn arn:aws:datasync:ap-southeast-1:234567890123:location/nfs-xxx \\
+  --destination-location-arn arn:aws:datasync:ap-southeast-1:234567890123:location/efs-xxx \\
+  --options VerifyMode=ONLY_FILES_TRANSFERRED,OverwriteMode=ALWAYS,TransferMode=CHANGED,LogLevel=TRANSFER \\
+  --schedule ScheduleExpression="cron(0 2 * * ? *)"`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — EFS file system, PrivateLink endpoint, DataSync NFS-to-EFS task via Direct Connect",
+                note: "💡 DataSync CfnLocationEFS requires an EC2 config (subnet + security group) for the mount target — CDK uses L1 CfnLocationEFS and CfnTask since DataSync has no L2 constructs.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as efs from 'aws-cdk-lib/aws-efs';
+import * as datasync from 'aws-cdk-lib/aws-datasync';
+import * as kms from 'aws-cdk-lib/aws-kms';
+import { Construct } from 'constructs';
+
+export class MarketplaceNfsToEfsStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const vpc = ec2.Vpc.fromLookup(this, 'Vpc', { vpcName: 'marketplace-vpc' });
+    const privateSubnets = vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS });
+
+    // Security group for EFS mount targets
+    const efsSg = new ec2.SecurityGroup(this, 'EfsSg', {
+      vpc,
+      securityGroupName: 'marketplace-efs-sg',
+      description: 'EFS mount target — allow NFS from EC2 and DataSync',
+    });
+    efsSg.addIngressRule(ec2.Peer.ipv4(vpc.vpcCidrBlock), ec2.Port.tcp(2049), 'NFS from VPC');
+
+    // Amazon EFS file system — destination for migrated video files
+    const mediaEfs = new efs.FileSystem(this, 'MediaEfs', {
+      fileSystemName: 'marketplace-media-efs',
+      vpc,
+      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+      securityGroup: efsSg,
+      encrypted: true,
+      kmsKey: kms.Key.fromLookup(this, 'S3Key', { aliasName: 'alias/marketplace-s3-key' }),
+      performanceMode: efs.PerformanceMode.GENERAL_PURPOSE,
+      throughputMode: efs.ThroughputMode.BURSTING,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
+    // PrivateLink interface endpoint for EFS — routes DataSync traffic via Direct Connect
+    new ec2.InterfaceVpcEndpoint(this, 'EfsEndpoint', {
+      vpc,
+      service: ec2.InterfaceVpcEndpointAwsService.ELASTIC_FILESYSTEM,
+      subnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+      privateDnsEnabled: true,
+    });
+
+    // DataSync agent registered on-premises (ARN obtained after agent VM activation)
+    const agentArn = 'arn:aws:datasync:ap-southeast-1:234567890123:agent/agent-xxx';
+
+    // Source: on-premises NFS /video-content
+    const nfsSource = new datasync.CfnLocationNFS(this, 'NfsSource', {
+      serverHostname: '192.168.1.60',
+      subdirectory: '/video-content',
+      onPremConfig: { agentArns: [agentArn] },
+      mountOptions: { version: 'NFS4_1' },
+    });
+
+    // Destination: EFS via PrivateLink endpoint (traffic routes over Direct Connect)
+    const efsDest = new datasync.CfnLocationEFS(this, 'EfsDest', {
+      efsFilesystemArn: mediaEfs.fileSystemArn,
+      ec2Config: {
+        securityGroupArns: [
+          cdk.Stack.of(this).formatArn({ service: 'ec2', resource: 'security-group', resourceName: efsSg.securityGroupId }),
+        ],
+        subnetArn: cdk.Stack.of(this).formatArn({
+          service: 'ec2', resource: 'subnet', resourceName: privateSubnets.subnetIds[0],
+        }),
+      },
+      subdirectory: '/video-content',
+    });
+
+    // Scheduled DataSync task — nightly incremental sync (changed files only)
+    new datasync.CfnTask(this, 'VideoSyncTask', {
+      name: 'marketplace-video-nfs-to-efs',
+      sourceLocationArn: nfsSource.ref,
+      destinationLocationArn: efsDest.ref,
+      options: {
+        verifyMode: 'ONLY_FILES_TRANSFERRED',
+        overwriteMode: 'ALWAYS',
+        transferMode: 'CHANGED',
+        logLevel: 'TRANSFER',
+      },
+      schedule: {
+        scheduleExpression: 'cron(0 2 * * ? *)',
+      },
+    });
+  }
+}`,
+            },
+        ],
+    },
 ];
 
 export default scenarios;
