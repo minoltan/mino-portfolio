@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | IAM Roles in AWS: Secure, Temporary Permissions for Services and Applications</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | IAM Roles in AWS: Secure, Temporary Permissions for Services and Applications</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="f200" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="249e" id="249e" class="graf graf--h3 graf--leading graf--title">AWS Theory | IAM Roles in AWS: Secure, Temporary Permissions for Services and Applications</h3><h3 name="a99c" id="a99c" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="8c46" id="8c46" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="51dd" id="51dd" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03! (Episode 2: IAM &amp; CLI)”</p><p name="a61e" id="a61e" class="graf graf--p graf-after--p">🔹 Episode 2: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-iam-cli-353c1af260c5" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-iam-cli-353c1af260c5" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="12e9" id="12e9" class="graf graf--p graf-after--p">🔹 Episode 2: AWS Solution Architect Preparation Quiz</p><figure name="20d5" id="20d5" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*A9n_Bae5HWmQo5yS4NxnSw.png" data-width="670" data-height="358" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*A9n_Bae5HWmQo5yS4NxnSw.png"></figure></div></div></section><section name="cffa" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="f8a0" id="f8a0" class="graf graf--h3 graf--leading">Introduction</h3><p name="e426" id="e426" class="graf graf--p graf-after--h3">If IAM Users are for people, then <strong class="markup--strong markup--p-strong">IAM Roles</strong> are for everything else in AWS. Throughout any real AWS journey — whether you’re launching virtual servers, running serverless functions, or letting one service talk to another — your AWS resources need permissions to act on your behalf. Hard-coding credentials inside code or instances is a terrible (and forbidden) idea. That’s exactly why IAM Roles exist: they let AWS services securely and temporarily “become” something with permissions, without ever exposing long-term secrets. Think of a role as a digital costume that trusted AWS components can wear whenever they need to get work done.</p><figure name="c234" id="c234" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*l2ud3TJI6PDBOy1TlPjbLA.png" data-width="630" data-height="668" src="https://cdn-images-1.medium.com/max/800/1*l2ud3TJI6PDBOy1TlPjbLA.png"></figure></div></div></section><section name="6c1f" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="cedd" id="cedd" class="graf graf--h3 graf--leading">IAM Roles: Permissions for AWS Services (Not Humans)</h3><p name="46aa" id="46aa" class="graf graf--p graf-after--h3 graf--trailing">At its core, an <strong class="markup--strong markup--p-strong">IAM Role</strong> is simply an IAM identity with permission policies attached — just like a user — but with one huge difference: <strong class="markup--strong markup--p-strong">roles are not meant to be used by physical people</strong>. Instead, they are assumed by AWS services, EC2 instances, Lambda functions, CodeBuild projects, SageMaker notebooks, and hundreds more.</p></div></div></section><section name="fd79" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="7c02" id="7c02" class="graf graf--h3 graf--leading">Real-World Scenarios You’ll Hit Immediately</h3><ul class="postList"><li name="9fa4" id="9fa4" class="graf graf--li graf-after--h3">An <strong class="markup--strong markup--li-strong">EC2 instance</strong> needs to read files from S3 or write logs to CloudWatch → attach an IAM Role.</li><li name="fd33" id="fd33" class="graf graf--li graf-after--li">A <strong class="markup--strong markup--li-strong">Lambda function</strong> must query DynamoDB or send notifications via SNS → give it a role.</li><li name="004f" id="004f" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">CloudFormation</strong> or <strong class="markup--strong markup--li-strong">Step Functions</strong> need to create resources during deployment → they assume a role.</li><li name="44ae" id="44ae" class="graf graf--li graf-after--li">A <strong class="markup--strong markup--li-strong">Bedrock agent</strong> or <strong class="markup--strong markup--li-strong">SageMaker pipeline</strong> needs to call other services → role-based access again.</li></ul><p name="b966" id="b966" class="graf graf--p graf-after--li graf--trailing">When the service assumes the role, AWS automatically provides <strong class="markup--strong markup--p-strong">temporary credentials</strong> (valid for up to 12 hours) via the instance metadata service or runtime environment. No access keys are ever created, copied, or stored — the security model is airtight.</p></div></div></section><section name="9bb8" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="1b1b" id="1b1b" class="graf graf--h3 graf--leading">Key Characteristics of IAM Roles</h3><ul class="postList"><li name="63a9" id="63a9" class="graf graf--li graf-after--h3">No password or long-term access keys (ever).</li><li name="63a8" id="63a8" class="graf graf--li graf-after--li">Can be assumed only by trusted AWS entities (you define the “trust policy”).</li><li name="96e7" id="96e7" class="graf graf--li graf-after--li">Temporary credentials are rotated automatically.</li><li name="e5b1" id="e5b1" class="graf graf--li graf-after--li">One role can be attached to thousands of instances/functions simultaneously.</li></ul><p name="df63" id="df63" class="graf graf--p graf-after--li graf--trailing">In short: <strong class="markup--strong markup--p-strong">IAM Roles are the AWS-recommended, secure way to grant permissions to anything that isn’t a human.</strong></p></div></div></section><section name="c22d" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="eb54" id="eb54" class="graf graf--h3 graf--leading">Conclusion</h3><p name="b096" id="b096" class="graf graf--p graf-after--h3 graf--trailing">Mastering IAM Roles is non-negotiable the moment you move beyond simple console clicks. They are the foundation of secure, scalable cloud architecture and appear in literally every AWS service you’ll ever use. Once you understand that roles are just “permission costumes” that trusted AWS components temporarily wear, everything from EC2 to Lambda to Bedrock agents suddenly makes sense. In the next post we’ll create our first role hands-on — and soon after, you’ll see it in action when we launch our first EC2 instance. Get ready: roles are about to become your new best friend.</p></div></div></section><section name="1195" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="241e" id="241e" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">LinkedIn</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/446e846fcb3e"><time class="dt-published" datetime="2025-12-01T15:18:53.859Z">December 1, 2025</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-iam-roles-in-aws-secure-temporary-permissions-for-services-and-applications-446e846fcb3e" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

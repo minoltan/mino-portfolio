@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Docker Compose</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">Docker Compose</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+Why?
+</section>
+<section data-field="body" class="e-content">
+<section name="86b8" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="ffbe" id="ffbe" class="graf graf--h3 graf--leading graf--title">Docker Compose</h3><figure name="09a3" id="09a3" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*2G5KOQVzqVIbxxxeKECZkA.jpeg" data-width="1851" data-height="889" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*2G5KOQVzqVIbxxxeKECZkA.jpeg"></figure><h3 name="39cc" id="39cc" class="graf graf--h3 graf-after--figure">Why?</h3><p name="0e3a" id="0e3a" class="graf graf--p graf-after--h3">Docker Compose is a tool for defining and running multi-container Docker applications at the same time.</p><p name="a341" id="a341" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">With Compose, </strong><br> 1. Use a YAML file to configure your application’s services. <br> 2. Then, with a single command, you create and start all the services from your configuration.</p><p name="ecfd" id="ecfd" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Compose works in all environments: </strong><br> 1.Production <br> 2. Staging <br> 3. Development<br> 4. Testing as well as CI workflows.</p><p name="1dfb" id="1dfb" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Using Compose is basically a three-step process:</strong><br>1. Define your <strong class="markup--strong markup--p-strong">app’s environment</strong> with a <code class="markup--code markup--p-code">Dockerfile</code> so it can be reproduced anywhere.<br>2. Define the <strong class="markup--strong markup--p-strong">services</strong> that make up your app in <code class="markup--code markup--p-code">docker-compose.yml</code> so they can be run together in an isolated environment.<br>3. Run <code class="markup--code markup--p-code">docker compose up</code> and the <a href="https://docs.docker.com/compose/cli-command/" data-href="https://docs.docker.com/compose/cli-command/" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Docker compose command</a> starts and runs your entire app. You can alternatively run <code class="markup--code markup--p-code">docker-compose up</code> using the docker-compose binary.</p><h3 name="3b62" id="3b62" class="graf graf--h3 graf-after--p"><code class="markup--code markup--h3-code">Simple Example</code></h3><p name="bcdd" id="bcdd" class="graf graf--p graf-after--h3">On this page you build a simple Python web application running on Docker Compose. The application uses the Flask framework and maintains a hit counter in <a href="https://issackpaul95.medium.com/implement-redis-cache-in-spring-boot-application-part-i-theory-36cb2fb03992" data-href="https://issackpaul95.medium.com/implement-redis-cache-in-spring-boot-application-part-i-theory-36cb2fb03992" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank"><strong class="markup--strong markup--p-strong">Redis</strong></a>. While the sample uses Python, the concepts demonstrated here should be understandable even if you’re not familiar with it.</p><h3 name="57a2" id="57a2" class="graf graf--h3 graf-after--p">Prerequisites</h3><p name="6c07" id="6c07" class="graf graf--p graf-after--h3">Install docker engine and docker compose</p><p name="3014" id="3014" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Step 1: Setup — Create directory with any name</strong></p><figure name="66ed" id="66ed" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*6hE5QoPSaVJIH364gWipjg.png" data-width="582" data-height="236" src="https://cdn-images-1.medium.com/max/800/1*6hE5QoPSaVJIH364gWipjg.png"></figure><p name="66aa" id="66aa" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 2: Create a Project file — Here I used app.py</strong></p><figure name="b8bb" id="b8bb" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*AAioJMfLj_VHmYU-lFg2aA.png" data-width="574" data-height="541" src="https://cdn-images-1.medium.com/max/800/1*AAioJMfLj_VHmYU-lFg2aA.png"></figure><p name="a6b5" id="a6b5" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 3: Create text file -requirements.txt</strong></p><figure name="ba29" id="ba29" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*ONf3l1XUJ0OovfZZdfBWIw.png" data-width="225" data-height="220" src="https://cdn-images-1.medium.com/max/800/1*ONf3l1XUJ0OovfZZdfBWIw.png"></figure><p name="c60b" id="c60b" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 4: Create a Dockerfile</strong></p><figure name="6682" id="6682" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*tR2XHMEx5A18NTTr6FYyTw.png" data-width="414" data-height="279" src="https://cdn-images-1.medium.com/max/800/1*tR2XHMEx5A18NTTr6FYyTw.png"></figure><p name="9f38" id="9f38" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 5: Define services in a Compose (docker-compose.yml) file</strong></p><figure name="9d53" id="9d53" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*6-3CuvEINzTWYC9LTVj_Dw.png" data-width="252" data-height="207" src="https://cdn-images-1.medium.com/max/800/1*6-3CuvEINzTWYC9LTVj_Dw.png"></figure><p name="956e" id="956e" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 6: Build and run your app with Compose</strong></p><figure name="02a4" id="02a4" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*JaeIpQjQdgZpGtsfiTtEkg.png" data-width="691" data-height="423" src="https://cdn-images-1.medium.com/max/800/1*JaeIpQjQdgZpGtsfiTtEkg.png"></figure><figure name="01cd" id="01cd" class="graf graf--figure graf-after--figure"><img class="graf-image" data-image-id="1*VLSAP_upqgJNMdzgEZDUUA.png" data-width="800" data-height="451" src="https://cdn-images-1.medium.com/max/800/1*VLSAP_upqgJNMdzgEZDUUA.png"></figure><p name="20eb" id="20eb" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 6: Finally check with browser — </strong><a href="http://localhost:5000/" data-href="http://localhost:5000/" class="markup--anchor markup--p-anchor" rel="nofollow" target="_blank">http://localhost:5000/</a></p><figure name="9b2e" id="9b2e" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*sq3tPol9MU5r_UjnZ2gvuQ.png" data-width="460" data-height="200" src="https://cdn-images-1.medium.com/max/800/1*sq3tPol9MU5r_UjnZ2gvuQ.png"></figure><p name="a404" id="a404" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Note : Refresh the browser — you will see the count increment</strong></p><p name="a31a" id="a31a" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Step 7: Edit the Compose file to add a bind moun</strong>t</p><figure name="155c" id="155c" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*Lw7Ac1AQfifRcpT0kjSuYA.png" data-width="314" data-height="324" src="https://cdn-images-1.medium.com/max/800/1*Lw7Ac1AQfifRcpT0kjSuYA.png"></figure><p name="bf7a" id="bf7a" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 8: Re-build and run the app with Compose</strong></p><figure name="e711" id="e711" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*ZNzLPgtRsO2jmny36YUq4w.png" data-width="980" data-height="641" src="https://cdn-images-1.medium.com/max/800/1*ZNzLPgtRsO2jmny36YUq4w.png"></figure><p name="fbda" id="fbda" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 8: Update the application</strong></p><figure name="c522" id="c522" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*NRox70V3REkxhlFhdN8ssw.png" data-width="688" data-height="128" src="https://cdn-images-1.medium.com/max/800/1*NRox70V3REkxhlFhdN8ssw.png"></figure><p name="010e" id="010e" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Note: Refresh the browser, It updates the changes</strong></p><figure name="461d" id="461d" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*Cry7lT4JBZKVVr_Xqj1EAA.png" data-width="530" data-height="144" src="https://cdn-images-1.medium.com/max/800/1*Cry7lT4JBZKVVr_Xqj1EAA.png"></figure><p name="4925" id="4925" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 8: Stop all services</strong></p><figure name="461f" id="461f" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*ELbT8Y0EhcOQSVsk023gJA.png" data-width="566" data-height="244" src="https://cdn-images-1.medium.com/max/800/1*ELbT8Y0EhcOQSVsk023gJA.png"></figure><h3 name="8be8" id="8be8" class="graf graf--h3 graf-after--figure">Conclusion</h3><p name="a6a7" id="a6a7" class="graf graf--p graf-after--h3">Hope you all got some basic idea of Docker compose. If you need to know the basics of Docker you can visit <a href="https://issackpaul95.medium.com/docker-and-docker-compose-2fdb14c24766" data-href="https://issackpaul95.medium.com/docker-and-docker-compose-2fdb14c24766" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank"><strong class="markup--strong markup--p-strong">Introduction to Docker</strong></a>.</p><p name="5ac4" id="5ac4" class="graf graf--p graf-after--p graf--trailing">Cheers..!</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/8fa2a9a56ae7"><time class="dt-published" datetime="2022-05-22T01:35:29.899Z">May 22, 2022</time></a>.</p><p><a href="https://medium.com/@issackpaul95/docker-compose-8fa2a9a56ae7" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | Cross-Account AMI Sharing: How to Launch Encrypted Instances Safely</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | Cross-Account AMI Sharing: How to Launch Encrypted Instances Safely</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="672f" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="8f7c" id="8f7c" class="graf graf--h3 graf--leading graf--title">AWS Theory | Cross-Account AMI Sharing: How to Launch Encrypted Instances Safely</h3><h3 name="5552" id="5552" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="af56" id="af56" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="0c0b" id="0c0b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 24: Security &amp; Encryption | KMS, SSM Parameter Store, Shield, WAF)”</p><p name="7d2f" id="7d2f" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Cloud Practitioner Quiz</p><p name="a03b" id="a03b" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Solution Architect Preparation Quiz</p><figure name="67ee" id="67ee" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*lWu1QgPQRkHsBtsUoTy4-g.png" data-width="1376" data-height="768" src="https://cdn-images-1.medium.com/max/800/1*lWu1QgPQRkHsBtsUoTy4-g.png"></figure></div></div></section><section name="964a" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d78e" id="d78e" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="b2f3" id="b2f3" class="graf graf--p graf-after--h3 graf--trailing">Sharing resources across AWS accounts is a standard practice for many organizations, but when encryption enters the mix, the workflow becomes a precise multi-step operation. Launching an EC2 instance in a target account from an Amazon Machine Image (AMI) located in a source account requires more than just a simple “share” click if that AMI is encrypted with an <strong class="markup--strong markup--p-strong">AWS KMS key</strong>. Because KMS keys are regional and account-bound, you must orchestrate a handshake between the two accounts that involves modifying image permissions, updating key policies, and ensuring the target IAM entity has the exact cryptographic permissions required to “unlock” the image. Understanding this process is not just vital for passing the AWS Solutions Architect exam; it is a critical skill for managing secure, multi-account environments in production.</p></div></div></section><section name="061e" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="00be" id="00be" class="graf graf--h3 graf--leading">The Step-by-Step Handshake</h3><p name="d31c" id="d31c" class="graf graf--p graf-after--h3">To move an encrypted AMI from Account A (Source) to Account B (Target), you must follow this specific sequence:</p><figure name="baa8" id="baa8" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*HsoPE-iUWTbNrYTRg5N-Uw.png" data-width="403" data-height="593" src="https://cdn-images-1.medium.com/max/800/1*HsoPE-iUWTbNrYTRg5N-Uw.png"></figure><ol class="postList"><li name="afa8" id="afa8" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">Modify AMI Launch Permissions:</strong> In Account A, you must update the AMI’s properties to add Account B’s ID to the “launch permissions” list. This makes the AMI visible and usable by the target account.</li><li name="36b8" id="36b8" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Share the KMS Key:</strong> Since the AMI is encrypted, Account B needs permission to use the key in Account A. You must update the <strong class="markup--strong markup--li-strong">KMS Key Policy</strong> in Account A to include Account B as a root user or specific IAM role.</li><li name="6f41" id="6f41" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Configure Target IAM Permissions:</strong> In Account B, the user or role launching the instance must have permissions to call <code class="markup--code markup--li-code">kms:DescribeKey</code>, <code class="markup--code markup--li-code">kms:ReEncrypt*</code>, <code class="markup--code markup--li-code">kms:CreateGrant</code>, and <code class="markup--code markup--li-code">kms:Decrypt</code>.</li><li name="bde6" id="bde6" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Launch and (Optional) Re-encrypt:</strong> Account B launches the instance. While it can use Account A’s key to run the instance, it is a best practice for Account B to re-encrypt the resulting EBS volumes with its own KMS key for independent management.</li></ol></div></div></section><section name="08b1" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="dbf4" id="dbf4" class="graf graf--h3 graf--leading">Real-World Example: The “Centralized Security” Hub</h3><p name="122b" id="122b" class="graf graf--p graf-after--h3">Imagine a company called <strong class="markup--strong markup--p-strong">“SecureCloud Corp”</strong> that maintains a “Golden Image” account. Their security team creates a highly hardened Linux AMI in <strong class="markup--strong markup--p-strong">Account A</strong> and encrypts it with a Customer Managed Key (CMK) to ensure it meets compliance standards.</p><p name="fc67" id="fc67" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">The Scenario:</strong> The Development Team in <strong class="markup--strong markup--p-strong">Account B</strong> needs to launch their web servers using this hardened “Golden Image.”</p><p name="d24a" id="d24a" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">The Solution:</strong></p><ul class="postList"><li name="63b0" id="63b0" class="graf graf--li graf-after--p">The Security Team (Account A) adds the Development Account ID to the AMI launch permissions.</li><li name="fd10" id="fd10" class="graf graf--li graf-after--li">They update the Key Policy of the “Golden Key” to allow the Development Account to use it.</li><li name="e607" id="e607" class="graf graf--li graf-after--li graf--trailing">The Dev Team (Account B) uses their IAM role to “pull” the AMI and launch their instances. To ensure they aren’t dependent on the Security Team’s key forever, they choose to <strong class="markup--strong markup--li-strong">re-encrypt</strong> the instances’ EBS volumes using their own “Dev-Account-Key” during the launch process. This gives the Dev Team total control over their local data while still benefiting from the security hardening provided by the original image.</li></ul></div></div></section><section name="2b50" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="2738" id="2738" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="945a" id="945a" class="graf graf--p graf-after--h3 graf--trailing">Successfully launching an encrypted EC2 instance across account boundaries is a masterclass in AWS identity and access management. It requires a perfect alignment of AMI visibility, cross-account key trust, and granular IAM permissions to ensure that security is maintained without hindering operational speed. By following this “handshake” protocol, you ensure that your organization’s most sensitive images remain protected by encryption while still being accessible to the teams that need them. As you design your multi-account strategies, remember that in AWS, sharing is not just about visibility — it’s about providing the specific cryptographic “keys to the kingdom” necessary to put those resources to work.</p></div></div></section><section name="00e3" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="07f1" id="07f1" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/efca3a0684ae"><time class="dt-published" datetime="2026-04-20T01:08:18.961Z">April 20, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-cross-account-ami-sharing-how-to-launch-encrypted-instances-safely-efca3a0684ae" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

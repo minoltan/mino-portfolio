@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>External data representation and marshalling.</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">External data representation and marshalling.</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+An agreed standard for the representation of data structures and primitive values is called an external data representation.
+</section>
+<section data-field="body" class="e-content">
+<section name="5f0f" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="92d3" id="92d3" class="graf graf--h3 graf--leading graf--title">External data representation and marshalling.</h3><p name="10d0" id="10d0" class="graf graf--p graf-after--h3">An agreed standard for the representation of data structures and primitive values is called an <strong class="markup--strong markup--p-strong">external data representation.</strong></p><p name="d681" id="d681" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Marshalling</strong> is the collection of data items and assembling them into a form suitable for transmission in a message. Thus marshalling consists of the translation of structured data items and primitive values into an external data representation.</p><p name="79eb" id="79eb" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Unmarshalling</strong> is disassembling them on arrival to produce an equivalent collection of data items at the destination. Unmarshalling consists of the generation of primitive values from their external data representation and the rebuilding of the data structures.</p><h3 name="96cb" id="96cb" class="graf graf--h3 graf-after--p"><strong class="markup--strong markup--h3-strong">CORBA’s common data representation</strong></h3><figure name="001e" id="001e" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*fMWitMCACyrFs8GYLr9bAw.png" data-width="725" data-height="383" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*fMWitMCACyrFs8GYLr9bAw.png"></figure><p name="2421" id="2421" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">CORBA’s </strong>common data representation, which is concerned with an external representation for the structured and primitive types that can be passed as the arguments and results of remote method invocations in CORBA. It can be used by a variety of programming languages.</p><p name="6d59" id="6d59" class="graf graf--p graf-after--p">Marshalling in CORBA the operations can be generated automatically from the specification of the types of data items to be transmitted in a message. The types of the data structures and the types of the basic data items are described in CORBA IDL , which provides a notation for describing the types of the arguments and results of RMI methods.</p><p name="620f" id="620f" class="graf graf--p graf-after--p">The CORBA interface compiler generates appropriate marshalling and unmarshalling operations for the arguments and results of remote methods from the definitions of the types of their parameters and results.</p><h3 name="aa87" id="aa87" class="graf graf--h3 graf-after--p"><strong class="markup--strong markup--h3-strong">Java’s object serialization</strong></h3><figure name="b7f8" id="b7f8" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*oA8J-pVKPv9hEWvoBc2J_Q.png" data-width="550" data-height="387" src="https://cdn-images-1.medium.com/max/800/1*oA8J-pVKPv9hEWvoBc2J_Q.png"></figure><p name="5d9a" id="5d9a" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Java’s object serialization</strong>, which is concerned with the flattening and external data representation of any single object or tree of objects that may need to be transmitted in a message or stored on a disk. It is for use only by Java.</p><p name="7fa5" id="7fa5" class="graf graf--p graf-after--p">There is no need to generate special marshalling functions for each type of object, as described above for CORBA. To find out more about reflection. Java object serialization uses reflection to find out the class name of the object to be serialized and the names, types and values of its instance variables. That is all that is needed for the serialized form. For deserialization, the class name in the serialized form is used to create a class. This is then used to create a new constructor with argument types corresponding to those specified in the serialized form. Finally, the new constructor is used to create a new object with instance variables whose values are read from the serialized form.</p><h3 name="98fd" id="98fd" class="graf graf--h3 graf-after--p"><strong class="markup--strong markup--h3-strong">XML (Extensible Markup Language)</strong></h3><figure name="ea06" id="ea06" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*jQkr5yI2DXIdx1gNeWh3hQ.png" data-width="432" data-height="223" src="https://cdn-images-1.medium.com/max/800/1*jQkr5yI2DXIdx1gNeWh3hQ.png"></figure><p name="115c" id="115c" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">XML (Extensible Markup Language)</strong>, which defines a textual format for representing structured data. It was originally intended for documents containing textual self-describing structured data — for example documents accessible on the Web — but it is now also used to represent the data sent in messages exchanged by clients and servers in web services.</p><p name="05ae" id="05ae" class="graf graf--p graf-after--p">XML is used to enable clients to communicate with web services and for defining the interfaces and other properties of web services. However, XML is also used in many other ways, including in archiving and retrieval systems — although an XML archive may be larger than a binary one, it has the advantage of being readable on any computer. Other examples of uses of XML include for the specification of user interfaces and the encoding of configuration files in operating systems. XML is extensible in the sense that users can define their own tags, in contrast to HTML, which uses a fixed set of tags. However, if an XML document is intended to be used by more than one application, then the names of the tags must be agreed between them. For example, clients usually use SOAP messages to communicate with web services. SOAP (see Section 9.2.1) is an XML format whose tags are published for use by web services and their clients. Some external data representations (such as CORBA CDR) do not need to be self describing, because it is assumed that the client and server exchanging a message have prior knowledge of the order and the types of the information it contains. However, XML was intended to be used by multiple applications for different purposes. The provision of tags, together with the use of namespaces to define the meaning of the tags, has made this possible. In addition, the use of tags enables applications to select just those parts of a document it needs to process: it will not be affected by the addition of information relevant to other applications.</p><h3 name="7321" id="7321" class="graf graf--h3 graf-after--p">Compare and Contrast</h3><p name="5a22" id="5a22" class="graf graf--p graf-after--h3"><strong class="markup--strong markup--p-strong">In the first two cases</strong> (CORBA &amp; Java’s object serialization ), the marshalling and unmarshalling activities are intended to be carried out by a middle ware layer without any involvement on the part of the application programmer. Even in the case of XML, which is textual and therefore more accessible to hand-encoding, software for marshalling and unmarshalling is available for all commonly used platforms and programming environments. Because marshalling requires the consideration of all the finest details of the representation of the primitive components of composite objects, the process is likely to be error-prone if carried out by hand. Compactness is another issue that can be addressed in the design of automatically generated marshalling procedures.</p><p name="48a8" id="48a8" class="graf graf--p graf-after--p graf--trailing"><strong class="markup--strong markup--p-strong">In the first two approaches</strong>, the primitive data types are marshalled into a binary form. In the third approach (XML), the primitive data types are represented textually. The textual representation of a data value will generally be longer than the equivalent binary representation. The HTTP protocol, is another example of the textual approach. Another issue with regard to the design of marshalling methods is whether the marshalled data should include information concerning the type of its contents. For example, CORBA’s representation includes just the values of the objects transmitted, and nothing about their types. On the other hand, both Java serialization and XML do include type information, but in different ways. Java puts all of the required type information into the serialized form, but XML documents may refer to externally defined sets of names (with types) called namespaces.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/5c13592850ff"><time class="dt-published" datetime="2020-06-21T17:12:19.298Z">June 21, 2020</time></a>.</p><p><a href="https://medium.com/@issackpaul95/external-data-representation-and-marshalling-5c13592850ff" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

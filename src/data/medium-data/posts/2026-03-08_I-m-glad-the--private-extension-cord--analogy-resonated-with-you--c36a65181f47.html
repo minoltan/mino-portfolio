@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>I’m glad the &#39;private extension cord&#39; analogy resonated with you!</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">I’m glad the &#39;private extension cord&#39; analogy resonated with you!</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+Regarding your question on routing:
+</section>
+<section data-field="body" class="e-content">
+<section name="cdda" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="f3f7" id="f3f7" class="graf graf--p graf--leading">I’m glad the &#39;private extension cord&#39; analogy resonated with you! You’re absolutely right to point out the &#39;Public Internet&#39; factor. It’s the classic trade-off: Site-to-Site VPN is fast to deploy and cost-effective because it uses existing internet paths, whereas AWS Direct Connect is the &#39;dedicated fiber&#39; option for those who can&#39;t afford the unpredictability of the open web.</p><p name="08b6" id="08b6" class="graf graf--p graf-after--p">Regarding your question on routing:</p><p name="b65f" id="b65f" class="graf graf--p graf-after--p">1. The &#39;<strong class="markup--strong markup--p-strong">Why</strong>&#39; Behind BGP (Dynamic Routing)</p><p name="c350" id="c350" class="graf graf--p graf-after--p">For most production environments, I recommend Dynamic Routing (BGP).</p><p name="2967" id="2967" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Automatic Failover</strong>: AWS provides two tunnels for every VPN connection for high availability. With BGP, if one tunnel goes down, the traffic automatically reroutes to the second tunnel without manual intervention.</p><p name="ee47" id="ee47" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Simplicity at Scale:</strong> If you add a new subnet to your office, BGP &#39;advertises&#39; it to AWS automatically. With static routing, you’d have to manually update the route tables in AWS every time your local network changes.</p><p name="c008" id="c008" class="graf graf--p graf-after--p">2. <strong class="markup--strong markup--p-strong">When</strong> to Stick with Static</p><p name="89a5" id="89a5" class="graf graf--p graf-after--p">I usually only stick with Static Routing if the on-premises device is an older legacy firewall that doesn&#39;t support BGP, or if the network is extremely simple (e.g., a small branch office with a single, unchanging IP range).</p><p name="322d" id="322d" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">The Latency Factor</strong></p><p name="c967" id="c967" class="graf graf--p graf-after--p graf--trailing">Since we are &#39;riding the public internet,&#39; as you mentioned, I always remind people to monitor their MTU (Maximum Transmission Unit) sizes. Because VPNs add an &#39;encryption header&#39; to every packet, sometimes large packets get dropped or fragmented, leading to that &#39;slow&#39; feeling even when the bandwidth looks fine!&quot;</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/c36a65181f47"><time class="dt-published" datetime="2026-03-08T15:40:35.093Z">March 8, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/im-glad-the-private-extension-cord-analogy-resonated-with-you-c36a65181f47" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

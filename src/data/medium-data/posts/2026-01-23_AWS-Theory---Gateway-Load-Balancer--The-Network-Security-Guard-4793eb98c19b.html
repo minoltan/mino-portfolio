@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | Gateway Load Balancer: The Network Security Guard</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | Gateway Load Balancer: The Network Security Guard</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="360d" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="eb1f" id="eb1f" class="graf graf--h3 graf--leading graf--title">AWS Theory | Gateway Load Balancer: The Network Security Guard</h3><h3 name="07f0" id="07f0" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="dba7" id="dba7" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory </strong>blog accompanying the blog post:</p><p name="c180" id="c180" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“<a href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-6-high-dc7ac178329a?postPublishedType=initial" data-href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-6-high-dc7ac178329a?postPublishedType=initial" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 6: High availability &amp; Scalability | ELB &amp; ASG)</a>”</p><p name="a28c" id="a28c" class="graf graf--p graf-after--p">🔹 Episode 6: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-high-availability-scalability-be3d3febd4e5" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-high-availability-scalability-be3d3febd4e5" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="d9c0" id="d9c0" class="graf graf--p graf-after--p">🔹 Episode 6: AWS Solution Architect Preparation Quiz</p><figure name="2b53" id="2b53" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*cVh-6YQ7_OTA2fA_EIZZGg.png" data-width="1536" data-height="1024" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*cVh-6YQ7_OTA2fA_EIZZGg.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="09b5" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="5100" id="5100" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="e9cc" id="e9cc" class="graf graf--p graf-after--h3 graf--trailing">Let’s think about what happens in a high-security bank. You have a front door (your application), but you will never allow people to just walk in. You want every person to go through an X-ray machine and a security pat-down before they even touch the door handle. In AWS, the <strong class="markup--strong markup--p-strong">Gateway Load Balancer (GWLB)</strong> is that security checkpoint, like that bank concept. It is a specialized tool designed to make sure all your network traffic is inspected by security appliances (like firewalls or antivirus scanners) before it reaches your actual servers. It takes the messy work of scaling and managing these security tools and makes it a seamless part of your network.</p></div></div></section><section name="72e8" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="0484" id="0484" class="graf graf--h3 graf--leading">How the Gateway Load Balancer Works</h3><figure name="0fbe" id="0fbe" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*gKb5Ik6yNtzGm5TKKFL8mA.png" data-width="566" data-height="774" src="https://cdn-images-1.medium.com/max/800/1*gKb5Ik6yNtzGm5TKKFL8mA.png"></figure><p name="adcd" id="adcd" class="graf graf--p graf-after--figure">To understand the GWLB even more, think of airport <strong class="markup--strong markup--p-strong">security</strong>:</p><ol class="postList"><li name="0078" id="0078" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">The User (The Traveler):</strong> A user sends a request to your app.</li><li name="9fd8" id="9fd8" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The GWLB (The Security Line):</strong> Before the user can go to their gate (your application), the airport’s rules (Route Tables) force them into the security line.</li><li name="a7b6" id="a7b6" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Target Group (The X-Ray Machines):</strong> The GWLB sees the crowd and spreads people across five different X-ray machines (your firewall instances).</li><li name="fae7" id="fae7" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Inspection:</strong> If the X-ray machine sees something bad, the person is kicked out (traffic is dropped). If they are clean, they are sent back to the main hallway.</li><li name="2db7" id="2db7" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">The Destination (The Plane):</strong> The traveler finally reaches their gate. The plane (your application) doesn’t need to know about the X-ray machine. It just knows a “clean” passenger has arrived.</li></ol></div></div></section><section name="e1f4" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="6f3c" id="6f3c" class="graf graf--h3 graf--leading">Key Technical Features Made Simple</h3><ul class="postList"><li name="a48a" id="a48a" class="graf graf--li graf-after--h3"><strong class="markup--strong markup--li-strong">Layer 3 (IP Level):</strong> Unlike the ALB (which reads web pages) or the NLB (which reads connections), the GWLB works at <strong class="markup--strong markup--li-strong">Layer 3</strong>. It looks at “IP Packets”, the raw envelopes of data moving through the internet.</li><li name="ad61" id="ad61" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Transparent Gateway:</strong> The best part about a GWLB is that your application doesn’t even know it’s there. Traffic flows through it, gets cleaned, and continues on its way without changing the source or destination info.</li><li name="290f" id="290f" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">The GENEVE Protocol:</strong> If you see the word <strong class="markup--strong markup--li-strong">GENEVE</strong> or <strong class="markup--strong markup--li-strong">Port 6081</strong> on an exam, it’s a 100% match for Gateway Load Balancer. This is the special tunnel protocol it uses to wrap your data while it’s being sent to the security appliances for inspection</li></ul></div></div></section><section name="cfed" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d45b" id="d45b" class="graf graf--h3 graf--leading">Gateway Load Balancer—Target Groups</h3><figure name="7b34" id="7b34" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*_e-fmNSLOamGDKyzzXIeDQ.png" data-width="1187" data-height="471" src="https://cdn-images-1.medium.com/max/800/1*_e-fmNSLOamGDKyzzXIeDQ.png"></figure><ul class="postList"><li name="dac6" id="dac6" class="graf graf--li graf-after--figure">EC2 instances</li><li name="7943" id="7943" class="graf graf--li graf-after--li graf--trailing">IP Addresses — must be private IPs</li></ul></div></div></section><section name="a6a6" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="5fa5" id="5fa5" class="graf graf--h3 graf--leading">Real-World Use Case: The Corporate Firewall</h3><p name="5951" id="5951" class="graf graf--p graf-after--h3"><strong class="markup--strong markup--p-strong">The Scenario:</strong> A large insurance company has a strict rule: <em class="markup--em markup--p-em">Every single piece of data entering or leaving our cloud must be checked for viruses and hackers using “Palo Alto” or “Check Point” firewalls.</em></p><p name="b83d" id="b83d" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">The Old Way:</strong> The company had to manually set up complex networking and bottlenecks to force traffic through these firewalls. If one firewall crashed, the whole network died.</p><p name="22a8" id="22a8" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">The GWLB Way:</strong> The company deploys a <strong class="markup--strong markup--p-strong">Gateway Load Balancer</strong>. They launch a fleet of firewall instances in a <strong class="markup--strong markup--p-strong">target group.</strong></p><ul class="postList"><li name="a6ec" id="a6ec" class="graf graf--li graf-after--p">If traffic spikes, the GWLB automatically spreads the load.</li><li name="07c6" id="07c6" class="graf graf--li graf-after--li">If one firewall instance fails, the GWLB detects it and sends traffic to a healthy one.</li><li name="7e79" id="7e79" class="graf graf--li graf-after--li graf--trailing">The company gets enterprise-grade security without the headache of managing the hardware or the routing logic.</li></ul></div></div></section><section name="75d4" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="dbe7" id="dbe7" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="a29e" id="a29e" class="graf graf--p graf-after--h3 graf--trailing">The Gateway Load Balancer is the bridge between traditional network security and the modern cloud. It allows companies to bring their favorite third-party security tools, the same ones they’ve used in their physical data centers for years. In addition, they are in AWS with the same ease as a web server. By acting as both a gateway and a load balancer, it ensures that your security guard is always on duty, always fast, and always ready to catch the bad actors before they reach your data.</p></div></div></section><section name="e27c" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="64e7" id="64e7" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/4793eb98c19b"><time class="dt-published" datetime="2026-01-23T16:06:06.785Z">January 23, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-gateway-load-balancer-the-network-security-guard-4793eb98c19b" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

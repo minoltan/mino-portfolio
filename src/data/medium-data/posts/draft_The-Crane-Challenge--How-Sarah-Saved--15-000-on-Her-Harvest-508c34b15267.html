@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>The Crane Challenge: How Sarah Saved $15,000 on Her Harvest</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">The Crane Challenge: How Sarah Saved $15,000 on Her Harvest</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+A real-world story about maximum subarray sums, prefix optimization, and why sometimes the best solution isn’t the obvious one
+</section>
+<section data-field="body" class="e-content">
+<section name="2cd0" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="55a6" id="55a6" class="graf graf--h3 graf--leading graf--title">The Crane Challenge: How Sarah Saved $15,000 on Her Harvest</h3><p name="6b3d" id="6b3d" class="graf graf--p graf-after--h3"><em class="markup--em markup--p-em">A real-world story about maximum subarray sums, prefix optimization, and why sometimes the best solution isn’t the obvious one</em></p><h3 name="a575" id="a575" class="graf graf--h3 graf-after--p">The Problem That Showed Up at Dawn</h3><p name="30c6" id="30c6" class="graf graf--p graf-after--h3">Sarah stood at the edge of her farm at 5:47 AM, coffee in hand, watching the crane operator shake his head.</p><figure name="d62a" id="d62a" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*b9sFT0fZtJPgfyNvPohxnw.png" data-width="1377" data-height="768" src="https://cdn-images-1.medium.com/max/800/1*b9sFT0fZtJPgfyNvPohxnw.png"></figure><p name="4e40" id="4e40" class="graf graf--p graf--startsWithDoubleQuote graf-after--figure">“Ma’am, I can lift a maximum of <strong class="markup--strong markup--p-strong">k pounds</strong> at once,” he said, pointing at the weight limit stenciled on the crane’s boom. “But these crop sections…” he gestured at Sarah’s neatly organized field grid, “they’re not uniform. Some sections are heavy, some are light, and honestly, some have negative weight after accounting for spoilage.”</p><p name="61e0" id="61e0" class="graf graf--p graf-after--p">Sarah had divided her 50-acre farm into a grid for precision agriculture. Each section had a tracked weight: positive for harvestable crops, negative for sections with pest damage or poor soil that needed remediation. She needed to load crop sections onto the crane to transport them to processing, but here was the catch:</p><p name="b733" id="b733" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">The crane could only lift rectangular sections of the grid, and the total weight had to be ≤ k pounds.</strong></p><p name="b9cd" id="b9cd" class="graf graf--p graf-after--p graf--trailing">The question that would cost or save thousands: <em class="markup--em markup--p-em">Which rectangular section should she choose to maximize crop value while staying within the weight limit?</em></p></div></div></section><section name="76b7" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d46e" id="d46e" class="graf graf--h3 graf--leading">Understanding the Landscape</h3><p name="c3ad" id="c3ad" class="graf graf--p graf-after--h3">Let’s start with a simpler version. Imagine Sarah’s farm as a small 2×3 grid:</p><figure name="2d3d" id="2d3d" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*YKyjrJMHJkg1hgXbXxGUlA.png" data-width="1440" data-height="800" src="https://cdn-images-1.medium.com/max/800/1*YKyjrJMHJkg1hgXbXxGUlA.png"></figure><p name="b5c0" id="b5c0" class="graf graf--p graf-after--figure">Each number represents the net weight (in hundreds of pounds) after accounting for good crops (positive) and damaged sections (negative).</p><p name="478a" id="478a" class="graf graf--p graf-after--p">The crane’s weight limit: <strong class="markup--strong markup--p-strong">k = 200 pounds</strong> (or 2 in our scaled units).</p><p name="6f0e" id="6f0e" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Question</strong>: Which rectangular section gives the maximum weight ≤ 2?</p><p name="8084" id="8084" class="graf graf--p graf-after--p">Let me show you the possibilities visually. Look at the grid above. We need to find rectangles (contiguous sections) that sum to at most 200 pounds.</p><p name="e1c7" id="e1c7" class="graf graf--p graf-after--p">Some examples:</p><ul class="postList"><li name="dcff" id="dcff" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Single cell [1,2]</strong>: Just the premium section = 3… but wait, 3 &gt; 2, so this violates the limit!</li><li name="f003" id="f003" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Rectangle [0,1] to [0,2]</strong>: cells {0, 1} = 1… too light</li><li name="9c6d" id="9c6d" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Rectangle [0,1] to [1,2]</strong>: cells {0, 1, -2, 3} = 0 + 1 + (-2) + 3 = 2 ✓</li></ul><p name="6eb1" id="6eb1" class="graf graf--p graf-after--li graf--trailing">That blue rectangle (columns 1–2, all rows) gives us exactly k = 2. Perfect!</p></div></div></section><section name="9382" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="48b7" id="48b7" class="graf graf--h3 graf--leading">The Beginner’s Approach: “Let’s Just Try Everything”</h3><p name="f66b" id="f66b" class="graf graf--p graf-after--h3">When Sarah’s assistant Jake first tackled this, his logic was beautifully simple:</p><blockquote name="e8e5" id="e8e5" class="graf graf--blockquote graf--startsWithDoubleQuote graf-after--p"><em class="markup--em markup--blockquote-em">“We have rectangles. We need the sum of each rectangle. Let’s calculate all possible rectangle sums and pick the best one that’s ≤ k.”</em></blockquote><p name="ebdb" id="ebdb" class="graf graf--p graf-after--blockquote">Here’s how Jake coded it:</p><p name="2d43" id="2d43" class="graf graf--p graf--empty graf-after--p graf--trailing"><br></p></div></div></section>
+</section>
+<footer><p><a href="https://medium.com/p/508c34b15267">View original.</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

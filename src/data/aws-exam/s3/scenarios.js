@@ -750,6 +750,184 @@ const auditBucket = new s3.Bucket(this, 'MarketplaceAuditBucket', {
             },
         ],
     },
+
+    {
+        id: 7,
+        analogy: "Think of it like a large apartment building with a shared mailroom — instead of giving every resident a master key to the entire mailroom, each resident gets their own private mailbox slot (access point) that only they can open. Everyone shares the same physical space, but each slot is locked to its owner.",
+        icon: "🚪",
+        color: ACCENT.pink,
+        tag: "SCENARIO 7",
+        title: "S3 Access Points",
+        subtitle: "Enforce per-service prefix isolation on a shared analytics bucket with minimal policy complexity",
+        useCase: {
+            title: "AMI PVT LTD Marketplace — dedicated access points on marketplace-analytics-bucket for billing, search, and audit services",
+            story: "AMI PVT LTD runs three analytics services that all write logs and reports to a shared S3 bucket (marketplace-analytics-bucket). Each service owns a dedicated prefix: marketplace-billing-service writes to analytics/billing/, marketplace-search-analytics writes to analytics/search/, and marketplace-audit-service writes to analytics/audit/. Instead of maintaining a single complex bucket policy with multiple principal-and-prefix condition blocks, AMI PVT LTD creates a dedicated S3 Access Point per service. Each access point policy grants the service role read/write access only to its own prefix. The bucket policy is simplified to a single delegation statement: all access must arrive through an access point belonging to this account. This ensures no service can read or write another service's prefix, even if its IAM policy is misconfigured, because the access point policy is an additional enforcement layer.",
+            diagram: [
+                { actor: "marketplace-billing-service (marketplace-billing-role)", icon: "💳" },
+                { arrow: "Requests via marketplace-billing-ap → scoped to analytics/billing/*" },
+                { actor: "marketplace-analytics-bucket (ap-southeast-1)", icon: "🪣" },
+                { arrow: "Requests via marketplace-search-ap → scoped to analytics/search/*" },
+                { actor: "marketplace-search-analytics (marketplace-search-role)", icon: "🔎" },
+                { arrow: "Requests via marketplace-audit-ap → scoped to analytics/audit/*" },
+                { actor: "marketplace-audit-service (marketplace-audit-role)", icon: "📋" },
+            ],
+        },
+        buildSystem: [
+            "Create marketplace-analytics-bucket in ap-southeast-1 with Block Public Access fully enabled — no direct public access",
+            "Create three access points: marketplace-billing-ap, marketplace-search-ap, and marketplace-audit-ap on marketplace-analytics-bucket",
+            "Apply an access point policy to marketplace-billing-ap: allow marketplace-billing-role to s3:GetObject and s3:PutObject on the access point object resource scoped to analytics/billing/*, and s3:ListBucket scoped to prefix=analytics/billing/*",
+            "Apply equivalent access point policies to marketplace-search-ap (analytics/search/*) and marketplace-audit-ap (analytics/audit/*) for their respective service roles",
+            "Set the marketplace-analytics-bucket bucket policy to delegate all access to access points: allow Principal=* with Action=s3:* on the bucket and its objects, conditioned on s3:DataAccessPointAccount matching account 234567890123 — this ensures direct bucket access is blocked for all principals",
+            "Update each service to use its access point ARN (or alias hostname) as the S3 endpoint rather than the bucket name",
+            "For extra network isolation, configure marketplace-audit-ap as a VPC-origin access point restricted to the marketplace-vpc — audit logs can only be read from inside the VPC",
+            "Monitor access with S3 server access logs or CloudTrail data events — access point name appears in the requester field, making per-service audit trivial",
+        ],
+        flow: ["Service role → Access Point (per-prefix policy)", "marketplace-analytics-bucket", "Bucket policy delegates to access points", "No cross-prefix access possible", "VPC-origin access point (optional)"],
+        examTips: [
+            "An S3 Access Point is a named alias for a bucket with its own ARN, DNS hostname, and resource policy — the bucket policy must still allow the action (access point policies cannot grant more than the bucket allows)",
+            "To enforce that all access goes through an access point, add a bucket-level Deny for any request where s3:DataAccessPointAccount does not match your account ID — this blocks all direct bucket access",
+            "Access point policies use the access point ARN as the resource for object-level actions (arn:aws:s3:region:account:accesspoint/name/object/prefix/*) and the access point ARN alone for ListBucket",
+            "Access points can be scoped to a VPC (VpcConfiguration) — once set, the access point only accepts requests originating from that VPC, providing network-level isolation on top of IAM isolation",
+            "Access points are regional — they live in the same region as their bucket; S3 Multi-Region Access Points (MRAPs) are a separate feature for routing requests to the closest replica across regions",
+            "S3 Access Points do not add cost for the access point itself — you pay only for the underlying S3 API requests and storage; the access point is a policy management construct, not a data proxy",
+        ],
+        roleJson: [
+            {
+                label: "AWS CLI — create access points and apply per-prefix policies on marketplace-analytics-bucket",
+                note: "💡 Access point policies use the access point ARN as the resource — not the bucket ARN. The bucket policy must also delegate; both must allow for access to succeed.",
+                code: `# Create access points for each analytics service
+aws s3control create-access-point \\
+  --account-id 234567890123 \\
+  --name marketplace-billing-ap \\
+  --bucket marketplace-analytics-bucket \\
+  --region ap-southeast-1
+
+aws s3control create-access-point \\
+  --account-id 234567890123 \\
+  --name marketplace-search-ap \\
+  --bucket marketplace-analytics-bucket \\
+  --region ap-southeast-1
+
+aws s3control create-access-point \\
+  --account-id 234567890123 \\
+  --name marketplace-audit-ap \\
+  --bucket marketplace-analytics-bucket \\
+  --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true \\
+  --vpc-configuration VpcId=vpc-0abc1234def567890 \\
+  --region ap-southeast-1
+
+# Access point policy — billing service scoped to analytics/billing/*
+aws s3control put-access-point-policy \\
+  --account-id 234567890123 \\
+  --name marketplace-billing-ap \\
+  --policy '{
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {"AWS": "arn:aws:iam::234567890123:role/marketplace-billing-role"},
+        "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+        "Resource": "arn:aws:s3:ap-southeast-1:234567890123:accesspoint/marketplace-billing-ap/object/analytics/billing/*"
+      },
+      {
+        "Effect": "Allow",
+        "Principal": {"AWS": "arn:aws:iam::234567890123:role/marketplace-billing-role"},
+        "Action": "s3:ListBucket",
+        "Resource": "arn:aws:s3:ap-southeast-1:234567890123:accesspoint/marketplace-billing-ap",
+        "Condition": {"StringLike": {"s3:prefix": "analytics/billing/*"}}
+      }
+    ]
+  }'
+
+# Bucket policy — delegate all access to account-owned access points only
+aws s3api put-bucket-policy \\
+  --bucket marketplace-analytics-bucket \\
+  --policy '{
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": "s3:*",
+        "Resource": [
+          "arn:aws:s3:::marketplace-analytics-bucket",
+          "arn:aws:s3:::marketplace-analytics-bucket/*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "s3:DataAccessPointAccount": "234567890123"
+          }
+        }
+      }
+    ]
+  }'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "AWS CDK v2 — S3 Access Points via CfnAccessPoint (L1) with per-prefix policies",
+                note: "💡 CDK v2 has no L2 construct for S3 Access Points — use CfnAccessPoint (L1 escape hatch) from aws-cdk-lib/aws-s3. The bucket policy delegation must also be applied via the Bucket construct.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+const analyticsBucket = new s3.Bucket(this, 'MarketplaceAnalyticsBucket', {
+  bucketName: 'marketplace-analytics-bucket',
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+  encryption: s3.BucketEncryption.S3_MANAGED,
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+});
+
+// Bucket policy — delegate access to account-owned access points only
+analyticsBucket.addToResourcePolicy(new iam.PolicyStatement({
+  effect: iam.Effect.ALLOW,
+  principals: [new iam.StarPrincipal()],
+  actions: ['s3:*'],
+  resources: [analyticsBucket.bucketArn, \`\${analyticsBucket.bucketArn}/*\`],
+  conditions: {
+    StringEquals: { 's3:DataAccessPointAccount': this.account },
+  },
+}));
+
+const services = [
+  { name: 'billing',  roleArn: 'arn:aws:iam::234567890123:role/marketplace-billing-role',  prefix: 'analytics/billing/' },
+  { name: 'search',   roleArn: 'arn:aws:iam::234567890123:role/marketplace-search-role',   prefix: 'analytics/search/' },
+  { name: 'audit',    roleArn: 'arn:aws:iam::234567890123:role/marketplace-audit-role',    prefix: 'analytics/audit/' },
+];
+
+for (const svc of services) {
+  const apName = \`marketplace-\${svc.name}-ap\`;
+  const apArn = \`arn:aws:s3:\${this.region}:\${this.account}:accesspoint/\${apName}\`;
+
+  new s3.CfnAccessPoint(this, \`\${svc.name}AccessPoint\`, {
+    bucket: analyticsBucket.bucketName,
+    name: apName,
+    publicAccessBlockConfiguration: {
+      blockPublicAcls: true,
+      ignorePublicAcls: true,
+      blockPublicPolicy: true,
+      restrictPublicBuckets: true,
+    },
+    policy: {
+      Statement: [
+        {
+          Effect: 'Allow',
+          Principal: { AWS: svc.roleArn },
+          Action: ['s3:GetObject', 's3:PutObject', 's3:DeleteObject'],
+          Resource: \`\${apArn}/object/\${svc.prefix}*\`,
+        },
+        {
+          Effect: 'Allow',
+          Principal: { AWS: svc.roleArn },
+          Action: 's3:ListBucket',
+          Resource: apArn,
+          Condition: { StringLike: { 's3:prefix': \`\${svc.prefix}*\` } },
+        },
+      ],
+    },
+  });
+}`,
+            },
+        ],
+    },
 ];
 
 export default scenarios;

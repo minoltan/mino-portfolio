@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | Getting Started with Amazon EC2: Your First Website on AWS</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | Getting Started with Amazon EC2: Your First Website on AWS</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="5832" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="c0c0" id="c0c0" class="graf graf--h3 graf--leading graf--title">AWS Theory | Getting Started with Amazon EC2: Your First Website on AWS</h3><h3 name="64b0" id="64b0" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="6bf7" id="6bf7" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="249e" id="249e" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03! (Episode 3: EC2 Fundamentals )”</p><p name="32f8" id="32f8" class="graf graf--p graf-after--p">🔹 Episode 3: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-ec2-fundamentals-620cfabac582" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-ec2-fundamentals-620cfabac582" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="b8b3" id="b8b3" class="graf graf--p graf-after--p">🔹 Episode 3: AWS Solution Architect Preparation Quiz</p><figure name="8aa4" id="8aa4" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*_Msf67PKDTCRSvqUWNDG0w.png" data-width="1024" data-height="650" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*_Msf67PKDTCRSvqUWNDG0w.png"></figure></div></div></section><section name="9a50" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="f366" id="f366" class="graf graf--h3 graf--leading">Introduction</h3><p name="9da9" id="9da9" class="graf graf--p graf-after--h3 graf--trailing">Have you ever wanted to launch a website in minutes without buying or managing physical servers? That’s exactly what Amazon EC2 (Elastic Compute Cloud) lets you do. It’s the heart of AWS computing and the most popular way millions of companies (and beginners!) rent virtual servers in the cloud. In this post, we’ll break down what EC2 really is, what you can customize, and how it makes launching your very first website on AWS incredibly simple.</p></div></div></section><section name="1cd6" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="77cc" id="77cc" class="graf graf--h3 graf--leading">What Exactly is Amazon EC2?</h3><p name="cba4" id="cba4" class="graf graf--p graf-after--h3">EC2 stands for <strong class="markup--strong markup--p-strong">Elastic Compute Cloud</strong> and is AWS’s flagship <strong class="markup--strong markup--p-strong">Infrastructure as a Service (IaaS)</strong> offering. In plain English: instead of buying a physical server, you rent virtual machines (called <strong class="markup--strong markup--p-strong">EC2 instances</strong>) from Amazon, turn them on in seconds, and pay only for the time they’re running.</p><p name="15e6" id="15e6" class="graf graf--p graf-after--p">EC2 isn’t just one thing — it’s a whole family of tools that work together:</p><ul class="postList"><li name="14a6" id="14a6" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">EC2 Instances</strong> — Your virtual servers</li><li name="35e9" id="35e9" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">EBS (Elastic Block Store)</strong> — Persistent virtual hard drives</li><li name="5349" id="5349" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Elastic Load Balancer (ELB)</strong> — Distributes traffic across multiple servers</li><li name="cef2" id="cef2" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Auto Scaling Groups (ASG)</strong> — Automatically adds or removes servers based on traffic</li></ul><p name="bdee" id="bdee" class="graf graf--p graf-after--li graf--trailing">Mastering EC2 is the foundation for understanding how the cloud actually works, because the core idea of cloud computing is: <strong class="markup--strong markup--p-strong">rent compute power whenever you need it, on demand</strong>.</p></div></div></section><section name="4f5d" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="011d" id="011d" class="graf graf--h3 graf--leading">What Can You Customize When Launching an EC2 Instance?</h3><p name="d429" id="d429" class="graf graf--p graf-after--h3">When you create an EC2 instance, you get to choose almost everything — just like building your own server, but without the hardware hassle:</p><ol class="postList"><li name="cf51" id="cf51" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Operating System</strong></li></ol><ul class="postList"><li name="791c" id="791c" class="graf graf--li graf-after--li">Linux (by far the most popular and usually cheapest)</li><li name="bf7d" id="bf7d" class="graf graf--li graf-after--li">Windows</li><li name="119d" id="119d" class="graf graf--li graf-after--li">macOS (great for iOS/mac developers)</li></ul><p name="6e31" id="6e31" class="graf graf--p graf-after--li"><strong class="markup--strong markup--p-strong">2. CPU (Compute Power)</strong> Pick how many virtual cores you need — from tiny t3.nano instances (perfect for learning) to monster machines with hundreds of cores.</p><p name="1564" id="1564" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">3. RAM (Memory)</strong> Choose exactly how much memory your application needs.</p><p name="7ec4" id="7ec4" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">4. Storage</strong></p><ul class="postList"><li name="5f1b" id="5f1b" class="graf graf--li graf-after--p">Network-attached (EBS or EFS) — survives even if the instance stops</li><li name="6add" id="6add" class="graf graf--li graf-after--li">Hardware-attached (Instance Store) — super fast but temporary</li></ul><p name="6504" id="6504" class="graf graf--p graf-after--li"><strong class="markup--strong markup--p-strong">5. Network &amp; IP</strong></p><ul class="postList"><li name="ba1f" id="ba1f" class="graf graf--li graf-after--p">Fast network cards (up to 100 Gbps!)</li><li name="ff2f" id="ff2f" class="graf graf--li graf-after--li">Public IP (so the internet can reach your website)</li><li name="c60b" id="c60b" class="graf graf--li graf-after--li">Private IP only (for backend servers)</li></ul><p name="a57a" id="a57a" class="graf graf--p graf-after--li"><strong class="markup--strong markup--p-strong">6.Firewall Rules — Security Groups</strong> Think of it as a built-in firewall. You decide exactly who can connect and on which ports (e.g., allow port 80/443 for web traffic, block everything else).</p><p name="fe48" id="fe48" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">7. EC2 User Data — The Magic Bootstrap Script</strong> This is one of the coolest parts! You can write a simple script that runs <strong class="markup--strong markup--p-strong">automatically the very first time</strong> your server boots. Example use cases:</p><ul class="postList"><li name="360f" id="360f" class="graf graf--li graf-after--p">Update the OS</li><li name="ec32" id="ec32" class="graf graf--li graf-after--li">Install Apache/Nginx + your website files</li><li name="23e8" id="23e8" class="graf graf--li graf-after--li">Download code from GitHub</li><li name="e1d6" id="e1d6" class="graf graf--li graf-after--li">Start your web server</li></ul><p name="3776" id="3776" class="graf graf--p graf-after--li graf--trailing">The script runs as root, so it has full permissions. The more you put in it, the longer your instance takes to become ready — but it saves you from doing everything manually via SSH later.</p></div></div></section><section name="f4bd" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="45b7" id="45b7" class="graf graf--h3 graf--leading">Why This Matters for Your First Website</h3><p name="cab2" id="cab2" class="graf graf--p graf-after--h3">With EC2, launching a real website on AWS becomes almost trivial:</p><ol class="postList"><li name="f9b7" id="f9b7" class="graf graf--li graf-after--p">Click “Launch Instance”</li><li name="04a4" id="04a4" class="graf graf--li graf-after--li">Choose Linux (e.g., Amazon Linux 2023)</li><li name="4b8d" id="4b8d" class="graf graf--li graf-after--li">Pick a free-tier eligible instance (t2.micro or t3.micro)</li><li name="cd60" id="cd60" class="graf graf--li graf-after--li">Add a User Data script that installs a web server and your HTML files</li><li name="6530" id="6530" class="graf graf--li graf-after--li">Open port 80 in the security group</li><li name="fd8b" id="fd8b" class="graf graf--li graf-after--li">Get a public IP → your site is live on the internet in under 10 minutes!</li></ol><p name="eb02" id="eb02" class="graf graf--p graf-after--li graf--trailing">No hardware. No upfront costs. Scale up or down anytime.</p></div></div></section><section name="a0f6" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="2787" id="2787" class="graf graf--h3 graf--leading">Conclusion</h3><p name="d5a6" id="d5a6" class="graf graf--p graf-after--h3 graf--trailing">Amazon EC2 is where the cloud becomes real — you go from zero to a fully configurable virtual server in seconds, with total control over OS, CPU, RAM, storage, networking, security, and even automated startup tasks using User Data scripts. Whether you’re launching a simple personal blog or preparing for the AWS Certified Solutions Architect exam, understanding EC2 is the essential first step. In the next posts, we’ll actually launch our first website together, step by step. Get ready — it’s easier and more fun than you think! 🚀</p></div></div></section><section name="2af9" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="04ca" id="04ca" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener" target="_blank">LinkedIn</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/5974ad8c3f94"><time class="dt-published" datetime="2025-12-06T02:56:12.785Z">December 6, 2025</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-getting-started-with-amazon-ec2-your-first-website-on-aws-5974ad8c3f94" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

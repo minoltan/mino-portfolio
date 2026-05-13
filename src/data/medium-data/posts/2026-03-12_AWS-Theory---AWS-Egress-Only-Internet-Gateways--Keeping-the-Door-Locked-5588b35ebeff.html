@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | AWS Egress-Only Internet Gateways: Keeping the Door Locked</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | AWS Egress-Only Internet Gateways: Keeping the Door Locked</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="fa1f" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="8292" id="8292" class="graf graf--h3 graf--leading graf--title">AWS Theory | AWS Egress-Only Internet Gateways: Keeping the Door Locked</h3><h3 name="8946" id="8946" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="13a9" id="13a9" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory </strong>blog accompanying the blog post:</p><p name="cc1b" id="cc1b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03 (Episode 25: Networking | VPC)”</p><p name="4013" id="4013" class="graf graf--p graf-after--p">🔹 Episode 25: AWS Cloud Practitioner Quiz</p><p name="620d" id="620d" class="graf graf--p graf-after--p">🔹 Episode 25: AWS Solution Architect Preparation Quiz</p><figure name="d7b6" id="d7b6" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*EBnk6YxOv0_rwD_Y5SezUw.png" data-width="1408" data-height="736" src="https://cdn-images-1.medium.com/max/800/1*EBnk6YxOv0_rwD_Y5SezUw.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="18a4" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e666" id="e666" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="800e" id="800e" class="graf graf--p graf-after--h3 graf--trailing">In the IPv4 world, we use “Private IPs” to hide our servers from the internet, and a NAT Gateway to let them “shout out” for updates. But in <strong class="markup--strong markup--p-strong">IPv6</strong>, every single address is a “Global Unicast Address” — meaning every server technically has a public-facing seat at the global table. How do you keep the convenience of the internet without leaving your front door wide open? Enter the <strong class="markup--strong markup--p-strong">Egress-Only Internet Gateway (EOIGW)</strong>. It is the sophisticated security guard for your IPv6 traffic, allowing your instances to talk to the world while strictly forbidding the world from talking back first.</p></div></div></section><section name="2aac" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="6055" id="6055" class="graf graf--h3 graf--leading">1. The One-Way Mirror of IPv6</h3><p name="fdee" id="fdee" class="graf graf--p graf-after--h3">An Egress-Only Internet Gateway is exactly what it sounds like: it only allows traffic to <em class="markup--em markup--p-em">exit</em> (egress).</p><figure name="82f5" id="82f5" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*WRTdGBM1AbaXaDjNQjSxFg.png" data-width="432" data-height="448" src="https://cdn-images-1.medium.com/max/800/1*WRTdGBM1AbaXaDjNQjSxFg.png"></figure><ul class="postList"><li name="61eb" id="61eb" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">The Problem:</strong> In a standard public subnet, an <strong class="markup--strong markup--li-strong">Internet Gateway (IGW)</strong> allows two-way traffic. If your instance has an IPv6 address, anyone on the internet can try to connect to it.</li><li name="9b5a" id="9b5a" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">The Solution:</strong> By placing your instance in a private subnet and routing IPv6 traffic to an <strong class="markup--strong markup--li-strong">EOIGW</strong>, you create a one-way mirror. Your instance can reach out to download a security patch or call an API, and the “return” traffic is allowed back in. However, an external hacker cannot initiate a brand-new connection to your instance.</li></ul></div></div></section><section name="e0b9" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="a34c" id="a34c" class="graf graf--h3 graf--leading">2. EOIGW vs. NAT Gateway</h3><p name="fa86" id="fa86" class="graf graf--p graf-after--h3">It’s tempting to call an EOIGW a “NAT Gateway for IPv6,” but there is a key technical difference: <strong class="markup--strong markup--p-strong">Translation.</strong></p><ul class="postList"><li name="a239" id="a239" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">NAT Gateway (IPv4):</strong> Acts as a middleman. It changes your instance’s private IP into its own public Elastic IP to talk to the internet.</li><li name="78f0" id="78f0" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">EOIGW (IPv6):</strong> Does <strong class="markup--strong markup--li-strong">no translation</strong>. Because IPv6 addresses are already globally unique, the gateway simply acts as a smart filter that remembers which connections your instance started and blocks everything else.</li></ul><blockquote name="ef2c" id="ef2c" class="graf graf--blockquote graf-after--li graf--trailing"><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">Best Part:</em></strong><em class="markup--em markup--blockquote-em"> Unlike the NAT Gateway, which has a persistent hourly cost and data processing fees, the </em><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">Egress-Only Internet Gateway is free to use!</em></strong></blockquote></div></div></section><section name="06fd" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="69dc" id="69dc" class="graf graf--h3 graf--leading">3. How to Set Up the Routing</h3></div><div class="section-inner sectionLayout--outsetColumn"><figure name="d575" id="d575" class="graf graf--figure graf--layoutOutsetCenter graf-after--h3"><img class="graf-image" data-image-id="1*Rc9FB543g06GTO2X9Bzmlw.png" data-width="1334" data-height="678" src="https://cdn-images-1.medium.com/max/1200/1*Rc9FB543g06GTO2X9Bzmlw.png"></figure></div><div class="section-inner sectionLayout--insetColumn"><p name="e09c" id="e09c" class="graf graf--p graf-after--figure">To make this work, you have to tell your subnet where to send its traffic. A typical “secure” private subnet in a dual-stack VPC will have a route table that looks like this:</p><figure name="4761" id="4761" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*LAdweFAA1VEnVPSJQRPSUw.png" data-width="612" data-height="197" src="https://cdn-images-1.medium.com/max/800/1*LAdweFAA1VEnVPSJQRPSUw.png"></figure></div></div></section><section name="502c" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="6676" id="6676" class="graf graf--h3 graf--leading">4. Real-World Use Case: The “Quiet” Application Server</h3><p name="108f" id="108f" class="graf graf--p graf-after--h3 graf--trailing">Imagine you are running a fleet of backend processing servers. These servers need to reach out to GitHub to pull the latest code or talk to a third-party payment provider over IPv6. However, these servers contain sensitive customer data and should <strong class="markup--strong markup--p-strong">never</strong> be directly reachable from the public internet. By using an EOIGW, you give them the “reach” they need to do their jobs without the risk of being discovered by a port-scanning bot on the web.</p></div></div></section><section name="e152" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="828c" id="828c" class="graf graf--h3 graf--leading">Conclusion</h3><p name="1bdc" id="1bdc" class="graf graf--p graf-after--h3 graf--trailing">The Egress-Only Internet Gateway is a vital tool for anyone moving toward an IPv6-first architecture. it provides the same security benefits of a NAT Gateway — privacy and protection — but does so natively for IPv6 and without the added cost. It ensures that while your cloud environment is connected to the modern internet, it remains a fortress that only opens its gates when <em class="markup--em markup--p-em">you</em> decide to.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/5588b35ebeff"><time class="dt-published" datetime="2026-03-12T15:53:55.751Z">March 12, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-aws-egress-only-internet-gateways-keeping-the-door-locked-5588b35ebeff" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Cloud Practitioner Questions | S3 Introduction</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Cloud Practitioner Questions | S3 Introduction</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="de38" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="fb07" id="fb07" class="graf graf--h3 graf--leading graf--title">AWS Cloud Practitioner Questions | S3 Introduction</h3><h3 name="21e6" id="21e6" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="fbff" id="fbff" class="graf graf--p graf-after--h3">This is a Quiz accompanying the blog post:</p><p name="8d75" id="8d75" class="graf graf--p graf--startsWithDoubleQuote graf-after--p"><strong class="markup--strong markup--p-strong">“</strong><a href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-11-s3-eed4f88342f3" data-href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-11-s3-eed4f88342f3" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 10: S3 Introduction)</a><strong class="markup--strong markup--p-strong">”</strong></p><p name="559f" id="559f" class="graf graf--p graf-after--p">🔹 <strong class="markup--strong markup--p-strong">Focus:</strong> AWS Cloud Practitioner Preparation Quiz</p><p name="a40e" id="a40e" class="graf graf--p graf-after--p graf--trailing">🔹 <strong class="markup--strong markup--p-strong">For theoretical concepts and exam-style questions</strong>, please refer to the <strong class="markup--strong markup--p-strong">main blog post</strong>.</p></div></div></section><section name="2aee" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h4 name="9846" id="9846" class="graf graf--h4 graf--leading">Question 1:</h4><p name="dbde" id="dbde" class="graf graf--p graf-after--h4">You’re getting errors while trying to create a new S3 bucket named <strong class="markup--strong markup--p-strong">“dev”</strong>. You’re using a new AWS Account with no S3 buckets created before. And you double-checked and found that you have the correct IAM permissions to create S3 Buckets. What is a possible cause for this?</p><figure name="46af" id="46af" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*gWUPVRLMGaFCFfILXcMMfQ.png" data-width="786" data-height="149" src="https://cdn-images-1.medium.com/max/800/1*gWUPVRLMGaFCFfILXcMMfQ.png"></figure><p name="ed39" id="ed39" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Correct Answer :</strong> (2) S3 bucket names must be globally unique, meaning that once a name is taken by any user on AWS, it cannot be used again by anyone else, including you. In this case, the name “dev” is already in use, which is why you’re unable to create a bucket with that name.</p><h4 name="747f" id="747f" class="graf graf--h4 graf-after--p">Question 2:</h4><p name="4c63" id="4c63" class="graf graf--p graf-after--h4">You have enabled versioning in your S3 bucket which already contains a lot of files. Which version will the existing files have?</p><figure name="d007" id="d007" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*SOSoTMrgMCiUIXEiHO0YeA.png" data-width="780" data-height="277" src="https://cdn-images-1.medium.com/max/800/1*SOSoTMrgMCiUIXEiHO0YeA.png"></figure><p name="f00c" id="f00c" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Correct Answer</strong> : (4) S3 bucket with versioning enabled, existing files do not have a version number assigned until they are modified, making their version effectively null. This understanding ties directly to knowing how versioning works in AWS S3.</p><h4 name="9c30" id="9c30" class="graf graf--h4 graf-after--p">Question 3:</h4><p name="61e3" id="61e3" class="graf graf--p graf-after--h4">You have updated an S3 bucket policy to allow IAM users to read/write files in the S3 bucket, but one of the users complain that he can’t perform a <code class="markup--code markup--p-code">PutObject</code> API call. What is a possible cause for this?</p><figure name="2edc" id="2edc" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*z9490w4mqddIG5zRQa-Usg.png" data-width="780" data-height="277" src="https://cdn-images-1.medium.com/max/800/1*z9490w4mqddIG5zRQa-Usg.png"></figure><p name="a8a8" id="a8a8" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Correct Answer</strong> : (3) An explicit DENY takes precedence over any allowances made in the S3 bucket policy, meaning that if the IAM policy includes a DENY, it will override the permission granted by the bucket policy, preventing the user from performing the PutObject API call. Understanding this hierarchy of permissions is crucial for managing access in AWS effectively.</p><h4 name="99a0" id="99a0" class="graf graf--h4 graf-after--p">Question 4:</h4><p name="c0d9" id="c0d9" class="graf graf--p graf-after--h4">You want the content of an S3 bucket to be fully available in different AWS Regions. That will help your team perform data analysis at the lowest latency and cost possible. What S3 feature should you use?</p><figure name="7a08" id="7a08" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*bvkamFBh6wUdOpXQF8muPw.png" data-width="780" data-height="277" src="https://cdn-images-1.medium.com/max/800/1*bvkamFBh6wUdOpXQF8muPw.png"></figure><p name="aa85" id="aa85" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Correct Answer : </strong>(4) It allows you to automatically copy objects from one S3 bucket to another, either in the same region or across different regions. This is essential for ensuring that your data is fully available for analysis with low latency and cost efficiency.</p><h4 name="290c" id="290c" class="graf graf--h4 graf-after--p">Question 5:</h4><p name="2719" id="2719" class="graf graf--p graf-after--h4">You have 3 S3 buckets. One source bucket A, and two destination buckets B and C in different AWS Regions. You want to replicate objects from bucket A to both bucket B and C. How would you achieve this?</p><figure name="35ac" id="35ac" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*acyHg_q1ItHB9A3CirrGOg.png" data-width="773" data-height="216" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*acyHg_q1ItHB9A3CirrGOg.png"></figure><p name="0ecd" id="0ecd" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Correct Answer</strong> : (1) This method allows you to utilize S3’s replication feature directly from the source bucket to each destination bucket, as S3 Replication does not support chaining. This ensures both destination buckets receive an independent copy of the objects from the source bucket.</p><h4 name="1094" id="1094" class="graf graf--h4 graf-after--p">Question 6:</h4><p name="2d57" id="2d57" class="graf graf--p graf-after--h4">Which of the following is <strong class="markup--strong markup--p-strong">NOT</strong> a Glacier Deep Archive retrieval mode?</p><figure name="ddaf" id="ddaf" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*z1kldogsdXxBOZCn1N640w.png" data-width="784" data-height="213" src="https://cdn-images-1.medium.com/max/800/1*z1kldogsdXxBOZCn1N640w.png"></figure><p name="b84f" id="b84f" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Correct Answer :</strong> (1) This retrieval mode is not part of the Glacier Deep Archive options. Understanding the correct retrieval modes, which include Standard and Bulk, is essential for managing data access and retrieval costs effectively. Great job on this question!</p><h4 name="605f" id="605f" class="graf graf--h4 graf-after--p">Question 7:</h4><p name="40e4" id="40e4" class="graf graf--p graf-after--h4">Which of the following is <strong class="markup--strong markup--p-strong">NOT</strong> a Glacier Flexible retrieval mode?</p><figure name="0e01" id="0e01" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*HFgHJRE2M_byk_U5yr9axQ.png" data-width="779" data-height="269" src="https://cdn-images-1.medium.com/max/800/1*HFgHJRE2M_byk_U5yr9axQ.png"></figure><p name="8dc3" id="8dc3" class="graf graf--p graf-after--figure graf--trailing"><strong class="markup--strong markup--p-strong">Correct Answer :</strong> (1) it is not a retrieval mode for Glacier Flexible. This demonstrates your understanding of the different retrieval options available in Glacier, highlighting your grasp of AWS data storage features.</p></div></div></section><section name="f361" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="edba" id="edba" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a> and <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">LinkedIn</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/865555f8c7e2"><time class="dt-published" datetime="2025-05-26T15:32:42.004Z">May 26, 2025</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-cloud-practitioner-questions-s3-introduction-865555f8c7e2" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

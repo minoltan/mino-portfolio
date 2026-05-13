@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | Application Load Balancer (ALB) : The Intelligent Gateway to Modern Apps</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | Application Load Balancer (ALB) : The Intelligent Gateway to Modern Apps</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="72f6" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="aa03" id="aa03" class="graf graf--h3 graf--leading graf--title">AWS Theory | Application Load Balancer (ALB) : The Intelligent Gateway to Modern Apps</h3><h3 name="149f" id="149f" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="dba7" id="dba7" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory </strong>blog accompanying the blog post:</p><p name="c180" id="c180" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“<a href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-6-high-dc7ac178329a?postPublishedType=initial" data-href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-6-high-dc7ac178329a?postPublishedType=initial" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 6: High availability &amp; Scalability | ELB &amp; ASG)</a>”</p><p name="a28c" id="a28c" class="graf graf--p graf-after--p">🔹 Episode 6: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-high-availability-scalability-be3d3febd4e5" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-high-availability-scalability-be3d3febd4e5" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="797f" id="797f" class="graf graf--p graf-after--p">🔹 Episode 6: AWS Solution Architect Preparation Quiz</p><figure name="3732" id="3732" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*p53y7RttP-u0aiaFcFF1ew.png" data-width="1280" data-height="800" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*p53y7RttP-u0aiaFcFF1ew.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="3260" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="23ea" id="23ea" class="graf graf--h3 graf--leading">Introduction</h3><p name="2e7c" id="2e7c" class="graf graf--p graf-after--h3 graf--trailing">When we think about a traditional load balancer, we can compare it to a simple traffic cop who just points cars to different lanes. But an <strong class="markup--strong markup--p-strong">Application Load Balancer (ALB) </strong>is not like that. ALB is more like a high trained receptionist in a luxury hotel. Instead of just pointing you to the nearest room, the receptionist looks at who you are and what you need. Not only that, if you’re here for the “Spa,” they send you to the West Wing, if you’re here for the “Gym,” they send you to the East Wing. Application Load Balancer is works on <strong class="markup--strong markup--p-strong">Layer 7</strong> of the networking world. It doesn’t just look at connection packets, it understands the content of your message. This makes it the secret weapon for anyone building modern, complex websites or microservices.</p></div></div></section><section name="6dfa" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="9fe2" id="9fe2" class="graf graf--h3 graf--leading">The Magic of Smart Routing</h3><p name="7c63" id="7c63" class="graf graf--p graf-after--h3">The superpower of the ALB is its ability to make decisions based on what is in your URL. This is called <strong class="markup--strong markup--p-strong">content-based routing.</strong></p><figure name="7348" id="7348" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*AQShzffy7Gxf9OX-OMM6vA.png" data-width="762" data-height="411" src="https://cdn-images-1.medium.com/max/800/1*AQShzffy7Gxf9OX-OMM6vA.png"></figure><ul class="postList"><li name="c313" id="c313" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">Path-Based Routing:</strong> Let’s imagine you have one website. You can have one team manage the <strong class="markup--strong markup--li-strong">Users</strong> section and another manage the <strong class="markup--strong markup--li-strong">Search</strong> feature. The ALB will automatically send any request for <code class="markup--code markup--li-code">.../users</code> to the User Service and any request for <code class="markup--code markup--li-code">.../search</code> to the Search Service.</li><li name="442d" id="442d" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Host-Based Routing:</strong> Another special thing is you can host entirely different websites on the same load balancer. Requests for <code class="markup--code markup--li-code">orders.example.com</code> can go to one set of service and <code class="markup--code markup--li-code">blog.example.com</code> goes to another service, but all through a single ALB!</li><li name="b84d" id="b84d" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Query Strings &amp; Headers:</strong> You can even route traffic based on what device someone is using. If the URL is included, the ALB can send that user to a service optimized specifically for phones.</li></ul><figure name="4194" id="4194" class="graf graf--figure graf-after--li"><img class="graf-image" data-image-id="1*Fyt0NDQE8-hG-itCkAAQGg.png" data-width="1158" data-height="619" src="https://cdn-images-1.medium.com/max/800/1*Fyt0NDQE8-hG-itCkAAQGg.png"></figure><blockquote name="8110" id="8110" class="graf graf--blockquote graf-after--figure graf--trailing">ALB are a great fit for micro services &amp; container-based application<br>(example: Docker &amp; Amazon ECS)</blockquote></div></div></section><section name="8df1" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="652b" id="652b" class="graf graf--h3 graf--leading">Target Groups: Your Specialized Teams</h3><p name="3bed" id="3bed" class="graf graf--p graf-after--h3">In the ALB world, we don’t just send traffic to random servers. We send it to <strong class="markup--strong markup--p-strong">target groups.</strong> Let’s think of a target group as a specialized department.</p><p name="2677" id="2677" class="graf graf--p graf-after--p">One target group can be a set of <strong class="markup--strong markup--p-strong">EC2 instances (</strong>which can be managed by an Auto Scaling Group), another can be <strong class="markup--strong markup--p-strong">Docker containers </strong>(managed by ECS itself), and a third could even be <strong class="markup--strong markup--p-strong">Lambda functions</strong> (serverless code). The ALB checks the health of each group independently. If the search department crashes, the user department stays online and unaffected.</p><blockquote name="d8cf" id="d8cf" class="graf graf--blockquote graf-after--p">Load balancing to multiple HTTP applications across machines<br>(<strong class="markup--strong markup--blockquote-strong">target groups</strong>)</blockquote><blockquote name="3730" id="3730" class="graf graf--blockquote graf-after--blockquote graf--trailing">Load balancing to multiple applications on the same machine<br>(ex: containers)</blockquote></div></div></section><section name="743e" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="ac2a" id="ac2a" class="graf graf--h3 graf--leading">Preserving the User’s Identity</h3><p name="bbe0" id="bbe0" class="graf graf--p graf-after--h3">When a user talks to a load balancer, and the load balancer talks to your server. Your server usually only sees the <strong class="markup--strong markup--p-strong">Load Balancer’s IP address</strong>. If you need to know where your user is actually located, then this would be a problem.</p><p name="20e2" id="20e2" class="graf graf--p graf-after--p">The ALB solves this by adding a digital “ID tag” to the request called <strong class="markup--strong markup--p-strong">X-Forwarded-For</strong>. This tells your server, “Hey,<em class="markup--em markup--p-em"> I’m the one delivering this message, but it actually came from a user at IP 123.45.67.89.”</em> It also shares whether the user used HTTP or HTTPS through the <strong class="markup--strong markup--p-strong">X-Forwarded-Proto</strong> tag.</p><figure name="bd6d" id="bd6d" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*7ixjKwDm3pDd-wVVeiVp0w.png" data-width="1476" data-height="293" src="https://cdn-images-1.medium.com/max/800/1*7ixjKwDm3pDd-wVVeiVp0w.png"></figure></div></div></section><section name="935c" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="17cc" id="17cc" class="graf graf--h3 graf--leading">Conclusion</h3><p name="3e5f" id="3e5f" class="graf graf--p graf-after--h3 graf--trailing">In the old days, if you had ten different services, you needed ten different load balancers. Also, it was expensive and messy. Today, the <strong class="markup--strong markup--p-strong">Application Load Balancer</strong> lets you put everything behind one front door. It is faster, more secure (handling HTTPS redirects automatically), and smart enough to manage complex, modern apps with ease. If you’re building a site with multiple parts like a shop, a blog, and a user profile, the ALB is the brain that keeps it all organized and running smoothly! 🚀</p></div></div></section><section name="9b54" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="9a70" id="9a70" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/25646d84514c"><time class="dt-published" datetime="2026-01-22T14:08:06.188Z">January 22, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-application-load-balancer-alb-the-intelligent-gateway-to-modern-apps-25646d84514c" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

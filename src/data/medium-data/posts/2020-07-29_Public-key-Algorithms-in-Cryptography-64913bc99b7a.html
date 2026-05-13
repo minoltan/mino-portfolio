@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Public key Algorithms in Cryptography</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">Public key Algorithms in Cryptography</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+Asymmetric algorithms are also called public-key algorithms.
+</section>
+<section data-field="body" class="e-content">
+<section name="a29e" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="0443" id="0443" class="graf graf--h3 graf--leading graf--title">Public key Algorithms in Cryptography</h3><h3 name="5730" id="5730" class="graf graf--h3 graf-after--h3">Introduction</h3><p name="6ac8" id="6ac8" class="graf graf--p graf-after--h3">Asymmetric algorithms are also called public-key algorithms. As the name itself says an asymmetric key, two different keys are used for the public key encryption. One key is used for the encryption process and another key is used for the decryption process. Once the key is decided for encryption and decryption, no other key will be used. From these two keys, one key is called a public key and another one is called a private key.</p><h3 name="78ea" id="78ea" class="graf graf--h3 graf-after--p">Brief History</h3><p name="ff6d" id="ff6d" class="graf graf--p graf-after--h3">The first public key algorithm was the <strong class="markup--strong markup--p-strong">Diffie-Hellman</strong> key exchange, which allowed, at least initially, only for key distribution between known parties. It was extended by <strong class="markup--strong markup--p-strong">ElGamal</strong> to a full encrypt and signature public key scheme, and is used for <strong class="markup--strong markup--p-strong">ECC</strong> encryption. Shortly after Diffie-Hellman was published, another algorithm known as <strong class="markup--strong markup--p-strong">RSA</strong> (Rivest Shamir Adleman) was publicly presented. RSA allowed for both encryption and signatures while using half of the bandwidth as ElGamal. Subsequently, RSA became standardized in various forms.</p><figure name="e5b7" id="e5b7" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*U16N3wrkt2ZoZDuYKMo0Ig.png" data-width="878" data-height="466" src="https://cdn-images-1.medium.com/max/800/1*U16N3wrkt2ZoZDuYKMo0Ig.png"></figure><p name="9f3e" id="9f3e" class="graf graf--p graf-after--figure">Let’s See this example to understand the scenario.</p><p name="ccfc" id="ccfc" class="graf graf--p graf-after--p">We are going to have a communication with my friend via internet, to start the secure communication i (A) need to get both public and private key. The private key is a secret key, i should keep it as a secret. If the private key is disposed to my friend (B), there is a chance of attack through the third party.</p><p name="0ccb" id="0ccb" class="graf graf--p graf-after--p">Suppose A wants to communicate with B securely, then both A and B should have a public key and private key.</p><ul class="postList"><li name="b058" id="b058" class="graf graf--li graf-after--p">A should keep her private key secret.</li><li name="3d91" id="3d91" class="graf graf--li graf-after--li">A should inform her public key to B</li><li name="9e1e" id="9e1e" class="graf graf--li graf-after--li">B should keep her private key secret.</li><li name="31fd" id="31fd" class="graf graf--li graf-after--li">B should inform her public key to A.</li></ul><p name="d40d" id="d40d" class="graf graf--p graf-after--li"><strong class="markup--strong markup--p-strong">Scene 1:</strong></p><p name="b412" id="b412" class="graf graf--p graf-after--p">When A wants to communicate with B, A encrypts the message using the B’s public key, because B’s Public Key is shared with A</p><ul class="postList"><li name="38f1" id="38f1" class="graf graf--li graf-after--p">A sends the encrypted message to B.</li><li name="a94e" id="a94e" class="graf graf--li graf-after--li">B receives the message from A.</li><li name="f0ca" id="f0ca" class="graf graf--li graf-after--li">B decrypts the message using B’s private key.</li></ul><p name="82cf" id="82cf" class="graf graf--p graf-after--li"><strong class="markup--strong markup--p-strong">Note:</strong> Only Y know her private key and message can be decrypted using B’s private key. The advantage of this is the party cannot decrypt the message because he/ she does not know the private key of B. Only B’s private key can decrypt the message.</p><p name="c814" id="c814" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Scene 2:</strong></p><p name="30b6" id="30b6" class="graf graf--p graf-after--p">When B wants to communicate with A, B encrypt the message using A’s public key. This is possible because A shares her public key to B.</p><ul class="postList"><li name="6344" id="6344" class="graf graf--li graf-after--p">B sends the encrypted message to A.</li><li name="5f40" id="5f40" class="graf graf--li graf-after--li">A receives the message from B</li><li name="6eb0" id="6eb0" class="graf graf--li graf-after--li">A decrypts the message using her i.e. A’s private key.</li></ul><h3 name="ec83" id="ec83" class="graf graf--h3 graf-after--li">Functionalities</h3><figure name="05af" id="05af" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*NNrpNWJaFxo3jrvy4CX-1Q.png" data-width="746" data-height="318" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*NNrpNWJaFxo3jrvy4CX-1Q.png"></figure><p name="0aba" id="0aba" class="graf graf--p graf-after--figure">Public-key encryption, is capable to encrypt a message using public key of an entity, where only the entity with the corresponding private key is capable of decrypting the cipher text.</p><p name="fc19" id="fc19" class="graf graf--p graf-after--p">Public key algorithms are used (primarily) to solve two problems.<br>1. Helps solve privacy problems<br>2. Helps solve authenticity problems.</p><p name="9dd0" id="9dd0" class="graf graf--p graf-after--p">Public key algorithms accomplish these goals by operating asymmetrically; that is,<br><strong class="markup--strong markup--p-strong">1</strong>. The key is split into two corresponding parts, a public key and a private key. <strong class="markup--strong markup--p-strong">2</strong>. The public key is secure to give out publicly to all those who ask for it.<br><strong class="markup--strong markup--p-strong">3</strong>. The public key enables people to encrypt messages and verify signatures.<br><strong class="markup--strong markup--p-strong">4</strong>. The private key is so named as it must remain private and cannot be given to public.<br><strong class="markup--strong markup--p-strong">5</strong>. The private key is typically owned by a single person or device.<br><strong class="markup--strong markup--p-strong">6</strong>. The private key allows for decrypting messages and the generation of signatures.</p><p name="3fc4" id="3fc4" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Public-key algorithms are asymmetric algorithms based on the use of two different keys, instead of one</strong></p><ul class="postList"><li name="786b" id="786b" class="graf graf--li graf-after--p">Private key — This key must be know only by its owner.</li><li name="99af" id="99af" class="graf graf--li graf-after--li">Public key — This key is known to everyone (it is public).</li></ul><p name="bca2" id="bca2" class="graf graf--p graf-after--li"><strong class="markup--strong markup--p-strong">The key used for encryption is different from the key used for decryption.</strong></p><p name="6c1f" id="6c1f" class="graf graf--p graf-after--p">• However, the decryption key cannot, in any reasonable amount of time, be calculated from the encryption key and vice versa.</p><p name="0fd3" id="0fd3" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Public-key systems have a clear advantage over symmetric algorithms.</strong></p><p name="b4b7" id="b4b7" class="graf graf--p graf-after--p">• There is no need to agree on a common key for both the sender and the receiver.</p><p name="4e7a" id="4e7a" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Either key can be used for encryption, but the complementary matched key is required for decryption.</strong></p><p name="345f" id="345f" class="graf graf--p graf-after--p">• If a public key encrypts data, the matching private key decrypts data.</p><p name="6069" id="6069" class="graf graf--p graf-after--p">• If a private key encrypts data, the matching public key decrypts data.</p><p name="7f69" id="7f69" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">The confidentiality objective of asymmetric algorithms is achieved when the encryption process is started with the public key.</strong></p><h3 name="dd9d" id="dd9d" class="graf graf--h3 graf-after--p">The following are the Algorithms of public-key encryption.</h3><h4 name="dd0f" id="dd0f" class="graf graf--h4 graf-after--h3">RSA Algorithm</h4><p name="ee12" id="ee12" class="graf graf--p graf-after--h4">RSA is the most popular public-key encryption algorithm. RSA algorithm is based on the mathematical calculation. The private and public keys used in the RSA are large prime numbers.</p><p name="a441" id="a441" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Steps for RSA Algorithms:</strong></p><ul class="postList"><li name="125a" id="125a" class="graf graf--li graf-after--p">Select two large prime numbers A and B.</li><li name="2b5b" id="2b5b" class="graf graf--li graf-after--li">Calculate the product N = A*B.</li><li name="fee5" id="fee5" class="graf graf--li graf-after--li">Choose the public key E such that it is not a factor of (A — 1) and (B — 1).</li><li name="9dec" id="9dec" class="graf graf--li graf-after--li">Chose the private key D such that the following equation becomes true.</li><li name="5a07" id="5a07" class="graf graf--li graf-after--li">(D * E) mod (A — 1) * (B — 1) = 1</li><li name="d1af" id="d1af" class="graf graf--li graf-after--li">For encryption calculate CT as CT = PT^E mod N.</li><li name="b59b" id="b59b" class="graf graf--li graf-after--li">Send the CT to the receiver.</li><li name="29c9" id="29c9" class="graf graf--li graf-after--li">For decryption calculate PT as PT = CT^D mod N.</li></ul><h4 name="2e5f" id="2e5f" class="graf graf--h4 graf-after--li">ElGamal Cryptography Algorithm</h4><p name="1923" id="1923" class="graf graf--p graf-after--h4">ElGamal is another popular public-key encryption algorithm.</p><p name="afe1" id="afe1" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">ElGamal Key Generation:</strong></p><ul class="postList"><li name="f175" id="f175" class="graf graf--li graf-after--p">Select large prime number P as public key and Q as the private key.</li><li name="12a2" id="12a2" class="graf graf--li graf-after--li">Select the second encryption key as E1.</li><li name="ad73" id="ad73" class="graf graf--li graf-after--li">Select the third encryption key as E2 such that E2 = E^Q mod P ElGamal Key encryption.</li><li name="9c8e" id="9c8e" class="graf graf--li graf-after--li">Select random number R.</li><li name="af7e" id="af7e" class="graf graf--li graf-after--li">Calculate ciphertext as CT = E1 ^R mod P.</li><li name="4621" id="4621" class="graf graf--li graf-after--li">Calculate second Cipher text CT2 = (PT * E2^R) mod P ElGamal key decryption</li><li name="2f97" id="2f97" class="graf graf--li graf-after--li">Calculate plain text as PT = (CT2 *(CT^Q)^-1) mod P.</li></ul><h4 name="0439" id="0439" class="graf graf--h4 graf-after--li graf--trailing">Keep in touch to learn more articles...!</h4></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/64913bc99b7a"><time class="dt-published" datetime="2020-07-29T02:43:56.800Z">July 29, 2020</time></a>.</p><p><a href="https://medium.com/@issackpaul95/public-key-algorithms-in-cryptography-64913bc99b7a" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

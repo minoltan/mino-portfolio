@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | AWS SSM Parameter Store: Centralized Config Management</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | AWS SSM Parameter Store: Centralized Config Management</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="aeba" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="96b2" id="96b2" class="graf graf--h3 graf--leading graf--title">AWS Theory | AWS SSM Parameter Store: Centralized Config Management</h3><h3 name="5552" id="5552" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="af56" id="af56" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="0c0b" id="0c0b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 24: Security &amp; Encryption | KMS, SSM Parameter Store, Shield, WAF)”</p><p name="7d2f" id="7d2f" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Cloud Practitioner Quiz</p><p name="a03b" id="a03b" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Solution Architect Preparation Quiz</p><figure name="36ad" id="36ad" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*3Tri2oXQh7s_wxYbdyU1jQ.png" data-width="1376" data-height="768" src="https://cdn-images-1.medium.com/max/800/1*3Tri2oXQh7s_wxYbdyU1jQ.png"></figure></div></div></section><section name="964a" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d78e" id="d78e" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="bdcc" id="bdcc" class="graf graf--p graf-after--h3">Managing configuration data and sensitive secrets across a sprawling cloud architecture can quickly become an operational nightmare if handled manually. <strong class="markup--strong markup--p-strong">AWS Systems Manager (SSM) Parameter Store</strong> offers a sleek, serverless, and highly scalable solution for centralizing these variables in a secure environment. By providing a unified “source of truth,” Parameter Store allows developers to separate code from configuration, meaning you can update a database URL or a password without ever redeploying your application. Whether you are storing simple plain-text strings or utilizing <strong class="markup--strong markup--p-strong">AWS KMS</strong> to create encrypted secrets, Parameter Store integrates natively with IAM for security and CloudFormation for automation, making it an indispensable tool for any architect aiming for a robust and maintainable infrastructure.</p><figure name="8c4c" id="8c4c" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*yncWY7by0bPOAE7XAurZLQ.png" data-width="507" data-height="607" src="https://cdn-images-1.medium.com/max/800/1*yncWY7by0bPOAE7XAurZLQ.png"></figure></div></div></section><section name="2869" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="44c8" id="44c8" class="graf graf--h3 graf--leading">Key Features at a Glance</h3><ul class="postList"><li name="0411" id="0411" class="graf graf--li graf-after--h3"><strong class="markup--strong markup--li-strong">Hierarchical Storage:</strong> Organize parameters using paths (e.g., <code class="markup--code markup--li-code">/dev/hr-app/db-password</code>) to simplify access control.</li><li name="9bcb" id="9bcb" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Version Tracking:</strong> Automatically track changes to your parameters, allowing you to roll back to previous versions if an update breaks your app.</li><li name="dba1" id="dba1" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Serverless &amp; Durable:</strong> No infrastructure to manage. AWS handles the scaling and availability.</li><li name="37e1" id="37e1" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">KMS Integration:</strong> Easily turn a standard configuration into a secure secret with one click.</li></ul></div></div></section><section name="7e49" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e118" id="e118" class="graf graf--h3 graf--leading">Real-World Example: Managing a Multi-Environment Web App</h3><p name="f3fe" id="f3fe" class="graf graf--p graf-after--h3">Imagine you are running a “Human Resources” application with three distinct environments: <strong class="markup--strong markup--p-strong">Development</strong>, <strong class="markup--strong markup--p-strong">Staging</strong>, and <strong class="markup--strong markup--p-strong">Production</strong>. Each environment requires its own database URL and a unique, encrypted master password.</p><p name="7cff" id="7cff" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">The Setup:</strong> Instead of hardcoding these values, you organize them in Parameter Store using a logical hierarchy:</p><ul class="postList"><li name="0cb6" id="0cb6" class="graf graf--li graf-after--p"><code class="markup--code markup--li-code">/my-company/hr-app/dev/db-url</code></li><li name="c308" id="c308" class="graf graf--li graf-after--li"><code class="markup--code markup--li-code">/my-company/hr-app/prod/db-url</code> (Encrypted with KMS)</li></ul><p name="4ae4" id="4ae4" class="graf graf--p graf-after--li"><strong class="markup--strong markup--p-strong">The Benefit:</strong> When your <strong class="markup--strong markup--p-strong">Dev Lambda function</strong> starts up, its IAM role is scoped to only read parameters starting with <code class="markup--code markup--p-code">/my-company/hr-app/dev/</code>. It can pull the database URL safely. Meanwhile, your <strong class="markup--strong markup--p-strong">Production Lambda</strong> is the only entity with the keys to decrypt the <code class="markup--code markup--p-code">/prod/</code> path. If you need to rotate the production password, you simply update the value in Parameter Store. The app picks up the change on its next request, and you have a full version history of who changed the password and when.</p><figure name="2177" id="2177" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*Y20s5s0Eu83aNrYrGGnElA.png" data-width="1337" data-height="572" src="https://cdn-images-1.medium.com/max/800/1*Y20s5s0Eu83aNrYrGGnElA.png"></figure></div></div></section><section name="9a71" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="a960" id="a960" class="graf graf--h3 graf--leading">Standard vs. Advanced Tiers</h3><p name="faa9" id="faa9" class="graf graf--p graf-after--h3">Parameter Store offers two tiers to suit different needs. While the Standard tier is free and sufficient for most, the Advanced tier unlocks powerful “Parameter Policies.”</p><figure name="f2fb" id="f2fb" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*t7pVdiwt23giFQjDbwcaDQ.png" data-width="501" data-height="189" src="https://cdn-images-1.medium.com/max/800/1*t7pVdiwt23giFQjDbwcaDQ.png"></figure></div></div></section><section name="f504" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="87ed" id="87ed" class="graf graf--h3 graf--leading">Automating Hygiene with Parameter Policies</h3></div><div class="section-inner sectionLayout--outsetColumn"><figure name="7202" id="7202" class="graf graf--figure graf--layoutOutsetCenter graf-after--h3"><img class="graf-image" data-image-id="1*izrKieVTG3t35eaJTO1nJw.png" data-width="1386" data-height="271" src="https://cdn-images-1.medium.com/max/1200/1*izrKieVTG3t35eaJTO1nJw.png"></figure></div><div class="section-inner sectionLayout--insetColumn"><p name="f3f6" id="f3f6" class="graf graf--p graf-after--figure graf--trailing">In the <strong class="markup--strong markup--p-strong">Advanced Tier</strong>, you can assign a <strong class="markup--strong markup--p-strong">Time-to-Live (TTL)</strong> to your secrets. For instance, you can set a policy that deletes a temporary access token after 24 hours or triggers an <strong class="markup--strong markup--p-strong">Amazon EventBridge</strong> notification if a password hasn’t been changed in 90 days. This ensures your team maintains high security standards through automated reminders rather than manual audits.</p></div></div></section><section name="fe42" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="7d74" id="7d74" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="b38a" id="b38a" class="graf graf--p graf-after--h3 graf--trailing">AWS SSM Parameter Store is the quiet hero of organized cloud environments, providing the perfect balance between simplicity and enterprise-grade security. By leveraging its hierarchical structure and KMS integration, you can build applications that are not only more secure but significantly easier to manage across multiple regions and environments. As your needs grow, the Advanced Tier and its automated policies ensure that your secrets never go stale and your compliance remains ironclad. In the world of AWS, a well-organized Parameter Store is often the sign of a mature, production-ready architecture.</p></div></div></section><section name="06cf" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="2e0a" id="2e0a" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/7831503d646f"><time class="dt-published" datetime="2026-04-22T10:00:56.760Z">April 22, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-aws-ssm-parameter-store-centralized-config-management-7831503d646f" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

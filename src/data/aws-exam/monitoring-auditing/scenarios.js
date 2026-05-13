@@ -736,6 +736,347 @@ const toolDeploymentBus = new events.EventBus(this, 'ToolDeploymentBus', {
             },
         ],
     },
+    {
+        id: 7,
+        analogy: "Think of it like a multinational corporation's centralised security operations centre (SOC) — instead of each regional office (AWS account) keeping its own security incident binder (CloudTrail logs, VPC Flow Logs, GuardDuty findings), a specialised team (Security Lake) automatically collects every binder from every office, translates them all into a single standard report format (OCSF), and files them in one secure archive room (S3) that any analyst tool can query — without any manual collection, formatting, or filing.",
+        icon: "🛡️",
+        color: ACCENT.red,
+        tag: "SCENARIO 7",
+        title: "Amazon Security Lake",
+        subtitle: "Centralised, OCSF-normalised security data lake across all AWS accounts and Regions",
+        useCase: {
+            title: "Enterprise organisation — Security Lake aggregating CloudTrail, VPC Flow Logs, GuardDuty, and third-party SIEM feeds from multiple AWS accounts into a single S3-backed security data lake",
+            story: "A multinational enterprise operates 15 AWS accounts across 3 Regions (ap-southeast-1, us-east-1, eu-west-1). The security team needs to evaluate posture and detect threats across all accounts without building custom ETL pipelines. They enable Amazon Security Lake in the Security Hub delegated administrator account. Security Lake automatically collects CloudTrail management events, VPC Flow Logs, Route 53 Resolver query logs, AWS Lambda data events, Amazon EKS audit logs, and GuardDuty findings from all 15 accounts. All data is automatically normalised to the Open Cybersecurity Schema Framework (OCSF) v1.1 and stored in partitioned Apache Parquet format in S3. The security team grants subscriber access to Amazon Security Hub, Amazon OpenSearch Service, and a third-party SIEM (Splunk) — each tool queries the OCSF-normalised data without custom parsing. Retention policies archive data to S3 Glacier after 90 days.",
+            diagram: [
+                { actor: "15 AWS accounts (3 Regions) — CloudTrail, VPC Flow Logs, GuardDuty, EKS audit logs", icon: "🏢" },
+                { arrow: "Security Lake automatically ingests — no custom ETL needed" },
+                { actor: "Amazon Security Lake (delegated admin account)", icon: "🛡️" },
+                { arrow: "normalises to OCSF v1.1 → Parquet partitioned by account/region/date" },
+                { actor: "S3 security-lake-{accountId}-{region} (managed by Security Lake)", icon: "🪣" },
+                { arrow: "subscriber query access" },
+                { actor: "Amazon Security Hub / OpenSearch / Splunk (SIEM subscribers)", icon: "🔍" },
+            ],
+        },
+        buildSystem: [
+            "Enable AWS Organizations and designate a delegated administrator account for Security Lake (security-audit-account 999988887777) — this account manages Security Lake configuration for all member accounts",
+            "Enable Security Lake in the delegated admin account for all required Regions: aws securitylake create-data-lake for each Region; Security Lake creates the S3 bucket, Glue Data Catalog, and IAM roles automatically",
+            "Configure log sources for all organization accounts: aws securitylake create-aws-log-source — enable CLOUD_TRAIL_MGMT, VPC_FLOW, ROUTE53, LAMBDA_EXECUTION, EKS_AUDIT, GUARD_DUTY across all accounts and all 3 Regions",
+            "Add third-party custom sources (Splunk on-prem, Palo Alto firewall logs): aws securitylake create-custom-log-source — Security Lake provides an S3 ingestion path and SQS notification queue for external sources to write OCSF-formatted events",
+            "Create Security Lake subscribers for each consuming tool: aws securitylake create-subscriber — grant Amazon Security Hub access as an S3 data access subscriber; grant OpenSearch access; grant Splunk Cloud access via SQS notification (event-based) or S3 direct query",
+            "Configure retention lifecycle: set Security Lake to retain hot data (standard S3) for 90 days, then transition to S3 Glacier Instant Retrieval for 1 year, then Glacier Deep Archive for 7-year compliance retention",
+            "Enable Security Lake rollup Region (ap-southeast-1 as primary): replicates all OCSF data from us-east-1 and eu-west-1 into a single rollup Region so the SOC team can run cross-Region queries from one S3 location",
+            "Verify ingestion: aws securitylake list-log-sources and check CloudWatch metric SecurityLakeObjectCount per source type; confirm Parquet files appear in the S3 bucket under the expected partition structure (region/accountId/eventDay/)",
+        ],
+        flow: ["Security Lake enabled org-wide", "Sources auto-ingested (CloudTrail, VPC Flow, GuardDuty)", "Normalised to OCSF Parquet in S3", "Subscribers query via S3/SQS", "Retention → Glacier after 90 days"],
+        examTips: [
+            "Amazon Security Lake is the correct answer when the question asks for centralised security data with least development effort — it auto-ingests AWS native sources (CloudTrail, VPC Flow Logs, GuardDuty, Route 53, EKS), normalises to OCSF, and stores in S3 without any custom ETL code",
+            "OCSF (Open Cybersecurity Schema Framework) is the key differentiator — Security Lake normalises all security events into a single schema, so SIEM tools and analytics engines can query data from different sources without custom parsers",
+            "Security Lake stores data in Apache Parquet format in YOUR S3 bucket — the data is in your account (not AWS's), partitioned by account/region/date for efficient querying with Athena, OpenSearch, or any Parquet-compatible tool",
+            "Subscribers are the consumption layer — Security Lake supports two subscriber types: S3 data access (polling/query-based, e.g. Athena, Splunk) and SQS notification-based (event-driven, e.g. real-time SIEM ingestion); configure based on latency requirements",
+            "Security Lake vs manually configured S3 + CloudTrail + Athena: Security Lake eliminates 5–10 custom Lambda functions, Glue crawlers, and schema-conversion jobs — it is the low-effort option for the exam and in practice",
+            "Exam trigger keywords: 'centralize security data', 'multiple accounts', 'least development effort', 'normalize security logs', 'OCSF', 'security data lake', 'third-party SIEM integration' — all point to Amazon Security Lake",
+            "Security Lake requires AWS Organizations + a delegated administrator account — it cannot be enabled on a single standalone account without Organizations; this is a key constraint when the question mentions multi-account security centralization",
+        ],
+        roleJson: [
+            {
+                label: "AWS CLI — enable Security Lake org-wide, configure sources, and create subscribers",
+                note: "💡 Enable Security Lake in the delegated administrator account FIRST — member accounts automatically start sending log sources once Security Lake is enabled at the org level; no per-account configuration is required.",
+                code: `# Step 1 — Enable Security Lake in each required Region (run in delegated admin account)
+aws securitylake create-data-lake \\
+  --configurations '[
+    {
+      "region": "ap-southeast-1",
+      "encryptionConfiguration": {"kmsKeyId": "alias/security-lake-key"},
+      "lifecycleConfiguration": {
+        "transitions": [{"days": 90, "storageClass": "GLACIER_IR"}],
+        "expiration": {"days": 2555}
+      },
+      "replicationConfiguration": {
+        "regions": ["us-east-1", "eu-west-1"],
+        "roleArn": "arn:aws:iam::999988887777:role/SecurityLakeReplicationRole"
+      }
+    }
+  ]' \\
+  --meta-store-manager-role-arn arn:aws:iam::999988887777:role/AmazonSecurityLakeMetaStoreManager \\
+  --region ap-southeast-1
+
+# Step 2 — Enable all critical AWS native log sources org-wide
+aws securitylake create-aws-log-source \\
+  --sources '[
+    {"regions": ["ap-southeast-1","us-east-1","eu-west-1"], "sourceName": "CLOUD_TRAIL_MGMT",   "sourceVersion": "2.0"},
+    {"regions": ["ap-southeast-1","us-east-1","eu-west-1"], "sourceName": "VPC_FLOW",            "sourceVersion": "2.0"},
+    {"regions": ["ap-southeast-1","us-east-1","eu-west-1"], "sourceName": "GUARD_DUTY",          "sourceVersion": "2.0"},
+    {"regions": ["ap-southeast-1","us-east-1","eu-west-1"], "sourceName": "ROUTE53",             "sourceVersion": "2.0"},
+    {"regions": ["ap-southeast-1","us-east-1","eu-west-1"], "sourceName": "EKS_AUDIT",           "sourceVersion": "2.0"},
+    {"regions": ["ap-southeast-1","us-east-1","eu-west-1"], "sourceName": "LAMBDA_EXECUTION",    "sourceVersion": "2.0"}
+  ]' \\
+  --region ap-southeast-1
+
+# Step 3 — Create subscriber for Amazon Security Hub (S3 data access)
+aws securitylake create-subscriber \\
+  --subscriber-name security-hub-subscriber \\
+  --subscriber-identity '{"principal": "securityhub.amazonaws.com", "externalId": "999988887777"}' \\
+  --sources '[
+    {"awsLogSource": {"sourceName": "CLOUD_TRAIL_MGMT", "sourceVersion": "2.0"}},
+    {"awsLogSource": {"sourceName": "GUARD_DUTY",        "sourceVersion": "2.0"}}
+  ]' \\
+  --access-types S3 \\
+  --region ap-southeast-1
+
+# Step 4 — Create subscriber for Splunk SIEM (SQS event-based notification)
+aws securitylake create-subscriber \\
+  --subscriber-name splunk-siem-subscriber \\
+  --subscriber-identity '{"principal": "arn:aws:iam::SPLUNK-ACCOUNT-ID:root", "externalId": "splunk-ext-id"}' \\
+  --sources '[
+    {"awsLogSource": {"sourceName": "VPC_FLOW",          "sourceVersion": "2.0"}},
+    {"awsLogSource": {"sourceName": "CLOUD_TRAIL_MGMT",  "sourceVersion": "2.0"}}
+  ]' \\
+  --access-types SQS \\
+  --region ap-southeast-1
+
+# Step 5 — Verify ingestion
+aws securitylake list-log-sources --region ap-southeast-1`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — Security Lake data lake + org-wide log sources + Security Hub subscriber",
+                note: "💡 Security Lake has no L2 CDK constructs — use CfnDataLake and CfnAwsLogSource (L1). The MetaStoreManager IAM role must exist before the data lake is created; CDK dependency ordering handles this automatically.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as securitylake from 'aws-cdk-lib/aws-securitylake';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as kms from 'aws-cdk-lib/aws-kms';
+import { Construct } from 'constructs';
+
+export class SecurityLakeStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const slKey = new kms.Key(this, 'SecurityLakeKey', {
+      alias: 'security-lake-key',
+      enableKeyRotation: true,
+      description: 'CMK for Amazon Security Lake data at rest',
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
+    // MetaStoreManager role — required by Security Lake for Glue Data Catalog management
+    const metaStoreRole = new iam.Role(this, 'MetaStoreManager', {
+      roleName: 'AmazonSecurityLakeMetaStoreManager',
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonSecurityLakeMetaStoreManagerV2'),
+      ],
+    });
+
+    // Security Lake data lake — ap-southeast-1 as rollup region for all 3 regions
+    const dataLake = new securitylake.CfnDataLake(this, 'DataLake', {
+      encryptionConfiguration: { kmsKeyId: slKey.keyId },
+      lifecycleConfiguration: {
+        transitions: [{ days: 90, storageClass: 'GLACIER_IR' }],
+        expiration: { days: 2555 },
+      },
+      replicationConfiguration: {
+        regions: ['us-east-1', 'eu-west-1'],
+        roleArn: \`arn:aws:iam::\${this.account}:role/SecurityLakeReplicationRole\`,
+      },
+      metaStoreManagerRoleArn: metaStoreRole.roleArn,
+    });
+
+    // Enable all critical AWS native log sources org-wide
+    ['CLOUD_TRAIL_MGMT', 'VPC_FLOW', 'GUARD_DUTY', 'ROUTE53', 'EKS_AUDIT', 'LAMBDA_EXECUTION']
+      .forEach((sourceName, idx) => {
+        const src = new securitylake.CfnAwsLogSource(this, \`LogSource\${idx}\`, {
+          sourceName,
+          sourceVersion: '2.0',
+          regions: ['ap-southeast-1', 'us-east-1', 'eu-west-1'],
+          accounts: [],  // empty = all org member accounts
+        });
+        src.addDependency(dataLake);
+      });
+
+    // Security Hub subscriber — S3 query access for posture management
+    new securitylake.CfnSubscriber(this, 'SecurityHubSubscriber', {
+      subscriberName: 'security-hub-subscriber',
+      subscriberIdentity: {
+        principal: 'securityhub.amazonaws.com',
+        externalId: this.account,
+      },
+      sources: [
+        { awsLogSource: { sourceName: 'CLOUD_TRAIL_MGMT', sourceVersion: '2.0' } },
+        { awsLogSource: { sourceName: 'GUARD_DUTY',        sourceVersion: '2.0' } },
+      ],
+      accessTypes: ['S3'],
+    });
+  }
+}`,
+            },
+        ],
+    },
+    {
+        id: 8,
+        analogy: "Think of it like hiring a general-purpose warehouse builder (Lake Formation + Glue) to set up a specialised forensics evidence locker — the warehouse builder can absolutely build a room and organise files, but they don't understand evidence chain-of-custody formats (OCSF), they don't know which security agencies need access (SIEM subscribers), and you'd have to hand-write every evidence tag format yourself. A purpose-built forensics vault (Security Lake) already knows all of this out of the box.",
+        icon: "🚧",
+        color: ACCENT.amber,
+        tag: "SCENARIO 8",
+        title: "AWS Lake Formation + Glue — Wrong Answer Pattern for Security Centralisation",
+        subtitle: "Why Lake Formation + Glue ETL is a high-effort, wrong-fit answer for security log centralisation",
+        useCase: {
+            title: "Why NOT Lake Formation + Glue for security event centralisation — and when Lake Formation IS the right choice",
+            story: "A common exam distractor presents 'AWS Lake Formation + AWS Glue ETL' as the solution for centralising security logs from CloudTrail, GuardDuty, and VPC Flow Logs. Lake Formation is a powerful governed data lake service — but it is designed for structured business data (sales, inventory, analytics), not for purpose-built security log ingestion. To replicate what Amazon Security Lake does natively, a team using Lake Formation + Glue would need to: (1) build custom Lambda functions or Kinesis Firehose pipelines to collect logs from each service; (2) write Glue ETL jobs to parse and normalise each log format (CloudTrail JSON ≠ VPC Flow Logs TSV ≠ GuardDuty findings JSON); (3) define a common schema manually (no OCSF out of the box); (4) manage Glue Crawlers, Data Catalog tables, and IAM permissions per source. This is exactly the 'significant custom code and manual integration' the question says must be avoided. Lake Formation's strengths are fine-grained column/row access control, data sharing across accounts (via RAM), and governed tables — not security event normalisation.",
+            diagram: [
+                { actor: "CloudTrail (JSON) + VPC Flow Logs (TSV) + GuardDuty (JSON) + EKS Audit + Route53", icon: "📋" },
+                { arrow: "custom Lambda / Kinesis Firehose per source (you build these)" },
+                { actor: "Raw S3 landing zone (unstructured, different formats per service)", icon: "🪣" },
+                { arrow: "Glue ETL job per source to normalise (you write these)" },
+                { actor: "Normalised S3 bucket (no OCSF standard — your own schema)", icon: "🗂️" },
+                { arrow: "Lake Formation + Glue Data Catalog (you configure table definitions)" },
+                { actor: "Lake Formation governed tables (manual setup, no SIEM subscriber model)", icon: "🚧" },
+            ],
+        },
+        buildSystem: [
+            "What you would need to build manually: (1) Kinesis Data Firehose or Lambda for each log source — CloudTrail → S3, VPC Flow Logs → S3, GuardDuty → S3, Route53 → S3; each has different S3 path formats",
+            "Glue ETL jobs to transform each source: CloudTrail JSON → common schema, VPC Flow Logs space-delimited TSV → common schema, GuardDuty nested JSON → common schema — different parser for each",
+            "Define a common target schema in the Glue Data Catalog manually — no OCSF (Open Cybersecurity Schema Framework) provided; you must design and maintain the schema yourself",
+            "Lake Formation permissions: grant column-level and row-level access to each consuming team — powerful, but adds configuration overhead; you must define every data filter manually",
+            "Glue Crawlers to detect new partitions as data arrives — must be scheduled or triggered; missed crawls mean Athena queries see stale partition metadata",
+            "Cross-account access via AWS RAM (Resource Access Manager) to share Glue Data Catalog tables with SIEM subscriber accounts — no built-in subscriber model like Security Lake provides",
+            "CloudWatch alarms or EventBridge rules to detect Glue job failures, pipeline delays, or missing data — you own the monitoring of the ingestion pipeline itself",
+            "WHEN Lake Formation IS the right answer: governed data sharing across accounts for business analytics (sales, inventory, product data); fine-grained column/row access control for sensitive PII in a data warehouse; cross-account data lake sharing via AWS RAM — NOT for security log centralisation",
+        ],
+        flow: ["Custom ingestion (Lambda/Firehose)", "Custom Glue ETL per source", "Manual schema in Glue Catalog", "Lake Formation permissions config", "No subscriber model — query only"],
+        examTips: [
+            "Lake Formation + Glue is the WRONG answer for 'centralise security logs with least development effort' — it requires custom ETL pipelines, schema design, and per-source parsers; choose Amazon Security Lake instead",
+            "Lake Formation IS the right answer for: governed cross-account data sharing of business data, fine-grained column/row access control on sensitive analytics tables, or building a general-purpose data lake with structured business data",
+            "The exam often pairs a correct answer (Security Lake) with a plausible distractor (Lake Formation + Glue) — the key discriminator is 'least development effort' and 'security-specific logs'; Lake Formation has no native understanding of OCSF or security service log formats",
+            "Glue is an ETL tool, not a log normalisation platform — it can normalise data, but you must write the transformation logic; Security Lake normalises CloudTrail/VPC Flow/GuardDuty to OCSF automatically with no code",
+            "Lake Formation strengths to remember for the exam: (1) fine-grained access control on data lake tables (column-level, row-level); (2) cross-account data sharing via AWS RAM; (3) governed tables with ACID transactions; (4) centralised permissions model replacing S3 bucket policies — none of these are relevant to security event centralisation",
+            "If the question mentions 'OCSF', 'security posture', 'GuardDuty + CloudTrail + VPC Flow Logs' in the same context as 'centralise' → always Security Lake, never Lake Formation",
+        ],
+        roleJson: [
+            {
+                label: "Comparison — Security Lake (correct) vs Lake Formation + Glue (high-effort distractor)",
+                note: "💡 This side-by-side shows the effort difference: Security Lake = 3 CLI commands to ingest 6 log sources; Lake Formation + Glue = custom ETL code per source, schema design, Crawler setup, and manual permission configuration.",
+                code: `# ─── SECURITY LAKE approach (correct — 3 commands, no custom code) ───────────────
+
+# Enable Security Lake
+aws securitylake create-data-lake \\
+  --configurations '[{"region":"ap-southeast-1","encryptionConfiguration":{"kmsKeyId":"alias/sl-key"}}]' \\
+  --meta-store-manager-role-arn arn:aws:iam::999988887777:role/AmazonSecurityLakeMetaStoreManager
+
+# Auto-ingest 6 sources across all org accounts — OCSF normalisation is automatic
+aws securitylake create-aws-log-source \\
+  --sources '[
+    {"sourceName":"CLOUD_TRAIL_MGMT","sourceVersion":"2.0","regions":["ap-southeast-1"]},
+    {"sourceName":"VPC_FLOW","sourceVersion":"2.0","regions":["ap-southeast-1"]},
+    {"sourceName":"GUARD_DUTY","sourceVersion":"2.0","regions":["ap-southeast-1"]}
+  ]'
+
+# Create SIEM subscriber — done
+aws securitylake create-subscriber --subscriber-name splunk --access-types SQS ...
+
+
+# ─── LAKE FORMATION + GLUE approach (wrong — weeks of custom work) ───────────────
+
+# You must build a custom Glue ETL job for EACH log source.
+# Example: CloudTrail JSON → your custom schema (not OCSF)
+# glue_cloudtrail_etl.py (you write and maintain this):
+#
+# import sys
+# from awsglue.transforms import *
+# from awsglue.utils import getResolvedOptions
+# from pyspark.context import SparkContext
+# from awsglue.context import GlueContext
+# from awsglue.job import Job
+#
+# args = getResolvedOptions(sys.argv, ['JOB_NAME'])
+# sc = SparkContext()
+# glueContext = GlueContext(sc)
+# job = Job(glueContext)
+# job.init(args['JOB_NAME'], args)
+#
+# cloudtrail_df = glueContext.create_dynamic_frame.from_options(
+#     "s3", {"paths": ["s3://raw-logs/cloudtrail/"]}, "json"
+# )
+# # manually map CloudTrail fields to your custom schema
+# mapped = ApplyMapping.apply(frame=cloudtrail_df, mappings=[
+#     ("detail.userIdentity.arn", "string", "actor_arn", "string"),
+#     ("detail.eventName", "string", "event_name", "string"),
+#     # ... 30 more field mappings ...
+# ])
+# glueContext.write_dynamic_frame.from_options(mapped, "s3",
+#     {"path": "s3://normalised-logs/cloudtrail/"}, "parquet")
+# job.commit()
+#
+# Repeat for VPC Flow Logs (TSV format, different fields),
+# GuardDuty (nested JSON, different schema),
+# Route53, EKS Audit, Lambda — each needs its own ETL job.
+# Then set up Lake Formation permissions, Glue Crawlers, etc.
+# Total effort: 4–6 weeks vs Security Lake's 30-minute setup.`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK — Lake Formation correct use case: fine-grained access control on business analytics data lake",
+                note: "💡 This shows what Lake Formation IS good for — governing a business analytics data lake with column-level permissions. This is NOT the security log centralisation use case.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as lakeformation from 'aws-cdk-lib/aws-lakeformation';
+import * as glue from 'aws-cdk-lib/aws-glue';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
+
+// Lake Formation — CORRECT use case: governed business analytics data lake
+// with fine-grained column/row access control and cross-account sharing
+export class MarketplaceAnalyticsLakeStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    // S3 bucket for business analytics data (orders, products, revenue)
+    const analyticsBucket = new s3.Bucket(this, 'AnalyticsBucket', {
+      bucketName: 'marketplace-analytics-governed',
+      encryption: s3.BucketEncryption.KMS_MANAGED,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
+    // Register S3 location with Lake Formation (enables LF to manage permissions)
+    new lakeformation.CfnResource(this, 'LfResource', {
+      resourceArn: analyticsBucket.bucketArn,
+      useServiceLinkedRole: true,
+    });
+
+    // Glue Data Catalog database for business analytics tables
+    new glue.CfnDatabase(this, 'AnalyticsDb', {
+      catalogId: this.account,
+      databaseInput: { name: 'marketplace_analytics' },
+    });
+
+    // Lake Formation data lake settings — use LF permissions (not S3 bucket policies)
+    new lakeformation.CfnDataLakeSettings(this, 'LfSettings', {
+      admins: [{ dataLakePrincipalIdentifier: \`arn:aws:iam::\${this.account}:role/DataLakeAdmin\` }],
+    });
+
+    // Fine-grained column permission — analyst role can query revenue but NOT customer PII columns
+    new lakeformation.CfnPermissions(this, 'AnalystPermissions', {
+      dataLakePrincipal: {
+        dataLakePrincipalIdentifier: \`arn:aws:iam::\${this.account}:role/marketplace-analyst\`,
+      },
+      resource: {
+        tableWithColumnsResource: {
+          catalogId: this.account,
+          databaseName: 'marketplace_analytics',
+          name: 'orders',
+          columnNames: ['order_id', 'amount', 'product_id', 'created_at'],
+          // customer_email, customer_phone NOT included — column-level restriction
+        },
+      },
+      permissions: ['SELECT'],
+      permissionsWithGrantOption: [],
+    });
+  }
+}`,
+            },
+        ],
+    },
 ];
 
 export default scenarios;

@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Hands-On : AWS CloudShell: The Free, Browser-Based Terminal That Makes AWS Even Easier</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Hands-On : AWS CloudShell: The Free, Browser-Based Terminal That Makes AWS Even Easier</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="97f5" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="f244" id="f244" class="graf graf--h3 graf--leading graf--title">AWS Hands-On : AWS CloudShell: The Free, Browser-Based Terminal That Makes AWS Even Easier</h3><h3 name="11e6" id="11e6" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="8c46" id="8c46" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Hands-On</strong> blog accompanying the blog post:</p><p name="51dd" id="51dd" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03! (Episode 2: IAM &amp; CLI)”</p><p name="a61e" id="a61e" class="graf graf--p graf-after--p">🔹 Episode 2: <a href="https://medium.com/@issackpaul95/aws-cloud-practitioner-questions-iam-cli-353c1af260c5" data-href="https://medium.com/@issackpaul95/aws-cloud-practitioner-questions-iam-cli-353c1af260c5" class="markup--anchor markup--p-anchor" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="12e9" id="12e9" class="graf graf--p graf-after--p">🔹 Episode 2: AWS Solution Architect Preparation Quiz</p><figure name="f898" id="f898" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*q2JEnJwC-vNvBKdqY8X_zw.png" data-width="1024" data-height="750" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*q2JEnJwC-vNvBKdqY8X_zw.png"></figure></div></div></section><section name="4a2f" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="0fde" id="0fde" class="graf graf--h3 graf--leading">Introduction</h3><p name="045a" id="045a" class="graf graf--p graf-after--h3 graf--trailing">Once you’ve configured the AWS CLI on your laptop, you might think that’s the only way to run commands. Think again. AWS CloudShell is a completely free, browser-based terminal that lives directly inside the AWS Management Console. No local installation, no access keys to manage, no VPN required — just click an icon in the top-right corner and you instantly get a fully authenticated shell with the latest AWS CLI v2, Git, npm, Python, and dozens of other tools pre-installed. It’s perfect for quick experiments, debugging, teaching, or when you’re on a machine you don’t control (work laptop, conference Wi-Fi, etc.). In this short guide, we’ll fire it up and see why so many AWS users end up keeping CloudShell open in a pinned tab all day.</p></div></div></section><section name="ca87" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="a639" id="a639" class="graf graf--h3 graf--leading">What Is AWS CloudShell and Why You’ll Love It</h3><ul class="postList"><li name="0745" id="0745" class="graf graf--li graf-after--h3"><strong class="markup--strong markup--li-strong">Zero setup</strong> — Launches in seconds straight from the console.</li><li name="8bc3" id="8bc3" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Always authenticated</strong> — Uses the exact same IAM permissions as the user you’re logged in with. No aws configure, no keys to leak.</li><li name="2542" id="2542" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Free forever</strong> — No charge, even if you leave it running 24/7 (there is a generous idle timeout, but restarting is instant).</li><li name="cbf6" id="cbf6" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">1 GB of persistent home storage</strong> — Files you create (scripts, JSON, Terraform, etc.) survive restarts and are waiting for you next time.</li><li name="7f3a" id="7f3a" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Full-featured terminal</strong> — Multiple tabs, split panes, light/dark themes, font-size control, and easy upload/download buttons.</li><li name="0ee7" id="0ee7" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Works in supported regions only</strong> — As of 2025, available in most major regions (US East/West, Europe, Asia Pacific, etc.). If the little terminal icon is missing, just switch to a supported region — everything else stays the same.</li></ul></div></div></section><section name="41eb" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="b222" id="b222" class="graf graf--h3 graf--leading">Quick Hands-On Tour</h3></div><div class="section-inner sectionLayout--outsetColumn"><figure name="31b4" id="31b4" class="graf graf--figure graf--layoutOutsetCenter graf-after--h3"><img class="graf-image" data-image-id="1*Z1we14uF4nOY4Z3EVosk8w.png" data-width="1862" data-height="720" src="https://cdn-images-1.medium.com/max/1200/1*Z1we14uF4nOY4Z3EVosk8w.png"></figure></div><div class="section-inner sectionLayout--insetColumn"><ol class="postList"><li name="afb4" id="afb4" class="graf graf--li graf-after--figure">Look top-right in the AWS Console → click the terminal icon (or type “CloudShell” in the search bar).</li><li name="f98d" id="f98d" class="graf graf--li graf-after--li">Wait ~10 seconds for the environment to spin up.</li><li name="bf4c" id="bf4c" class="graf graf--li graf-after--li">Try it instantly:</li></ol><pre data-code-block-mode="1" spellcheck="false" data-code-block-lang="sql" name="2002" id="2002" class="graf graf--pre graf-after--li graf--preV2"><span class="pre--content">aws <span class="hljs-comment">--version</span><br />aws sts <span class="hljs-keyword">get</span><span class="hljs-operator">-</span>caller<span class="hljs-operator">-</span><span class="hljs-keyword">identity</span><br />aws s3 ls</span></pre></div><div class="section-inner sectionLayout--outsetColumn"><figure name="6715" id="6715" class="graf graf--figure graf--layoutOutsetCenter graf-after--pre"><img class="graf-image" data-image-id="1*UAos0J8lo3FGffvPjByclA.jpeg" data-width="1858" data-height="363" src="https://cdn-images-1.medium.com/max/1200/1*UAos0J8lo3FGffvPjByclA.jpeg"></figure></div><div class="section-inner sectionLayout--insetColumn"><ul class="postList"><li name="303b" id="303b" class="graf graf--li graf-after--figure">Everything just works — no credentials needed.</li></ul><p name="1a36" id="1a36" class="graf graf--p graf-after--li">4. Create a test file (it will survive restarts):</p><pre data-code-block-mode="1" spellcheck="false" data-code-block-lang="bash" name="c02b" id="c02b" class="graf graf--pre graf-after--p graf--preV2"><span class="pre--content"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Hello from CloudShell&quot;</span> &gt; demo.txt<br /><span class="hljs-built_in">cat</span> demo.txt</span></pre><p name="d0d8" id="d0d8" class="graf graf--p graf-after--pre">5. Use the handy GUI buttons:</p><ul class="postList"><li name="3fc9" id="3fc9" class="graf graf--li graf-after--p">Actions → Download file → type demo.txt → instant download</li><li name="a5bd" id="a5bd" class="graf graf--li graf-after--li">Actions → Upload file → drag-and-drop anything from your laptop</li></div><div class="section-inner sectionLayout--outsetColumn"></ul><figure name="c1af" id="c1af" class="graf graf--figure graf--layoutOutsetCenter graf-after--li"><img class="graf-image" data-image-id="1*fJ9765A1x_um_GB6ZXpfnQ.png" data-width="1858" data-height="363" src="https://cdn-images-1.medium.com/max/1200/1*fJ9765A1x_um_GB6ZXpfnQ.png"></figure></div><div class="section-inner sectionLayout--insetColumn"><p name="f052" id="f052" class="graf graf--p graf-after--figure">6. Power-user tricks:</p><ul class="postList"><li name="f0e8" id="f0e8" class="graf graf--li graf-after--p">Open new tabs or split vertically/horizontally</li><li name="3cac" id="3cac" class="graf graf--li graf-after--li graf--trailing">Resize font, switch to dark mode, feel right at home</li></ul></div></div></section><section name="2f3e" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="3c70" id="3c70" class="graf graf--h3 graf--leading">When to Use CloudShell vs. Local CLI</h3><figure name="a0ac" id="a0ac" class="graf graf--figure graf-after--h3 graf--trailing"><img class="graf-image" data-image-id="1*DHyEFw9IWm8Vq0xEflPYJA.png" data-width="651" data-height="268" src="https://cdn-images-1.medium.com/max/800/1*DHyEFw9IWm8Vq0xEflPYJA.png"></figure></div></div></section><section name="8569" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="4757" id="4757" class="graf graf--h3 graf--leading">Conclusion</h3><p name="0af7" id="0af7" class="graf graf--p graf-after--h3 graf--trailing">AWS CloudShell is one of those small features that quietly changes your daily workflow. It removes the friction of installing and configuring the CLI on every new machine, eliminates the risk of accidentally committing access keys, and gives you a persistent, customizable terminal that’s always one click away — for free. Keep using your local CLI when you need full power and offline access, but the next time you’re in the console and think “I wish I had a terminal right now,” just click that little icon. You’ll wonder how you ever lived without it. Happy (cloud) shell-ing! ☁️</p></div></div></section><section name="4e1e" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="8697" id="8697" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener" target="_blank">LinkedIn</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/951b898c37b7"><time class="dt-published" datetime="2025-11-29T08:00:43.540Z">November 29, 2025</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-hands-on-aws-cloudshell-the-free-browser-based-terminal-that-makes-aws-even-easier-951b898c37b7" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

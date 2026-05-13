@@ -1,7 +1,9 @@
 import { Box, Stack, useTheme } from "@mui/material";
 import content from '../../data/profile.json';
 import AboutMeInfoCard from "./aboutMeInfoCard";
-import { Male, Cake, LocationOn } from "@mui/icons-material";
+import Male from "@mui/icons-material/Male";
+import Cake from "@mui/icons-material/Cake";
+import LocationOn from "@mui/icons-material/LocationOn";
 
 const AboutMeInfo = () => {
     const theme = useTheme();

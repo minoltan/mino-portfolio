@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | Transit Gateway: The Central Station</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | Transit Gateway: The Central Station</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="fb8b" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="1dc3" id="1dc3" class="graf graf--h3 graf--leading graf--title">AWS Theory | Transit Gateway: The Central Station</h3><h3 name="8946" id="8946" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="13a9" id="13a9" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory </strong>blog accompanying the blog post:</p><p name="cc1b" id="cc1b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03 (Episode 25: Networking | VPC)”</p><p name="4013" id="4013" class="graf graf--p graf-after--p">🔹 Episode 25: AWS Cloud Practitioner Quiz</p><p name="620d" id="620d" class="graf graf--p graf-after--p">🔹 Episode 25: AWS Solution Architect Preparation Quiz</p><figure name="0765" id="0765" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*xU_mPDd1Zf-XBR6xOMW68Q.png" data-width="1408" data-height="736" src="https://cdn-images-1.medium.com/max/800/1*xU_mPDd1Zf-XBR6xOMW68Q.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="18a4" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e666" id="e666" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="2336" id="2336" class="graf graf--p graf-after--h3 graf--trailing">As your AWS footprint grows, managing network connections can start to feel like untangling a massive bowl of spaghetti. If you have ten VPCs and want them all to talk to each other, you’d need to set up and manage 45 individual peering connections! <strong class="markup--strong markup--p-strong">AWS Transit Gateway</strong> is the solution to this mesh madness. It acts as a central regional hub a star-shaped switchboard that connects thousands of VPCs and on-premises networks together. Instead of building a private highway between every single building, you connect every building to one central train station.</p></div></div></section><section name="3c63" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="470e" id="470e" class="graf graf--h3 graf--leading">Network topologies can become complicated</h3><figure name="b5e3" id="b5e3" class="graf graf--figure graf-after--h3 graf--trailing"><img class="graf-image" data-image-id="1*otthxjoUtiNQH5iwqKYRxw.png" data-width="1329" data-height="625" src="https://cdn-images-1.medium.com/max/800/1*otthxjoUtiNQH5iwqKYRxw.png"></figure></div></div></section><section name="447e" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="7cc2" id="7cc2" class="graf graf--h3 graf--leading">1. The Hub-and-Spoke Model</h3><p name="77ca" id="77ca" class="graf graf--p graf-after--h3">The Transit Gateway uses a <strong class="markup--strong markup--p-strong">Hub-and-Spoke</strong> architecture. The <strong class="markup--strong markup--p-strong">Hub</strong> is the Transit Gateway itself, and the <strong class="markup--strong markup--p-strong">Spokes</strong> are your VPCs, VPNs, and Direct Connect links.</p><figure name="06b3" id="06b3" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*xgI_dQfTExGZaAmtN2ihNA.png" data-width="374" data-height="450" src="https://cdn-images-1.medium.com/max/800/1*xgI_dQfTExGZaAmtN2ihNA.png"></figure><ul class="postList"><li name="ecfa" id="ecfa" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">Transitive Routing:</strong> Unlike standard VPC Peering, Transit Gateway supports transitive routing. If VPC A is connected to the Hub and VPC B is also connected, they can talk to each other automatically through the Hub.</li><li name="e646" id="e646" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Centralized Control:</strong> You manage all your traffic rules in one place using <strong class="markup--strong markup--li-strong">Transit Gateway Route Tables</strong>. You can decide exactly which VPCs are allowed to see each other and which should remain isolated.</li></ul></div></div></section><section name="6fe9" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="84eb" id="84eb" class="graf graf--h3 graf--leading">2. Supercharging VPN with ECMP</h3><p name="53f1" id="53f1" class="graf graf--p graf-after--h3">One of the coolest <strong class="markup--strong markup--p-strong">power user</strong> features of Transit Gateway is its ability to increase your VPN bandwidth using <strong class="markup--strong markup--p-strong">Equal-Cost Multi-Path (ECMP)</strong> routing.</p><figure name="0492" id="0492" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*8WZATS9t89hlyEkyxHl2vA.png" data-width="752" data-height="431" src="https://cdn-images-1.medium.com/max/800/1*8WZATS9t89hlyEkyxHl2vA.png"></figure><ul class="postList"><li name="85c2" id="85c2" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">The Problem:</strong> A standard AWS Site-to-Site VPN tunnel is capped at <strong class="markup--strong markup--li-strong">1.25 Gbps</strong>. Even though a VPN connection gives you two tunnels, you usually only use one at a time for a single flow.</li><li name="669c" id="669c" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Solution:</strong> When you connect your VPN to a Transit Gateway and enable ECMP, AWS can distribute your traffic across <strong class="markup--strong markup--li-strong">multiple tunnels simultaneously</strong>.</li><li name="315b" id="315b" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Result:</strong> By adding more VPN connections (each with two tunnels), you can scale your bandwidth far beyond the 1.25 Gbps limit, effectively “bonding” them together to reach 10 Gbps or more.</li></ul><figure name="9ca0" id="9ca0" class="graf graf--figure graf-after--li graf--trailing"><img class="graf-image" data-image-id="1*BS8WLm2KqBDDtEXdU_JUUA.png" data-width="1271" data-height="587" src="https://cdn-images-1.medium.com/max/800/1*BS8WLm2KqBDDtEXdU_JUUA.png"></figure></div></div></section><section name="6aa6" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="1628" id="1628" class="graf graf--h3 graf--leading">3. Sharing Direct Connect Across Accounts</h3><p name="b866" id="b866" class="graf graf--p graf-after--h3">In large organizations, you might have one high-speed <strong class="markup--strong markup--p-strong">Direct Connect (DX)</strong> link but dozens of different AWS accounts. Transit Gateway makes it easy to share that expensive connection.</p><figure name="5421" id="5421" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*X5WZZfsv9fNKmNfEa7POjQ.png" data-width="1264" data-height="604" src="https://cdn-images-1.medium.com/max/800/1*X5WZZfsv9fNKmNfEa7POjQ.png"></figure><p name="dfe3" id="dfe3" class="graf graf--p graf-after--figure graf--trailing">By linking your Direct Connect Gateway to a Transit Gateway, every VPC attached to that hub—regardless of which AWS account it belongs to—can use that single physical DX link to talk back to your corporate data center. You can manage this sharing easily using the <strong class="markup--strong markup--p-strong">AWS Resource Access Manager (RAM)</strong>.</p></div></div></section><section name="9748" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="9a5d" id="9a5d" class="graf graf--h3 graf--leading">4. Key Facts for the Exam</h3><p name="9177" id="9177" class="graf graf--p graf-after--h3">If you’re prepping for an AWS certification, keep these Transit Gateway “keywords” in mind:</p><ul class="postList"><li name="b84a" id="b84a" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Multicast:</strong> Transit Gateway is the <strong class="markup--strong markup--li-strong">only</strong> service that supports IP Multicast in AWS.</li><li name="e2ca" id="e2ca" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Regional but Peered:</strong> It is a regional resource, but you can “peer” Transit Gateways across different regions to create a global network.</li><li name="30df" id="30df" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Cost:</strong> You pay a fee per “attachment” (per VPC/VPN/DX connected) plus a fee for every GB of data processed.</li></ul></div></div></section><section name="d67f" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="43dc" id="43dc" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="337e" id="337e" class="graf graf--p graf-after--h3 graf--trailing">AWS Transit Gateway is the “grown-up” way to handle networking at scale. It transforms a complex web of peering into a clean, manageable star topology that grows with your business. Whether you need to connect 5,000 VPCs or just want to squeeze more speed out of your VPN, the Transit Gateway is the central brain of your cloud network.</p></div></div></section><section name="6ab5" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="9e51" id="9e51" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/b5229fe995f7"><time class="dt-published" datetime="2026-03-08T15:20:58.498Z">March 8, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-transit-gateway-the-central-station-b5229fe995f7" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

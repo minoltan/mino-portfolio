@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | Encryption: A Guide to the Three Pillars</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | Encryption: A Guide to the Three Pillars</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="91e7" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="3298" id="3298" class="graf graf--h3 graf--leading graf--title">AWS Theory | Encryption: A Guide to the Three Pillars</h3><h3 name="cc57" id="cc57" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="af56" id="af56" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="0c0b" id="0c0b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 24: Security &amp; Encryption | KMS, SSM Parameter Store, Shield, WAF)”</p><p name="7d2f" id="7d2f" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Cloud Practitioner Quiz</p><p name="a03b" id="a03b" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Solution Architect Preparation Quiz</p><figure name="f84d" id="f84d" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*QqdqVMJB0EImBUpb4yFa7A.png" data-width="1426" data-height="736" src="https://cdn-images-1.medium.com/max/800/1*QqdqVMJB0EImBUpb4yFa7A.png"></figure></div></div></section><section name="964a" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d78e" id="d78e" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="3c13" id="3c13" class="graf graf--p graf-after--h3 graf--trailing">In the modern cloud era, security is not a single checkbox but a multi-layered strategy designed to protect information as it moves and as it sits. Understanding the mechanics of encryption is fundamental to building a trustworthy architecture, as it ensures that even if data falls into the wrong hands, it remains unreadable. Whether you are browsing a website, storing sensitive financial records, or managing a proprietary database, AWS and other cloud providers offer three distinct ways to handle your keys and data: <strong class="markup--strong markup--p-strong">Encryption in Flight</strong>, <strong class="markup--strong markup--p-strong">Server-Side Encryption at Rest</strong>, and <strong class="markup--strong markup--p-strong">Client-Side Encryption</strong>. Each method serves a specific purpose in the battle against unauthorized access and “man-in-the-middle” attacks.</p></div></div></section><section name="a424" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="90f5" id="90f5" class="graf graf--h3 graf--leading">1. Encryption in Flight (TLS/SSL)</h3><p name="c28a" id="c28a" class="graf graf--p graf-after--h3">Encryption in flight ensures that data is scrambled before it leaves your device and only becomes readable once it reaches the destination server. This is primarily accomplished using <strong class="markup--strong markup--p-strong">TLS (Transport Layer Security)</strong>.</p><figure name="2e47" id="2e47" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*95gDZ6ckbtqixucecEmiBA.png" data-width="1374" data-height="288" src="https://cdn-images-1.medium.com/max/800/1*95gDZ6ckbtqixucecEmiBA.png"></figure><ul class="postList"><li name="c2a1" id="c2a1" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">How it works:</strong> When you see <strong class="markup--strong markup--li-strong">HTTPS</strong> in your browser, your connection is using a TLS certificate.</li><li name="19b2" id="19b2" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Goal:</strong> To prevent a “man-in-the-middle” attack where a rogue actor on a public network intercepts your data packets.</li><li name="617d" id="617d" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Real-World Example:</strong> Imagine you are logging into your online banking portal from a coffee shop’s public Wi-Fi. Because of encryption in flight, the person sitting at the next table running a packet-sniffing tool will only see gibberish, not your username and password.</li></ul></div></div></section><section name="0032" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="9562" id="9562" class="graf graf--h3 graf--leading">2. Server-Side Encryption at Rest</h3><p name="458a" id="458a" class="graf graf--p graf-after--h3">With server-side encryption, you trust the cloud service (like Amazon S3 or an EBS volume) to handle the heavy lifting. The service receives your data, encrypts it using its own managed keys, and stores it in a secure format.</p><figure name="bbaf" id="bbaf" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*OyNW4MKlTbtSxwSx1pyXDw.png" data-width="1290" data-height="324" src="https://cdn-images-1.medium.com/max/800/1*OyNW4MKlTbtSxwSx1pyXDw.png"></figure><ul class="postList"><li name="fe09" id="fe09" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">How it works:</strong> The server uses a <strong class="markup--strong markup--li-strong">data key</strong> to transform your plain text into ciphertext before writing it to a disk. When you request the data back, the server uses that same key to decrypt it and send it to you.</li><li name="e244" id="e244" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Goal:</strong> To ensure that if a physical hard drive is stolen from a data center, the data on it is useless without the digital keys.</li><li name="2a15" id="2a15" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Real-World Example:</strong> An HR department uploads employee contracts to an S3 bucket. AWS automatically encrypts these files the moment they land. The HR manager doesn’t need to do anything extra. The “server” handles the security automatically.</li></ul></div></div></section><section name="d980" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="9288" id="9288" class="graf graf--h3 graf--leading">3. Client-Side Encryption</h3><p name="9d34" id="9d34" class="graf graf--p graf-after--h3">This is the “Zero Trust” model. Here, the data is encrypted on your own machine before it is ever sent to the cloud. The cloud provider acts as a “blind” storage vault. It holds your data but has no way to look inside.</p><figure name="fc5e" id="fc5e" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*pcm6Z3tbcZLMBdGp80boiA.png" data-width="1123" data-height="393" src="https://cdn-images-1.medium.com/max/800/1*pcm6Z3tbcZLMBdGp80boiA.png"></figure><ul class="postList"><li name="72a1" id="72a1" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">How it works:</strong> You use your own library and keys to encrypt an object. You then send the already-encrypted file to the server. The server stores it, but because it never had your key, it cannot decrypt it.</li><li name="2b93" id="2b93" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Goal:</strong> Total control. You are responsible for the keys, and you don’t have to trust the cloud provider’s internal security for decryption.</li><li name="6b54" id="6b54" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Real-World Example:</strong> A high-security government agency wants to store classified blueprints on the cloud. They encrypt the files on a local, disconnected machine using a private key. They upload the encrypted results to AWS. Even if a cloud administrator tried to view the file, they would see nothing but encrypted code.</li></ul></div></div></section><section name="3685" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="630e" id="630e" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="0c01" id="0c01" class="graf graf--p graf-after--h3 graf--trailing">Navigating the complexities of cloud security becomes much simpler once you recognize that encryption is about managing where the “scrambling” and “unscrambling” happens. Encryption in flight protects the journey, server-side encryption protects the destination, and client-side encryption ensures that only the sender and receiver hold the “secret decoder ring.” By implementing these strategies — often in tandem — you can build a robust defense that satisfies both regulatory compliance and the basic human need for privacy. As you move forward in your cloud journey, always ask yourself: “Who holds the key, and where is the data most vulnerable?”</p></div></div></section><section name="d85d" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="da2b" id="da2b" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/6e658bcfe437"><time class="dt-published" datetime="2026-04-15T15:19:23.830Z">April 15, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-encryption-a-guide-to-the-three-pillars-6e658bcfe437" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

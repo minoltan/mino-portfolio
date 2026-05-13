@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | Bastion Host: The Gatekeeper</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | Bastion Host: The Gatekeeper</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="48c8" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="33cc" id="33cc" class="graf graf--h3 graf--leading graf--title">AWS Theory | Bastion Host: The Gatekeeper</h3><h3 name="9857" id="9857" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="13a9" id="13a9" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory </strong>blog accompanying the blog post:</p><p name="cc1b" id="cc1b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 25: Networking | VPC)”</p><p name="4013" id="4013" class="graf graf--p graf-after--p">🔹 Episode 25: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-networking-vpc-8eba6abe2f1e" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-networking-vpc-8eba6abe2f1e" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="620d" id="620d" class="graf graf--p graf-after--p">🔹 Episode 25: AWS Solution Architect Preparation Quiz</p><figure name="0c83" id="0c83" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*0B15GxncunX8_W9STXPoSQ.png" data-width="1344" data-height="768" src="https://cdn-images-1.medium.com/max/800/1*0B15GxncunX8_W9STXPoSQ.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="72e5" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="a50c" id="a50c" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="a35d" id="a35d" class="graf graf--p graf-after--h3 graf--trailing">In the previous sections, we learned how to build a secure house (VPC) with locked rooms (private subnets). But eventually, the “owner” (you, the administrator) needs to get inside those locked rooms to perform maintenance or check on things. Since those rooms have no windows or doors facing the street, you need a secure way to “hop” from the outside world into the heart of your network. This is where the <strong class="markup--strong markup--p-strong">Bastion Host</strong> (also known as a <strong class="markup--strong markup--p-strong">Jump Server</strong>) comes into play.</p></div></div></section><section name="b8ef" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="3c9a" id="3c9a" class="graf graf--h3 graf--leading">1. What is a Bastion Host?</h3><p name="ba7c" id="ba7c" class="graf graf--p graf-after--h3">A Bastion Host is a special purpose EC2 instance that lives in your <strong class="markup--strong markup--p-strong">public subnet.</strong> Its only job is to act as a secure proxy or “bridge.” Instead of exposing all your sensitive application and database servers to the internet, you expose only this one, highly hardened server.</p><p name="9997" id="9997" class="graf graf--p graf-after--p graf--trailing">Think of it like a <strong class="markup--strong markup--p-strong">security kiosk</strong> at the entrance of a gated community. You can’t drive directly to a house. You must first stop at the kiosk, prove who you are to the guard, and only then are you allowed to proceed to the private residences.</p></div></div></section><section name="4b09" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="4080" id="4080" class="graf graf--h3 graf--leading">2. The Connection Flow</h3><p name="1c09" id="1c09" class="graf graf--p graf-after--h3">To access a private instance, you perform a “double-hop”:</p><figure name="7c4d" id="7c4d" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*1i-Uzuej8F65fhp52jFgiw.png" data-width="608" data-height="833" src="https://cdn-images-1.medium.com/max/800/1*1i-Uzuej8F65fhp52jFgiw.png"></figure><ol class="postList"><li name="79f8" id="79f8" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">First Hop:</strong> You SSH from your local computer into the <strong class="markup--strong markup--li-strong">Bastion Host</strong> using its public IP.</li><li name="8c41" id="8c41" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Second Hop:</strong> Once inside the Bastion Host, you initiate a second SSH session to the <strong class="markup--strong markup--li-strong">Private Instance</strong> using its Private IP.</li></ol><blockquote name="5268" id="5268" class="graf graf--blockquote graf-after--li graf--trailing"><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">Security Tip:</em></strong><em class="markup--em markup--blockquote-em"> Never store your private SSH keys on the Bastion Host itself. If an attacker manages to compromise the Bastion, they would find your keys and gain access to everything. Instead, use a technique called </em><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">SSH Agent Forwarding</em></strong><em class="markup--em markup--blockquote-em">, which allows the Bastion to use the keys on your local computer without ever seeing or storing them.</em></blockquote></div></div></section><section name="fffb" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d851" id="d851" class="graf graf--h3 graf--leading">3. Setting Up the Security Groups</h3><p name="3b77" id="3b77" class="graf graf--p graf-after--h3">For this to work, you have to configure your security groups (SGs) like a series of interlocking locks.</p><figure name="aab0" id="aab0" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*sPWDhbq0K1gbKNMLyKN7MA.png" data-width="702" data-height="172" src="https://cdn-images-1.medium.com/max/800/1*sPWDhbq0K1gbKNMLyKN7MA.png"></figure></div></div></section><section name="3d7c" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e800" id="e800" class="graf graf--h3 graf--leading">4. Why Not Just Give Everything a Public IP?</h3><p name="fa84" id="fa84" class="graf graf--p graf-after--h3 graf--trailing">You might be tempted to just give every server a public IP to make your life easier. However, every public IP is a “door” that a hacker can try to kick down. By using a bastion host, you reduce your <strong class="markup--strong markup--p-strong">attack surface</strong> from dozens of servers down to just one. You can focus all your security efforts logging, monitoring, and frequent patching on that single gatekeeper.</p></div></div></section><section name="70db" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="573b" id="573b" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="919e" id="919e" class="graf graf--p graf-after--h3 graf--trailing">The Bastion Host is a classic architectural pattern that balances high security with administrative necessity. It ensures that your most valuable assets remain invisible to the public internet while still being reachable by authorized staff. While modern alternatives like <strong class="markup--strong markup--p-strong">AWS Systems Manager Session Manager</strong> are becoming popular (because they don’t require an open port 22 at all!), understanding the bastion host is fundamental to mastering VPC security and “jump” logic.</p></div></div></section><section name="83de" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="5bfc" id="5bfc" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/809c07d8373d"><time class="dt-published" datetime="2026-02-23T06:13:32.534Z">February 23, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-bastion-host-the-gatekeeper-809c07d8373d" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

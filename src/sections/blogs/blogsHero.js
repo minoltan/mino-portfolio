@@ -1,5 +1,8 @@
 import { Box, Grid, Stack, Typography, useTheme, alpha, Chip } from "@mui/material";
-import { LaptopMac, Article, Code, ChatBubble } from "@mui/icons-material";
+import LaptopMac from "@mui/icons-material/LaptopMac";
+import Article from "@mui/icons-material/Article";
+import Code from "@mui/icons-material/Code";
+import ChatBubble from "@mui/icons-material/ChatBubble";
 import { useTranslation } from "react-i18next";
 import { TypeAnimation } from "react-type-animation";
 import content from '../../data/profile.json';

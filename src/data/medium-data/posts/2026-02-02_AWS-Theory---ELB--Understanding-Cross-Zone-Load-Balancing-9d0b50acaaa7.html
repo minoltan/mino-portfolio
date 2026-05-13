@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | ELB: Understanding Cross-Zone Load Balancing</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | ELB: Understanding Cross-Zone Load Balancing</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="a9ff" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="713d" id="713d" class="graf graf--h3 graf--leading graf--title">AWS Theory | ELB: Understanding Cross-Zone Load Balancing</h3><h3 name="7e4a" id="7e4a" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="89f4" id="89f4" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory </strong>blog accompanying the blog post:</p><p name="b9cf" id="b9cf" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“<a href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-6-high-dc7ac178329a?postPublishedType=initial" data-href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-6-high-dc7ac178329a?postPublishedType=initial" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 6: High availability &amp; Scalability | ELB &amp; ASG)</a>”</p><p name="8c86" id="8c86" class="graf graf--p graf-after--p">🔹 Episode 6: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-high-availability-scalability-be3d3febd4e5" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-high-availability-scalability-be3d3febd4e5" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="37ab" id="37ab" class="graf graf--p graf-after--p">🔹 Episode 6: AWS Solution Architect Preparation Quiz</p><figure name="b709" id="b709" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*AgFCWPQAHBcBCFtKr_CG0g.png" data-width="1536" data-height="1024" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*AgFCWPQAHBcBCFtKr_CG0g.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="eeb1" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="a555" id="a555" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="eb64" id="eb64" class="graf graf--p graf-after--h3 graf--trailing">In our modern world, our traffic would be perfectly distributed across all servers. But what happens when you have two servers in one area (Availability Zone) and eight in another? Without the right settings, those two lonely servers could end up doing five times as much work as the others! Here you can feel the unbalance right? This is where <strong class="markup--strong markup--p-strong">cross-zone load balancing</strong> becomes a game-changer for your AWS architecture.</p></div></div></section><section name="d33b" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="510a" id="510a" class="graf graf--h3 graf--leading">What is Cross-Zone Load Balancing?</h3><p name="04c9" id="04c9" class="graf graf--p graf-after--h3">To understand this, imagine your load balancer has nodes living in each Availability Zone (AZ).</p><ul class="postList"><li name="557a" id="557a" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">With Cross-Zone Enabled:</strong> Each load balancer node can see <strong class="markup--strong markup--li-strong">all</strong> the instances in every AZ. It spreads the traffic evenly (10% to each of 10 instances).</li></ul><figure name="0c36" id="0c36" class="graf graf--figure graf-after--li"><img class="graf-image" data-image-id="1*sJvOZpEceTKjkcA8D4bWEg.png" data-width="817" data-height="699" src="https://cdn-images-1.medium.com/max/800/1*sJvOZpEceTKjkcA8D4bWEg.png"></figure><ul class="postList"><li name="5a9a" id="5a9a" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">With Cross-Zone Disabled:</strong> Each node only talks to the instances in its <strong class="markup--strong markup--li-strong">own</strong> AZ. If AZ-A has 2 instances and receives 50% of the traffic, each instance gets a massive 25% load. Meanwhile, the 8 instances in AZ-B share the other 50%, getting only 6.25% each.</li></ul><figure name="e2aa" id="e2aa" class="graf graf--figure graf-after--li graf--trailing"><img class="graf-image" data-image-id="1*MFa1czBvOjpFUquqw6_9jw.png" data-width="817" data-height="699" src="https://cdn-images-1.medium.com/max/800/1*MFa1czBvOjpFUquqw6_9jw.png"></figure></div></div></section><section name="0156" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e1dd" id="e1dd" class="graf graf--h3 graf--leading">The Cheat Sheet: Pricing &amp; Defaults</h3><p name="cf20" id="cf20" class="graf graf--p graf-after--h3">One of the most important things for the AWS Solutions Architect exam is knowing which load balancer does what by default and what it costs you.</p><figure name="14f2" id="14f2" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*U8EVa7-dX1rK96Q8f9rO3g.png" data-width="705" data-height="307" src="https://cdn-images-1.medium.com/max/800/1*U8EVa7-dX1rK96Q8f9rO3g.png"></figure></div></div></section><section name="6cb9" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e7ed" id="e7ed" class="graf graf--h3 graf--leading">Step-by-Step Hands-On: Configuring Cross-Zone</h3><h4 name="953f" id="953f" class="graf graf--h4 graf-after--h3">1. For Application Load Balancers (ALB)</h4><p name="edbd" id="edbd" class="graf graf--p graf-after--h4">You don’t usually turn it on for the ALB itself (it’s always on), but you can control it at the <strong class="markup--strong markup--p-strong">target group</strong> level.</p><ol class="postList"><li name="7147" id="7147" class="graf graf--li graf-after--p">Go to <strong class="markup--strong markup--li-strong">Target Groups</strong> and select your group.</li><li name="2254" id="2254" class="graf graf--li graf-after--li">Click the <strong class="markup--strong markup--li-strong">Attributes</strong> tab and hit <strong class="markup--strong markup--li-strong">Edit</strong>.</li><li name="c5d9" id="c5d9" class="graf graf--li graf-after--li">Look for <strong class="markup--strong markup--li-strong">cross-zone load balancing</strong>. You can choose to Inherit from the load balancer or manually toggle it <strong class="markup--strong markup--li-strong">on</strong> or <strong class="markup--strong markup--li-strong">off.</strong></li></ol><h4 name="c0ed" id="c0ed" class="graf graf--h4 graf-after--li">2. For Network (NLB) &amp; Gateway (GLB) Balancers</h4><p name="bf5d" id="bf5d" class="graf graf--p graf-after--h4">Because these are built for extreme performance and lower costs, AWS lets you choose if you want the extra “hop” between zones.</p><ol class="postList"><li name="83a4" id="83a4" class="graf graf--li graf-after--p">Go to <strong class="markup--strong markup--li-strong">Load Balancers</strong> and select your NLB or GLB.</li><li name="e90b" id="e90b" class="graf graf--li graf-after--li">Scroll down to the <strong class="markup--strong markup--li-strong">Attributes</strong> section.</li><li name="ccab" id="ccab" class="graf graf--li graf-after--li">Click <strong class="markup--strong markup--li-strong">Edit</strong>. Check the box for <strong class="markup--strong markup--li-strong">Enable cross-zone load balancing</strong>.</li><li name="a50a" id="a50a" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Caution:</strong> A warning will appear reminding you that this may incur regional data charges.</li></ol></div></div></section><section name="5f10" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="4411" id="4411" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="1d64" id="1d64" class="graf graf--p graf-after--h3 graf--trailing">Cross-zone load balancing is your tool for <strong class="markup--strong markup--p-strong">even utilization</strong>. If your AZs have an uneven number of instances, turn it on to keep your servers healthy. If your AZs are perfectly balanced and you want to save every penny on data transfer (for NLB/GLB), keep it off. Always remember, for the <strong class="markup--strong markup--p-strong">ALB</strong>, AWS makes it easy by keeping it on and keeping it free!</p></div></div></section><section name="5de7" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="6154" id="6154" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/9d0b50acaaa7"><time class="dt-published" datetime="2026-02-02T17:18:38.984Z">February 2, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-elb-understanding-cross-zone-load-balancing-9d0b50acaaa7" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

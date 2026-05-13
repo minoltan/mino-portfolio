@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Choosing Your Immutable Database: Ledger vs. Database vs. Blockchain</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">Choosing Your Immutable Database: Ledger vs. Database vs. Blockchain</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+The Death of “Delete”
+</section>
+<section data-field="body" class="e-content">
+<section name="d2b0" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="011e" id="011e" class="graf graf--h3 graf--leading graf--title">Choosing Your Immutable Database: Ledger vs. Database vs. Blockchain</h3><h3 name="0466" id="0466" class="graf graf--h3 graf-after--h3">The Death of “Delete”</h3><p name="b06e" id="b06e" class="graf graf--p graf-after--h3">Start with a bold claim: <em class="markup--em markup--p-em">In 2026, if your audit logs can be deleted by an admin, you don’t have an audit log — you have a suggestion.</em> Define the “Immutability Spectrum” from “Soft” (PostgreSQL) to “Hard” (Blockchain).</p><figure name="338b" id="338b" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*S9CuM5vTOeF0lm0zbW06Uw.png" data-width="1376" data-height="768" src="https://cdn-images-1.medium.com/max/800/1*S9CuM5vTOeF0lm0zbW06Uw.png"></figure><h3 name="444b" id="444b" class="graf graf--h3 graf-after--figure">What is an Immutable Database?</h3><p name="c290" id="c290" class="graf graf--p graf-after--h3">At its core, an <strong class="markup--strong markup--p-strong">Immutable Database</strong> is a data store where information is permanent and unchangeable. Unlike traditional databases that follow the <strong class="markup--strong markup--p-strong">CRUD</strong> (Create, Read, Update, Delete) model, immutable databases primarily follow a <strong class="markup--strong markup--p-strong">CR</strong> model.</p><p name="c184" id="c184" class="graf graf--p graf-after--p graf--trailing">Instead of overwriting an existing record when data changes, an immutable database appends a new record to a ledger. This creates a complete, verifiable history of every change that has ever occurred, from the moment the database was created.</p></div></div></section><section name="4537" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="1a1d" id="1a1d" class="graf graf--h3 graf--leading">Why Do We Need Them?</h3><p name="6f3d" id="6f3d" class="graf graf--p graf-after--h3">The shift toward immutability isn’t just a trend, it’s a response to the vulnerabilities of traditional systems. Here are the three primary drivers:</p><ol class="postList"><li name="40ec" id="40ec" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Trust and Auditability:</strong> In industries like finance, healthcare, or supply chain, you must be able to prove <em class="markup--em markup--li-em">exactly</em> what happened and when. An immutable ledger provides an “audit trail” that cannot be forged or hidden by a malicious actor.</li><li name="85b3" id="85b3" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Data Integrity:</strong> Human error and application bugs are the leading causes of data loss. With an immutable system, even if a “bad” record is inserted, the previous “good” state remains intact in the history. You don’t lose the past; you just add to it.</li><li name="7670" id="7670" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Cryptographic Verification:</strong> Many immutable databases (like QLDB and Blockchain) use hashing to link records. This means if even a single bit of data is altered in the past, the “chain” breaks, immediately alerting you to the tampering.</li></ol></div></div></section><section name="c47f" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="f158" id="f158" class="graf graf--h3 graf--leading">1. The “Legacy” Legend: Amazon QLDB (The Centralized Ledger)</h3><figure name="55e1" id="55e1" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*ZfySLeAzaLi9iv-Tgpz23w.png" data-width="596" data-height="474" src="https://cdn-images-1.medium.com/max/800/1*ZfySLeAzaLi9iv-Tgpz23w.png"></figure><p name="04b3" id="04b3" class="graf graf--p graf-after--figure graf--trailing"><strong class="markup--strong markup--p-strong">Amazon QLDB</strong> creates an immutable ledger by appending every transaction to a write-only journal. Each entry is linked to the previous one using cryptographic hashes, forming a tamper-proof chain. You can’t delete or modify old entries — QLDB provides a verification digest to prove the data integrity. (Deprecated)</p></div></div></section><section name="1387" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="f822" id="f822" class="graf graf--h3 graf--leading">2. The “Soft” Path: PostgreSQL (Append-Only)</h3><figure name="caf7" id="caf7" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*C-85nHRUFZ9TP--LQ2k-QA.png" data-width="602" data-height="505" src="https://cdn-images-1.medium.com/max/800/1*C-85nHRUFZ9TP--LQ2k-QA.png"></figure><p name="2f33" id="2f33" class="graf graf--p graf-after--figure graf--trailing"><strong class="markup--strong markup--p-strong">PostgreSQL</strong> isn’t immutable by default. You design your schema with an append-only pattern — never UPDATE or DELETE, only INSERT new rows. You use timestamps (valid_from, valid_to) to track history. However, a database administrator or application bug can still delete rows. The immutability is enforced by your application code and permissions, not by the database itself.</p></div></div></section><section name="44e0" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="6098" id="6098" class="graf graf--h3 graf--leading">3. The “Hard” Path: Amazon Managed Blockchain</h3><figure name="c9a8" id="c9a8" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*0GlW20rmIfXPvpsu8vb9Pg.png" data-width="597" data-height="545" src="https://cdn-images-1.medium.com/max/800/1*0GlW20rmIfXPvpsu8vb9Pg.png"></figure><p name="a2c8" id="a2c8" class="graf graf--p graf-after--figure graf--trailing"><strong class="markup--strong markup--p-strong">Amazon Managed Blockchain</strong> distributes the transaction across multiple network nodes. Each node validates it independently. They reach consensus (agreement) before adding the transaction to a new block. The block is cryptographically linked to the previous block and replicated to all nodes. Immutability comes from decentralization — changing history would require controlling the majority of nodes.</p></div></div></section><section name="5b88" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="1f20" id="1f20" class="graf graf--h3 graf--leading">Key differences</h3><figure name="b8c3" id="b8c3" class="graf graf--figure graf-after--h3 graf--trailing"><img class="graf-image" data-image-id="1*PX5ETzcsy5L60i3puTXWWA.png" data-width="775" data-height="440" src="https://cdn-images-1.medium.com/max/800/1*PX5ETzcsy5L60i3puTXWWA.png"></figure></div></div></section><section name="d216" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="6a70" id="6a70" class="graf graf--h3 graf--leading">The “Zero Trust” Mindset</h3><p name="b4ce" id="b4ce" class="graf graf--p graf-after--h3">End with a call to action. Remind them that in 2026, <strong class="markup--strong markup--p-strong">Immutability is a Feature, not a Product.</strong> Whether they build it in Postgres or deploy it on a Blockchain, the goal is the same: building a system that can stand up in a court of law or a security audit.</p><blockquote name="cf03" id="cf03" class="graf graf--pullquote graf--startsWithDoubleQuote graf-after--p graf--trailing">“Choosing a database is like choosing a safe. PostgreSQL is a sturdy filing cabinet with a good lock; Blockchain is a transparent vault in the middle of a crowded square. One is easier to use, the other is impossible to hide a heist from. Choose based on who holds the keys.”</blockquote></div></div></section><section name="3395" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="0991" id="0991" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/aac3a4d8091c"><time class="dt-published" datetime="2026-04-25T11:10:47.894Z">April 25, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/choosing-your-immutable-database-ledger-vs-database-vs-blockchain-aac3a4d8091c" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

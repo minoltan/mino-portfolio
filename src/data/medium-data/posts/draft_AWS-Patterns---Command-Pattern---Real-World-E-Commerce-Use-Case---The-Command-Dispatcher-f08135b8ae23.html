@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Patterns | Command Pattern | Real-World E-Commerce Use Case : The Command Dispatcher</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Patterns | Command Pattern | Real-World E-Commerce Use Case : The Command Dispatcher</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+Introduction
+</section>
+<section data-field="body" class="e-content">
+<section name="db02" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="00f7" id="00f7" class="graf graf--h3 graf--leading graf--title">AWS Patterns | Command Pattern | Real-World E-Commerce Use Case : The Command Dispatcher</h3><h3 name="8cdb" id="8cdb" class="graf graf--h3 graf-after--h3">Introduction</h3><p name="237a" id="237a" class="graf graf--p graf-after--h3">Imagine you’re building (or modernising) a mid to large e-commerce platform — think millions of SKUs, flash sales, international stores, and constant A/B experiments. Like GraphQL architecture, that a single end point can be used to cater to different requests with different data (a single GraphQL endpoint can accept any combination of fields from a client and create a response that matches the request). The same idea can be applied more generally. You can design a system in which a specific Lambda function controls and invokes other functions. You can connect it to an API Gateway or invoke it manually and pass messages to it to invoke other Lambda functions.</p><figure name="f1c4" id="f1c4" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*yVltBBURhRNE2mnPYu6I5A.png" data-width="913" data-height="690" src="https://cdn-images-1.medium.com/max/800/1*yVltBBURhRNE2mnPYu6I5A.png"></figure><ul class="postList"><li name="57aa" id="57aa" class="graf graf--li graf-after--figure">In software engineering, the command pattern is used to “encapsulate a request as an object, thereby letting you parameterize clients with different requests, queue or log requests, and support undoable operations” because of the “need to issue requests to objects without knowing anything about the operation being requested or the receiver of the request” </li><li name="c5f8" id="c5f8" class="graf graf--li graf-after--li">The command pattern allows you to decouple the caller of the operation from the entity that carries out the required processing.</li><li name="ae60" id="ae60" class="graf graf--li graf-after--li">In practice, this pattern can simplify the API Gateway implementation, because you may not want or need to create a RESTful URI for every type of request. It can also make versioning simpler.</li><li name="2f0c" id="2f0c" class="graf graf--li graf-after--li graf--trailing">The command Lambda function could work with different versions of your clients and invoke the right Lambda function that’s needed by the client.</li></ul></div></div></section><section name="5d45" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="63ee" id="63ee" class="graf graf--h3 graf--leading">Instead of creating hundreds of REST endpoints like</h3><pre data-code-block-mode="1" spellcheck="false" data-code-block-lang="bash" name="3359" id="3359" class="graf graf--pre graf-after--h3 graf--preV2"><span class="pre--content">POST /v1/checkout/create-order<br />POST /v1/checkout/apply-promo<br />POST /v1/checkout/add-gift-wrap<br />POST /v2/checkout/create-order … (and so on <span class="hljs-keyword">for</span> every new feature or version)</span></pre><p name="242b" id="242b" class="graf graf--p graf-after--pre">you implement a single, versionless command endpoint:</p><pre data-code-block-mode="1" spellcheck="false" data-code-block-lang="bash" name="5434" id="5434" class="graf graf--pre graf-after--p graf--preV2"><span class="pre--content">POST https://api.yourshop.com/commands</span></pre><p name="0a30" id="0a30" class="graf graf--p graf-after--pre">The request body is just a JSON command object:</p><pre data-code-block-mode="1" spellcheck="false" data-code-block-lang="bash" name="3e90" id="3e90" class="graf graf--pre graf-after--p graf--trailing graf--preV2"><span class="pre--content">{<br />  <span class="hljs-string">&quot;command&quot;</span>: <span class="hljs-string">&quot;Checkout.CreateOrder&quot;</span>,<br />  <span class="hljs-string">&quot;version&quot;</span>: <span class="hljs-string">&quot;2025.1&quot;</span>,<br />  <span class="hljs-string">&quot;payload&quot;</span>: {<br />    <span class="hljs-string">&quot;cartId&quot;</span>: <span class="hljs-string">&quot;cart-123&quot;</span>,<br />    <span class="hljs-string">&quot;shippingAddress&quot;</span>: { ... },<br />    <span class="hljs-string">&quot;promoCode&quot;</span>: <span class="hljs-string">&quot;FLASH25&quot;</span>,<br />    <span class="hljs-string">&quot;addGiftWrap&quot;</span>: <span class="hljs-literal">true</span>,<br />    <span class="hljs-string">&quot;customerSegment&quot;</span>: <span class="hljs-string">&quot;vip&quot;</span><br />  },<br />  <span class="hljs-string">&quot;requestId&quot;</span>: <span class="hljs-string">&quot;req-abc-789&quot;</span>,<br />  <span class="hljs-string">&quot;userId&quot;</span>: <span class="hljs-string">&quot;usr-456&quot;</span><br />}</span></pre></div></div></section><section name="63e3" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="7976" id="7976" class="graf graf--h3 graf--leading">How it works under the hood (pure serverless)</h3><ol class="postList"><li name="4490" id="4490" class="graf graf--li graf-after--h3"><strong class="markup--strong markup--li-strong">API Gateway</strong> → single HTTP endpoint (or even a WebSocket/AppSync for real-time carts)</li><li name="ef5b" id="ef5b" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Command Dispatcher Lambda</strong> → one lightweight function that:</li></ol><ul class="postList"><li name="778c" id="778c" class="graf graf--li graf-after--li">Validates auth &amp; basic shape</li><li name="8c5e" id="8c5e" class="graf graf--li graf-after--li">Routes the command name + version → correct business-logic Lambda (e.g., Checkout.CreateOrder@v2025.1 → lambda-checkout-create-order-2025–1)</li><li name="3e4d" id="3e4d" class="graf graf--li graf-after--li">Forwards the full payload + context</li></ul><p name="3c1f" id="3c1f" class="graf graf--p graf-after--li">3. <strong class="markup--strong markup--p-strong">Specialised Lambda functions</strong> → tiny, single-purpose, easy to test &amp; version</p><p name="3541" id="3541" class="graf graf--p graf-after--p graf--trailing">4. All commands are automatically logged → great audit trail for orders, refunds, etc.</p></div></div></section><section name="8736" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="b9f6" id="b9f6" class="graf graf--h3 graf--leading">Why this is a game-changer for e-commerce teams</h3><ul class="postList"><li name="bd22" id="bd22" class="graf graf--li graf-after--h3">No more exploding REST API surface — one endpoint forever</li><li name="5fbf" id="5fbf" class="graf graf--li graf-after--li">Easy feature flags &amp; A/B testing — route “VIP” users to a new checkout Lambda without client changes</li><li name="2ad9" id="2ad9" class="graf graf--li graf-after--li">Smooth versioning — old mobile apps keep sending Checkout.CreateOrder@v2024.3, new ones use v2025.1</li><li name="0f9f" id="0f9f" class="graf graf--li graf-after--li">Rollbacks are trivial — just change the routing map in the dispatcher</li><li name="4449" id="4449" class="graf graf--li graf-after--li">Perfect for event-driven extensions (e.g., after CreateOrder succeeds → automatically trigger Inventory.</li><li name="f8b3" id="f8b3" class="graf graf--li graf-after--li">ReserveStock, Loyalty.AddPoints, Fraud.CheckOrder)</li><li name="083a" id="083a" class="graf graf--li graf-after--li graf--trailing">Works beautifully with GraphQL/AppSync too — your single GraphQL endpoint can forward mutations as internal commands</li></ul></div></div></section><section name="2966" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="3a54" id="3a54" class="graf graf--h3 graf--leading">When to use this</h3><ul class="postList"><li name="0fab" id="0fab" class="graf graf--li graf-after--h3">This pattern is useful if you want to decouple the caller and the receiver. Having a way to pass arguments as an object, and allowing clients to be parametrized with different requests, can reduce coupling between components and help make the system more extensible. </li><li name="4f3f" id="4f3f" class="graf graf--li graf-after--li">Be aware of using this approach if you need to return a response to the API Gateway. </li><li name="19ca" id="19ca" class="graf graf--li graf-after--li graf--trailing">Adding another function will increase latency.</li></ul></div></div></section><section name="d024" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="b957" id="b957" class="graf graf--h3 graf--leading">Conclusion</h3><p name="3fd2" id="3fd2" class="graf graf--p graf-after--h3 graf--trailing">This is exactly the Command Pattern implemented at scale using serverless: the caller (frontend, mobile app, or even another backend) has zero knowledge of which Lambda actually does the work. The Command Dispatcher Lambda decouples the request from the receiver, reduces coupling, simplifies API Gateway, and makes versioning painless. Big players (including parts of Shopify Plus, some Amazon internal services, and several top-100 retailers) use variants of this exact pattern today.</p></div></div></section><section name="cfb8" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="230e" id="230e" class="graf graf--p graf--leading">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">LinkedIn</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p><p name="5d1f" id="5d1f" class="graf graf--p graf--empty graf-after--p"><br></p><p name="a173" id="a173" class="graf graf--p graf--empty graf-after--p"><br></p><p name="0a1a" id="0a1a" class="graf graf--p graf--empty graf-after--p graf--trailing"><br></p></div></div></section>
+</section>
+<footer><p><a href="https://medium.com/p/f08135b8ae23">View original.</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

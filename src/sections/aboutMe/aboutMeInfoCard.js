@@ -1,4 +1,4 @@
-import { BorderStyle } from "@mui/icons-material";
+import BorderStyle from "@mui/icons-material/BorderStyle";
 import { Avatar, Box, Card, Stack, Typography, useTheme } from "@mui/material";
 
 const AboutMeInfoCard = ({

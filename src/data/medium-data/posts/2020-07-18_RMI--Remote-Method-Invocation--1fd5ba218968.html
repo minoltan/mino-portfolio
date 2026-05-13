@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>RMI (Remote Method Invocation)</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">RMI (Remote Method Invocation)</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+RMI is provides a mechanism to create distributed application in java. This mechanism allows an object to residing in one system (JVM) to…
+</section>
+<section data-field="body" class="e-content">
+<section name="7d8f" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="6532" id="6532" class="graf graf--h3 graf--leading graf--title">RMI (Remote Method Invocation)</h3><p name="f025" id="f025" class="graf graf--p graf-after--h3">RMI is provides a mechanism to create distributed application in java. This mechanism allows an object to residing in one system (JVM) to an object running in another JVM. It is an API.</p><p name="d12b" id="d12b" class="graf graf--p graf-after--p">In RMI application there are two programs we write.</p><ol class="postList"><li name="269c" id="269c" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">server program</strong> (resides on the server)- a remote object is created and reference of that object is made available for the client (using the registry).</li><li name="051f" id="051f" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">client program</strong> (resides on the client)- requests the remote objects on the server and tries to invoke its methods.</li></ol><h3 name="cf8e" id="cf8e" class="graf graf--h3 graf-after--li">RMI Architecture</h3><figure name="e28c" id="e28c" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*IUDsPttllti3fgmcnygjPA.png" data-width="1366" data-height="768" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*IUDsPttllti3fgmcnygjPA.png"></figure><ul class="postList"><li name="7eaa" id="7eaa" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">Transport Layer</strong> − Connection between client and server. It controls the existing connection and new connections.</li><li name="416b" id="416b" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Stub</strong> − A stub is a representation (proxy) of the remote object at client. It resides in the client system; it acts as a gateway for the client program.</li><li name="9b78" id="9b78" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Skeleton</strong> − This is the object which resides on the server side. <strong class="markup--strong markup--li-strong">stub</strong> communicates with this skeleton to pass request to the remote object.</li><li name="25f9" id="25f9" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">RRL(Remote Reference Layer)</strong> − It is the layer which manages the references made by the client to the remote object.</li></ul><h3 name="32ca" id="32ca" class="graf graf--h3 graf-after--li">Requirements for the distributed application</h3><p name="3325" id="3325" class="graf graf--p graf-after--h3">The is given the 6 steps to write the RMI program</p><ol class="postList"><li name="e303" id="e303" class="graf graf--li graf-after--p">Create the remote interface</li><li name="c005" id="c005" class="graf graf--li graf-after--li">Provide the implementation of the remote interface</li><li name="4d4d" id="4d4d" class="graf graf--li graf-after--li">Compile the implementation class and create the stub and skeleton objects using the rmic tool</li><li name="4663" id="4663" class="graf graf--li graf-after--li">Start the registry service by rmi registry tool</li><li name="4871" id="4871" class="graf graf--li graf-after--li">Create and start the remote application</li><li name="f99f" id="f99f" class="graf graf--li graf-after--li">Create and start the client application</li></ol><p name="38e6" id="38e6" class="graf graf--p graf-after--li">Here we have to follow 6 steps to create and run the RMI application. The client application consist of two files, <br>1. Remote interface.<br>2. Client application.</p><p name="9de4" id="9de4" class="graf graf--p graf-after--p">In the RMI application, both client and server interacts with the remote interface.</p><p name="5e91" id="5e91" class="graf graf--p graf-after--p">The client application invokes methods on the proxy object, RMI sends the request to the remote JVM. The return value is sent back to the proxy object and then to the client application.</p><figure name="ce8e" id="ce8e" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*tN4Exiff9e5T4QzdMIjIig.png" data-width="1366" data-height="768" src="https://cdn-images-1.medium.com/max/800/1*tN4Exiff9e5T4QzdMIjIig.png"></figure><p name="daf6" id="daf6" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 1 : create the remote interface</strong></p><p name="c6bd" id="c6bd" class="graf graf--p graf-after--p">Here, I am going to create a adder interface(remote interface) that extends the Remote interface and create add() method which passes the two parameters (int x and int y)<br>1. Creating the adder interface.<br>2. Extend the Remote interface.<br>3. Declare the Remote Exception with all the methods of the remote interface. <em class="markup--em markup--p-em">(There is only one method named add() and it declares RemoteException)</em></p><figure name="edf8" id="edf8" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*MKlPEY45ifKesZGMOTWZkw.png" data-width="391" data-height="220" src="https://cdn-images-1.medium.com/max/800/1*MKlPEY45ifKesZGMOTWZkw.png"></figure><p name="c315" id="c315" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 2 : Provide the implementation of the remote interface</strong></p><p name="5d06" id="5d06" class="graf graf--p graf-after--p">Here i am going to extend the UnicastRemoteObject provide the implementation of the remote interface.<br>I need to define a constructor that declares RemoteException.</p><figure name="e8c2" id="e8c2" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*NL6XtOiYMcAX7qROhdt6Bg.png" data-width="567" data-height="319" src="https://cdn-images-1.medium.com/max/800/1*NL6XtOiYMcAX7qROhdt6Bg.png"></figure><p name="131f" id="131f" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 3: create the Main method of server</strong></p><figure name="dac8" id="dac8" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*-LB_0ttobzPUKVUwfx0j7Q.png" data-width="547" data-height="308" src="https://cdn-images-1.medium.com/max/800/1*-LB_0ttobzPUKVUwfx0j7Q.png"></figure><p name="47e0" id="47e0" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Step 4: Create the client class</strong></p><figure name="044d" id="044d" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*WP_Q5sN00fpUK3YFNMf0TA.png" data-width="604" data-height="340" src="https://cdn-images-1.medium.com/max/800/1*WP_Q5sN00fpUK3YFNMf0TA.png"></figure><h3 name="e701" id="e701" class="graf graf--h3 graf-after--figure">Step 5</h3><blockquote name="595c" id="595c" class="graf graf--blockquote graf-after--h3"><em class="markup--em markup--blockquote-em">Open command prompt and go to the location where your project files are located and first compile all the java files.</em></blockquote><blockquote name="20eb" id="20eb" class="graf graf--blockquote graf-after--blockquote"><em class="markup--em markup--blockquote-em">By using,</em></blockquote><blockquote name="9403" id="9403" class="graf graf--blockquote graf-after--blockquote"><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">javac *.java</em></strong></blockquote><blockquote name="2239" id="2239" class="graf graf--blockquote graf-after--blockquote"><em class="markup--em markup--blockquote-em">Next step is to create stub and skeleton objects using the rmi compiler. The rmic tool invokes the RMI compiler and creates stub and skeleton objects.</em></blockquote><blockquote name="0ce0" id="0ce0" class="graf graf--blockquote graf-after--blockquote"><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">rmic AdderRemote</em></strong></blockquote><blockquote name="130d" id="130d" class="graf graf--blockquote graf-after--blockquote"><em class="markup--em markup--blockquote-em">Or else if you a package name, then try the above command with your package name.</em></blockquote><blockquote name="b6fb" id="b6fb" class="graf graf--blockquote graf-after--blockquote"><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">rmic &lt;package name&gt;.AdderRemote</em></strong></blockquote><blockquote name="3f30" id="3f30" class="graf graf--blockquote graf-after--blockquote"><strong class="markup--strong markup--blockquote-strong">Step 6: <em class="markup--em markup--blockquote-em">Start the registry service by the rmi registry tool</em></strong></blockquote><p name="93f9" id="93f9" class="graf graf--p graf-after--blockquote">Now start the registry service by using the rmi registry tool. If you don’t specify the port number, it uses a default port number. In this project, I am using the port number 5000.</p><p name="7fe6" id="7fe6" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Step 7: Create and run the server application</strong></p><p name="1f7d" id="1f7d" class="graf graf--p graf-after--p">Run the server in command prompt. Similarly if you have the package name, then state it with your package name. Here you need to specify your server class name. I’m using the name <strong class="markup--strong markup--p-strong">“Server”</strong>.</p><p name="c22f" id="c22f" class="graf graf--p graf-after--p"><em class="markup--em markup--p-em">if you don’t have package name:</em><strong class="markup--strong markup--p-strong"><em class="markup--em markup--p-em"> java Server</em></strong></p><p name="6e88" id="6e88" class="graf graf--p graf-after--p"><em class="markup--em markup--p-em">if you have the package name: </em><strong class="markup--strong markup--p-strong"><em class="markup--em markup--p-em">java &lt;package name&gt;.Server</em></strong></p><p name="7da0" id="7da0" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Step 8: Create and run the client application</strong></p><p name="14e6" id="14e6" class="graf graf--p graf-after--p">Run the client server in another command prompt. If you have the package name, then state it with your package name. Here you need to specify your client class name.<em class="markup--em markup--p-em"> </em>I’m using the name<em class="markup--em markup--p-em"> </em><strong class="markup--strong markup--p-strong"><em class="markup--em markup--p-em">“Client”</em></strong><em class="markup--em markup--p-em">.</em></p><p name="1ced" id="1ced" class="graf graf--p graf-after--p">If you want to access the remote object from another machine, change the localhost to the host name (or IP address) where the remote object is located.</p><p name="2c68" id="2c68" class="graf graf--p graf-after--p"><em class="markup--em markup--p-em">if no any package name:</em><strong class="markup--strong markup--p-strong"><em class="markup--em markup--p-em"> java Client</em></strong></p><p name="b116" id="b116" class="graf graf--p graf-after--p"><em class="markup--em markup--p-em">if has the package name: </em><strong class="markup--strong markup--p-strong"><em class="markup--em markup--p-em">java &lt;package name&gt;.Client</em></strong></p><p name="ca99" id="ca99" class="graf graf--p graf-after--p">follow this link to visit my code</p><p name="dff6" id="dff6" class="graf graf--p graf-after--p"><a href="https://github.com/minoltan/rmi/tree/master/RMI_Concept-master" data-href="https://github.com/minoltan/rmi/tree/master/RMI_Concept-master" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">https://github.com/minoltan/rmi/tree/master/RMI_Concept-master</a></p><p name="a9df" id="a9df" class="graf graf--p graf-after--p graf--trailing">The End..!</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/1fd5ba218968"><time class="dt-published" datetime="2020-07-18T14:25:37.935Z">July 18, 2020</time></a>.</p><p><a href="https://medium.com/@issackpaul95/rmi-remote-method-invocation-1fd5ba218968" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

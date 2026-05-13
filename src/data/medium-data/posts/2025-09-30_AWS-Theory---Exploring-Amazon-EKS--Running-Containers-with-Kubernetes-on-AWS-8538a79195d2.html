@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | Exploring Amazon EKS: Running Containers with Kubernetes on AWS</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | Exploring Amazon EKS: Running Containers with Kubernetes on AWS</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="9e24" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="4a15" id="4a15" class="graf graf--h3 graf--leading graf--title">AWS Theory | Exploring Amazon EKS: Running Containers with Kubernetes on AWS</h3><h3 name="8806" id="8806" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="cc76" id="cc76" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory </strong>blog accompanying the blog post:</p><p name="fe9c" id="fe9c" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“<a href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-16-containers-aa719c3e1688" data-href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-16-containers-aa719c3e1688" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 16: Containers on AWS | ECS, Farget, ECR, EKS)</a>”</p><p name="f374" id="f374" class="graf graf--p graf-after--p">🔹 Episode 16: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-containers-in-aws-58a2a6fddf40" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-containers-in-aws-58a2a6fddf40" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="d853" id="d853" class="graf graf--p graf-after--p graf--trailing">🔹 Episode 16: <a href="https://issackpaul95.medium.com/aws-solution-architect-associate-questions-containers-in-aws-232a085cff60" data-href="https://issackpaul95.medium.com/aws-solution-architect-associate-questions-containers-in-aws-232a085cff60" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Solution Architect Preparation Quiz</a></p></div></div></section><section name="c9fe" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="fe2a" id="fe2a" class="graf graf--h3 graf--leading">Introduction</h3><p name="7465" id="7465" class="graf graf--p graf-after--h3">In this post, we’ll introduce <strong class="markup--strong markup--p-strong">Amazon Elastic Kubernetes Service (EKS)</strong>, an alternative to Amazon ECS for running and managing containers on AWS. EKS leverages the power of <strong class="markup--strong markup--p-strong">Kubernetes</strong>, an open-source platform, to provide a robust solution for deploying, scaling, and managing containerized applications. Let’s dive into what makes EKS unique and how it fits into your AWS container strategy.</p></div><div class="section-inner sectionLayout--outsetColumn"><figure name="d7e4" id="d7e4" class="graf graf--figure graf--layoutOutsetCenter graf-after--p"><img class="graf-image" data-image-id="1*HAJZRK3fx7axooFuVyHE7A.png" data-width="1518" data-height="672" data-is-featured="true" src="https://cdn-images-1.medium.com/max/1200/1*HAJZRK3fx7axooFuVyHE7A.png"></figure></div><div class="section-inner sectionLayout--insetColumn"><h3 name="7903" id="7903" class="graf graf--h3 graf-after--figure">What is Amazon EKS?</h3><p name="9645" id="9645" class="graf graf--p graf-after--h3">Amazon EKS is a managed Kubernetes service that enables you to run Kubernetes clusters on AWS. Kubernetes, recognizable by its blue logo, is an open-source system designed for automating the deployment, scaling, and management of containerized applications — typically Docker containers. Unlike ECS, which is AWS-proprietary, Kubernetes is cloud-agnostic, supported by providers like Azure, Google Cloud, and others, offering a standardized API and ecosystem.</p><h3 name="e1ec" id="e1ec" class="graf graf--h3 graf-after--p">EKS vs. ECS</h3><p name="1658" id="1658" class="graf graf--p graf-after--h3">While both ECS and EKS aim to manage containers, they differ significantly:</p><ul class="postList"><li name="c7ba" id="c7ba" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">ECS</strong>: A proprietary AWS service with a custom API.</li><li name="d778" id="d778" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">EKS</strong>: Built on Kubernetes, providing an open-source foundation that supports multi-cloud portability.</li></ul><h3 name="db06" id="db06" class="graf graf--h3 graf-after--li">Launch Modes in EKS</h3><p name="c87e" id="c87e" class="graf graf--p graf-after--h3">EKS supports two launch modes to suit different needs:</p><ul class="postList"><li name="d997" id="d997" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">EC2 Launch Mode</strong>: Deploy worker nodes as EC2 instances, giving you control over the underlying infrastructure.</li><li name="8791" id="8791" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Fargate Mode</strong>: A serverless option where AWS manages the nodes, allowing you to focus solely on running containers without infrastructure maintenance.</li></ul><h3 name="dead" id="dead" class="graf graf--h3 graf-after--li">Use Cases for EKS</h3><p name="da9c" id="da9c" class="graf graf--p graf-after--h3">EKS is ideal if:</p><ul class="postList"><li name="adc8" id="adc8" class="graf graf--li graf-after--p">Your company already uses Kubernetes on-premises or with another cloud provider and wants to maintain consistency.</li><li name="b918" id="b918" class="graf graf--li graf-after--li">You prefer the Kubernetes API and seek AWS-managed Kubernetes clusters.</li><li name="b36e" id="b36e" class="graf graf--li graf-after--li">You’re planning a multi-cloud strategy, as Kubernetes’ portability simplifies migrations.</li></ul><h3 name="5527" id="5527" class="graf graf--h3 graf-after--li">EKS Architecture Overview</h3><p name="1a77" id="1a77" class="graf graf--p graf-after--h3">EKS operates within a VPC, typically spanning three Availability Zones (AZs) with public and private subnets. Here’s a breakdown:</p><ul class="postList"><li name="8639" id="8639" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">EKS Worker Nodes</strong>: These are EC2 instances (or self-managed nodes) that host <strong class="markup--strong markup--li-strong">EKS Pods</strong>, the Kubernetes equivalent of ECS tasks.</li><li name="8c7d" id="8c7d" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Auto Scaling</strong>: Nodes can be part of an Auto Scaling Group (ASG) to handle demand dynamically.</li><li name="e595" id="e595" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Load Balancing</strong>: Expose EKS services using private or public load balancers (e.g., Application Load Balancer) for web access.</li></ul><h3 name="6b78" id="6b78" class="graf graf--h3 graf-after--li">Node Types in EKS</h3><p name="4ebe" id="4ebe" class="graf graf--p graf-after--h3">EKS offers flexible node management options:</p><ul class="postList"><li name="3d8b" id="3d8b" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Managed Node Groups</strong>: AWS creates and manages EC2 instances within an ASG. Supports On-Demand and Spot Instances for cost optimization.</li><li name="979f" id="979f" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Self-Managed Nodes</strong>: You provision and register EC2 instances to the EKS cluster, offering customization. Use the pre-built <strong class="markup--strong markup--li-strong">Amazon EKS Optimized AMI</strong> or create your own AMI. Also supports On-Demand and Spot Instances.</li><li name="8e46" id="8e46" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Fargate Mode</strong>: No nodes to manage — run containers serverless-style with zero maintenance.</li></ul><h3 name="517f" id="517f" class="graf graf--h3 graf-after--li">Storage Options for EKS</h3><p name="1a6c" id="1a6c" class="graf graf--p graf-after--h3">EKS supports attaching data volumes via a <strong class="markup--strong markup--p-strong">StorageClass manifest</strong> using the <strong class="markup--strong markup--p-strong">Container Storage Interface (CSI) compliant driver</strong>. Key storage options include:</p><figure name="d144" id="d144" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*u3aqb-Ek5M5sC4IoLYU9sQ.png" data-width="418" data-height="417" src="https://cdn-images-1.medium.com/max/800/1*u3aqb-Ek5M5sC4IoLYU9sQ.png"></figure><ul class="postList"><li name="ebab" id="ebab" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">Amazon EBS</strong>: Block storage for persistent data.</li><li name="caae" id="caae" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Amazon EFS</strong>: File storage, the only option compatible with Fargate.</li><li name="bc8a" id="bc8a" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Amazon FSx for Lustre</strong>: High-performance file system.</li><li name="878a" id="878a" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Amazon FSx for NetApp ONTAP</strong>: Enterprise-grade file storage.</li></ul><p name="4fbd" id="4fbd" class="graf graf--p graf-after--li graf--trailing">These are critical keywords to remember for AWS exams.</p></div></div></section><section name="3d51" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="f129" id="f129" class="graf graf--h3 graf--leading">Conclusion</h3><p name="f7e6" id="f7e6" class="graf graf--p graf-after--h3 graf--trailing">Amazon EKS brings the power of Kubernetes to AWS, offering a managed, open-source solution for container orchestration. Whether you choose EC2 nodes for control, self-managed nodes for customization, or Fargate for simplicity, EKS provides flexibility to match your needs. Its storage integrations and multi-cloud compatibility make it a strong choice for modern architectures.</p></div></div></section><section name="ab05" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="46e5" id="46e5" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a> and <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">LinkedIn</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/8538a79195d2"><time class="dt-published" datetime="2025-09-30T14:44:21.839Z">September 30, 2025</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-exploring-amazon-eks-running-containers-with-kubernetes-on-aws-8538a79195d2" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

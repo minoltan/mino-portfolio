@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | S3 Replication with Encrypted Objects: Data Moving Fast</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | S3 Replication with Encrypted Objects: Data Moving Fast</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="adc3" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="fc02" id="fc02" class="graf graf--h3 graf--leading graf--title">AWS Theory | S3 Replication with Encrypted Objects: Data Moving Fast</h3><h3 name="5552" id="5552" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="af56" id="af56" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="0c0b" id="0c0b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 24: Security &amp; Encryption | KMS, SSM Parameter Store, Shield, WAF)”</p><p name="7d2f" id="7d2f" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Cloud Practitioner Quiz</p><p name="a03b" id="a03b" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Solution Architect Preparation Quiz</p><figure name="392d" id="392d" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*w_I-SJ2EO5djCa0fTfjbPw.png" data-width="1376" data-height="768" src="https://cdn-images-1.medium.com/max/800/1*w_I-SJ2EO5djCa0fTfjbPw.png"></figure></div></div></section><section name="964a" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d78e" id="d78e" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="5cab" id="5cab" class="graf graf--p graf-after--h3 graf--trailing">Building a resilient cloud architecture often involves replicating data across regions for disaster recovery or local performance. However, when that data is encrypted, the process moves from a simple “copy-paste” to a sophisticated cryptographic handshake. In AWS, <strong class="markup--strong markup--p-strong">S3 Replication</strong> handles different types of encryption with varying levels of automation. While S3-managed encryption (SSE-S3) works right out of the box, the popular <strong class="markup--strong markup--p-strong">SSE-KMS</strong> requires a specific “opt-in” and careful configuration of IAM roles and key policies. Failing to understand these nuances can lead to replication failures or, worse, data that exists in your backup region but can’t be opened because the destination keys aren’t correctly aligned.</p></div></div></section><section name="717d" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="9d95" id="9d95" class="graf graf--h3 graf--leading">The Replication Roadmap: What Moves by Default?</h3><p name="bcdf" id="bcdf" class="graf graf--p graf-after--h3">Not all encrypted objects are treated equally by the S3 replication service. Understanding these defaults is the first step in avoiding “missing data” in your target bucket.</p><figure name="a995" id="a995" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*UQHDts4hrhWNU9edcubz1A.png" data-width="313" data-height="151" src="https://cdn-images-1.medium.com/max/800/1*UQHDts4hrhWNU9edcubz1A.png"></figure><ul class="postList"><li name="9b5e" id="9b5e" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">Unencrypted &amp; SSE-S3:</strong> These are replicated <strong class="markup--strong markup--li-strong">by default</strong>. S3 handles the keys behind the scenes, so no extra work is needed.</li><li name="96c9" id="96c9" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">SSE-C (Customer-Provided Keys):</strong> These can be replicated, but since you manage the keys, you must ensure the target bucket is prepared to receive them.</li><li name="0a43" id="0a43" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">SSE-KMS (KMS-Managed Keys):</strong> These are <strong class="markup--strong markup--li-strong">NOT</strong> replicated by default. You must explicitly enable this in your replication rules and choose a target KMS key in the destination region.</li></ul></div></div></section><section name="292d" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="c53b" id="c53b" class="graf graf--h3 graf--leading">The SSE-KMS Challenge: Decrypting to Re-Encrypt</h3><p name="f10e" id="f10e" class="graf graf--p graf-after--h3">Replicating an object encrypted with KMS isn’t just a move. It’s a <strong class="markup--strong markup--p-strong">transformation</strong>. Because KMS keys are region-locked, S3 cannot simply “send” the encrypted bits.</p><ol class="postList"><li name="b5d2" id="b5d2" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">The Process:</strong> S3 must first <strong class="markup--strong markup--li-strong">decrypt</strong> the object in the source region using the source KMS key, then <strong class="markup--strong markup--li-strong">re-encrypt</strong> it using a KMS key located in the destination region.</li><li name="d697" id="d697" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The IAM Role:</strong> You must create an IAM role that gives the S3 service permission to use <code class="markup--code markup--li-code">kms:Decrypt</code> on the source key and <code class="markup--code markup--li-code">kms:Encrypt</code> on the destination key.</li><li name="628f" id="628f" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Throttling Alert:</strong> Because this process triggers two KMS API calls for every single object, large batches of data can hit your <strong class="markup--strong markup--li-strong">KMS Service Quotas</strong>. If you’re moving millions of files, you might see “503 Slow Down” errors and need to request a quota increase from AWS.</li></ol></div></div></section><section name="cfa6" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="ab71" id="ab71" class="graf graf--h3 graf--leading">Real-World Example: The “Independent” Multi-Region Key</h3><p name="baed" id="baed" class="graf graf--p graf-after--h3">Imagine a global healthcare provider, <strong class="markup--strong markup--p-strong">“MediCloud,”</strong> that stores patient records in <code class="markup--code markup--p-code">us-east-1</code> (Virginia) and replicates them to <code class="markup--code markup--p-code">eu-central-1</code> (Frankfurt) for GDPR compliance. They decide to use <strong class="markup--strong markup--p-strong">KMS Multi-Region Keys</strong> (MRKs) thinking it will simplify the process since the Key ID is the same in both regions.</p><p name="426e" id="426e" class="graf graf--p graf-after--p graf--trailing"><strong class="markup--strong markup--p-strong">The Reality Check:</strong> Even though MediCloud uses an MRK with the same ID (e.g., <code class="markup--code markup--p-code">mrk-1234...</code>), S3 treats these as <strong class="markup--strong markup--p-strong">independent keys</strong>. When a patient record replicates to Frankfurt, S3 still performs the full decryption and re-encryption cycle. It doesn&#39;t &quot;skip&quot; the work just because the key material is the same. MediCloud still needs the correct IAM permissions and must still monitor for KMS throttling, exactly as if they were using two completely different keys.</p></div></div></section><section name="73a7" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="3e07" id="3e07" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="54d6" id="54d6" class="graf graf--p graf-after--h3 graf--trailing">S3 Replication is a powerful tool for global data availability, but encryption adds a layer of responsibility for the administrator. While it might be tempting to view encryption as a “set it and forget it” feature, SSE-KMS replication requires an active hand in managing IAM roles and anticipating API limits. Even the advanced Multi-Region Keys won’t give you a “shortcut” through the re-encryption process. By planning for these cryptographic requirements upfront, you ensure that your global data is not just available, but actually accessible when you need it most.</p></div></div></section><section name="f3d5" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="8f60" id="8f60" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/e6572bf56065"><time class="dt-published" datetime="2026-04-20T01:07:48.629Z">April 20, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-s3-replication-with-encrypted-objects-data-moving-fast-e6572bf56065" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

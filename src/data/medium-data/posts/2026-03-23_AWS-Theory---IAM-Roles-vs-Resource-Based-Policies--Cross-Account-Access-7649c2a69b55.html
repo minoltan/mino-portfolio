@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | IAM Roles vs Resource-Based Policies: Cross-Account Access</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | IAM Roles vs Resource-Based Policies: Cross-Account Access</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="848c" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="8523" id="8523" class="graf graf--h3 graf--leading graf--title">AWS Theory | IAM Roles vs Resource-Based Policies: Cross-Account Access</h3><h3 name="cbf6" id="cbf6" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="af56" id="af56" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="0c0b" id="0c0b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 23: IAM Advanced)”</p><p name="7d2f" id="7d2f" class="graf graf--p graf-after--p">🔹 Episode 23: AWS Cloud Practitioner Quiz</p><p name="a03b" id="a03b" class="graf graf--p graf-after--p">🔹 Episode 23: AWS Solution Architect Preparation Quiz</p><figure name="c65e" id="c65e" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*AhUMvSqNRvo_qlVOSc7rvQ.png" data-width="1409" data-height="736" src="https://cdn-images-1.medium.com/max/800/1*AhUMvSqNRvo_qlVOSc7rvQ.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="f0e9" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="9438" id="9438" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="788f" id="788f" class="graf graf--p graf-after--h3 graf--trailing">When building a multi-account AWS architecture, one of the most common challenges is enabling a user in “Account A” to interact with a resource in “Account B.” While both <strong class="markup--strong markup--p-strong">IAM Roles</strong> and <strong class="markup--strong markup--p-strong">Resource-Based Policies</strong> (like S3 Bucket Policies) can solve this problem, they function in fundamentally different ways. Choosing between them isn’t just a matter of preference; it’s about whether you want your user to “become” someone else or simply “be allowed” inside. Understanding the trade-offs specifically how permissions are retained or surrendered is key to designing a secure and efficient workflow that doesn’t disrupt your existing automation or user access.</p></div></div></section><section name="c2c0" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="1300" id="1300" class="graf graf--h3 graf--leading">Resource Policies &amp; aws:PrincipalOrgID</h3><ul class="postList"><li name="b3c2" id="b3c2" class="graf graf--li graf-after--h3">aws:PrincipalOrgID can be used in any resource policies to restrict<br>access to accounts that are member of an AWS Organization</li></div><div class="section-inner sectionLayout--outsetColumn"></ul><figure name="a8c5" id="a8c5" class="graf graf--figure graf--layoutOutsetCenter graf-after--li graf--trailing"><img class="graf-image" data-image-id="1*39GAsWXibcfI_xqVXNlzEw.png" data-width="1413" data-height="408" src="https://cdn-images-1.medium.com/max/1200/1*39GAsWXibcfI_xqVXNlzEw.png"></figure></div></div></section><section name="c312" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="16f2" id="16f2" class="graf graf--h3 graf--leading">The Fundamental Difference</h3><p name="7df2" id="7df2" class="graf graf--p graf-after--h3">The choice between a role and a policy comes down to <strong class="markup--strong markup--p-strong">identity vs. permission</strong>.</p><figure name="3914" id="3914" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*TBcKZ0AN88gABGa3fxMtZQ.png" data-width="1143" data-height="358" src="https://cdn-images-1.medium.com/max/800/1*TBcKZ0AN88gABGa3fxMtZQ.png"></figure><h4 name="9293" id="9293" class="graf graf--h4 graf-after--figure">1. IAM Roles (The “Hat” Swap)</h4><p name="b2c8" id="b2c8" class="graf graf--p graf-after--h4">When you assume an IAM role in another account, you are essentially putting on a new “hat.”</p><ul class="postList"><li name="02e3" id="02e3" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Surrender Permissions:</strong> The moment you assume the role, you give up your original permissions in Account A. You only possess the permissions granted by the role in Account B.</li><li name="3a82" id="3a82" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Workflow:</strong> You use the <code class="markup--code markup--li-code">AssumeRole</code> API call to get temporary credentials for Account B.</li></ul><h4 name="a045" id="a045" class="graf graf--h4 graf-after--li">2. Resource-Based Policies (The “Guest List”)</h4><p name="4022" id="4022" class="graf graf--p graf-after--h4">With a resource-based policy, the resource itself (like an S3 bucket or an SQS queue) has a “guest list” that explicitly mentions your user from Account A.</p><ul class="postList"><li name="edae" id="edae" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Retain Permissions:</strong> You never give up your original identity. You keep your Account A permissions while simultaneously gaining access to the specific resource in Account B.</li><li name="ab21" id="ab21" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">The Workflow:</strong> You simply perform the API call directly against the resource in Account B.</li></ul></div></div></section><section name="30ab" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="ad1a" id="ad1a" class="graf graf--h3 graf--leading">Real-World Example: The “Data Migration” Scenario</h3><p name="9ade" id="9ade" class="graf graf--p graf-after--h3">Imagine you have a developer who needs to <strong class="markup--strong markup--p-strong">scan a DynamoDB table in Account A</strong> and <strong class="markup--strong markup--p-strong">upload the results to an S3 bucket in Account B.</strong></p><ul class="postList"><li name="9e83" id="9e83" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">If you use an IAM Role:</strong> The developer assumes a role in Account B to write to S3. <strong class="markup--strong markup--li-strong">Problem:</strong> They have now lost their permissions to read from DynamoDB in Account A! They would have to constantly flip back and forth between identities.</li><li name="6434" id="6434" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">If you use a Resource-Based Policy:</strong> You add a bucket policy to the S3 bucket in Account B that allows the developer’s ARN from Account A to <code class="markup--code markup--li-code">PutObject</code>.</li><li name="8d7f" id="8d7f" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Solution:</strong> The developer can now read from DynamoDB and write to S3 in a single, seamless operation without ever switching roles.</li></ul></div></div></section><section name="a245" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="78b6" id="78b6" class="graf graf--h3 graf--leading">Integration with Amazon EventBridge</h3><p name="17f8" id="17f8" class="graf graf--p graf-after--h3">A specialized use case for this distinction is <strong class="markup--strong markup--p-strong">Amazon EventBridge</strong>. When an EventBridge rule triggers a target, it needs permission to execute that target. Depending on the service, it uses one of these two methods:</p><figure name="b745" id="b745" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*5yOajdpZBIx0096FaQVN_Q.png" data-width="680" data-height="544" src="https://cdn-images-1.medium.com/max/800/1*5yOajdpZBIx0096FaQVN_Q.png"></figure><figure name="b2da" id="b2da" class="graf graf--figure graf-after--figure"><img class="graf-image" data-image-id="1*Wr4vpg3enDnkbNfuPVOeJw.png" data-width="698" data-height="158" src="https://cdn-images-1.medium.com/max/800/1*Wr4vpg3enDnkbNfuPVOeJw.png"></figure><p name="309d" id="309d" class="graf graf--p graf-after--figure graf--trailing"><strong class="markup--strong markup--p-strong">Exam Tip:</strong> Even if a service (like Kinesis) recently started supporting resource-based policies, EventBridge may still rely on the traditional IAM Role method. Always check the specific service integration.</p></div></div></section><section name="7762" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="7fbd" id="7fbd" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="b2a2" id="b2a2" class="graf graf--p graf-after--h3 graf--trailing">In the grand scheme of AWS security, IAM Roles are excellent for granting broad, temporary access to entire accounts, while Resource-Based Policies are the “secret weapon” for surgical, multi-tasking operations. By choosing a resource-based policy, you avoid the administrative overhead of switching identities and allow your users to maintain their local permissions — a necessity for tasks that span across account boundaries. As you scale your organization, remember that the goal is to provide the least privilege necessary with the most operational fluidity.</p></div></div></section><section name="e72c" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="8955" id="8955" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/7649c2a69b55"><time class="dt-published" datetime="2026-03-23T14:14:11.145Z">March 23, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-iam-roles-vs-resource-based-policies-cross-account-access-7649c2a69b55" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

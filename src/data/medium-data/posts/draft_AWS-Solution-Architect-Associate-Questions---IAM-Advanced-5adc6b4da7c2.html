@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Solution Architect Associate Questions | IAM Advanced</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Solution Architect Associate Questions | IAM Advanced</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="2b24" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="9c3e" id="9c3e" class="graf graf--h3 graf--leading graf--title">AWS Solution Architect Associate Questions | IAM Advanced</h3><h3 name="4ea4" id="4ea4" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="eda5" id="eda5" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Quiz </strong>blog accompanying the blog post:</p><p name="a9ee" id="a9ee" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 23: IAM Advanced)”</p><p name="5567" id="5567" class="graf graf--p graf-after--p">🔹 Episode 23: <a href="https://medium.com/p/b28d25b04cb5/edit" data-href="https://medium.com/p/b28d25b04cb5/edit" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="ff4e" id="ff4e" class="graf graf--p graf-after--p graf--trailing">🔹 Episode 23: AWS Solution Architect Preparation Quiz</p></div></div></section><section name="5f52" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="3577" id="3577" class="graf graf--h3 graf--leading">Question 1</h3><p name="e9b3" id="e9b3" class="graf graf--p graf-after--h3">An enterprise runs a microservices-based application on Amazon EKS, deployed on EC2 worker nodes. The application includes a frontend UI service that interacts with Amazon DynamoDB and a data-processing service that stores and retrieves files from Amazon S3. The organization needs to strictly enforce least privilege access: the UI Pods must access only DynamoDB, and the data-processing Pods must access only S3.</p><p name="26bb" id="26bb" class="graf graf--p graf-after--p">Which solution will best enforce these access controls within the EKS cluster?</p><figure name="76de" id="76de" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*s2LXqVycFe-o4a5XowvARg.png" data-width="784" data-height="384" src="https://cdn-images-1.medium.com/max/800/1*s2LXqVycFe-o4a5XowvARg.png"></figure><h3 name="a046" id="a046" class="graf graf--h3 graf-after--figure">Overall explanation</h3><h4 name="2ebf" id="2ebf" class="graf graf--h4 graf-after--h3">✅ Correct option:</h4><figure name="fa4b" id="fa4b" class="graf graf--figure graf-after--h4"><img class="graf-image" data-image-id="1*FELodI2KGQPTzkO4x200kw.png" data-width="631" data-height="599" src="https://cdn-images-1.medium.com/max/800/1*FELodI2KGQPTzkO4x200kw.png"></figure><p name="ab23" id="ab23" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">Create separate Kubernetes service accounts for the UI and data services. Use IAM Roles for Service Accounts (IRSA) to map each service account to an IAM role with only the required permissions. Assign DynamoDB access to the UI Pods and S3 access to the data Pods</strong></p><p name="b3ad" id="b3ad" class="graf graf--p graf-after--p">This option is correct because it uses IAM Roles for Service Accounts (IRSA), which is the AWS-recommended method for providing fine-grained IAM permissions to individual Pods in an Amazon EKS cluster. By creating separate Kubernetes service accounts — one for the UI service and one for the data-processing service — and associating each with an IAM role scoped to only the required AWS permissions, the company ensures that each service can access only its designated AWS resource (DynamoDB for the UI, S3 for the data service). IRSA works by leveraging the OpenID Connect (OIDC) identity provider that EKS integrates with, allowing Pods to assume roles dynamically without sharing EC2 instance-level credentials. This approach enforces least privilege, ensures Pod-level isolation, and avoids the security and operational drawbacks of broader node-level roles.</p><h4 name="28eb" id="28eb" class="graf graf--h4 graf-after--p"><strong class="markup--strong markup--h4-strong">❌ </strong>Incorrect options:</h4><p name="4cfe" id="4cfe" class="graf graf--p graf-after--h4"><strong class="markup--strong markup--p-strong">Create one Kubernetes service account shared across all Pods. Attach a single IAM role to this account with both AmazonS3FullAccess and AmazonDynamoDBFullAccess policies</strong> — This option defeats the purpose of enforcing least privilege. Sharing a single Kubernetes service account with a broad IAM role across all Pods gives both the UI and data service components unnecessary access. Even though IRSA could be used here, the identity boundary is not separated, so the UI Pods can access S3 and the data Pods can access DynamoDB — both of which violate the access requirements.</p><p name="3b3a" id="3b3a" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Attach an IAM policy directly to each Pod using Kubernetes annotations. Assign the S3 policy to data-service Pods and the DynamoDB policy to UI Pods</strong> — IAM policies cannot be directly attached to Pods using annotations. AWS IAM does not natively support Pod-level identity mappings outside of IAM Roles for Service Accounts (IRSA). Without IRSA, Pods only inherit permissions from the underlying node’s IAM role, meaning all Pods on the same EC2 node will share the same set of permissions. This option is not technically feasible in EKS.</p><p name="961d" id="961d" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Create IAM policies for DynamoDB and S3 access, and attach both to the EC2 instance profile used by the EKS nodes. Use Kubernetes role-based access control (RBAC) to control service-level permissions within the cluster</strong> — Attaching both IAM policies to the EC2 instance profile means that all Pods running on that node will inherit all permissions, violating least privilege. Kubernetes RBAC controls API access within the cluster, not access to AWS services like S3 or DynamoDB. Therefore, RBAC cannot enforce IAM policy-level restrictions, making this approach insecure and non-compliant with the requirements.</p><blockquote name="58cd" id="58cd" class="graf graf--blockquote graf-after--p graf--trailing">References:<br><a href="https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html" data-href="https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html" class="markup--anchor markup--blockquote-anchor" rel="noopener" target="_blank">https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html</a><br><a href="https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html" data-href="https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html" class="markup--anchor markup--blockquote-anchor" rel="noopener" target="_blank">https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html</a></blockquote></div></div></section><section name="2bde" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="3c84" id="3c84" class="graf graf--h3 graf--leading">Question 2</h3><p name="3cb2" id="3cb2" class="graf graf--p graf-after--h3">An organization wants to delegate access to a set of users from the development environment so that they can access some resources in the production environment which is managed under another AWS account.</p><p name="c5f6" id="c5f6" class="graf graf--p graf-after--p">As a solutions architect, which of the following steps would you recommend?</p><figure name="b118" id="b118" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*2beJNIK-bjALPq2Pz-pZxA.png" data-width="786" data-height="333" src="https://cdn-images-1.medium.com/max/800/1*2beJNIK-bjALPq2Pz-pZxA.png"></figure><h3 name="4162" id="4162" class="graf graf--h3 graf-after--figure">Overall explanation</h3><figure name="2e8e" id="2e8e" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*e8UgRdjRyWx4olug1KKVcA.png" data-width="823" data-height="637" src="https://cdn-images-1.medium.com/max/800/1*e8UgRdjRyWx4olug1KKVcA.png"></figure><h4 name="a1d1" id="a1d1" class="graf graf--h4 graf-after--figure">✅ Correct option:</h4><p name="316b" id="316b" class="graf graf--p graf-after--h4"><strong class="markup--strong markup--p-strong">Create a new IAM role with the required permissions to access the resources in the production environment. The users can then assume this IAM role while accessing the resources from the production environment</strong></p><p name="ef62" id="ef62" class="graf graf--p graf-after--p">IAM roles allow you to delegate access to users or services that normally don’t have access to your organization’s AWS resources. IAM users or AWS services can assume a role to obtain temporary security credentials that can be used to make AWS API calls. Consequently, you don’t have to share long-term credentials for access to a resource. Using IAM roles, it is possible to access cross-account resources.</p><h4 name="f80c" id="f80c" class="graf graf--h4 graf-after--p">❌Incorrect options:</h4><p name="7697" id="7697" class="graf graf--p graf-after--h4"><strong class="markup--strong markup--p-strong">Create new IAM user credentials for the production environment and share these credentials with the set of users from the development environment</strong> — There is no need to create new IAM user credentials for the production environment, as you can use IAM roles to access cross-account resources.</p><p name="8bad" id="8bad" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">It is not possible to access cross-account resources</strong> — You can use IAM roles to access cross-account resources.</p><p name="aea5" id="aea5" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">Both IAM roles and IAM users can be used interchangeably for cross-account access</strong> — IAM roles and IAM users are separate IAM entities and should not be mixed. Only IAM roles can be used to access cross-account resources.</p><blockquote name="357d" id="357d" class="graf graf--blockquote graf-after--p">Reference:<br><a href="https://aws.amazon.com/iam/features/manage-roles/" data-href="https://aws.amazon.com/iam/features/manage-roles/" class="markup--anchor markup--blockquote-anchor" rel="noopener" target="_blank">https://aws.amazon.com/iam/features/manage-roles/</a></blockquote><p name="6cde" id="6cde" class="graf graf--p graf--empty graf-after--blockquote graf--trailing"><br></p></div></div></section><section name="2ba3" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="e9b9" id="e9b9" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p><a href="https://medium.com/p/5adc6b4da7c2">View original.</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | An Introduction to Amazon RDS: Master the Data Tier</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | An Introduction to Amazon RDS: Master the Data Tier</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="0983" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e620" id="e620" class="graf graf--h3 graf--leading graf--title">AWS Theory | An Introduction to Amazon RDS: Master the Data Tier</h3><h3 name="8872" id="8872" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="af56" id="af56" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="0c0b" id="0c0b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 7: Fundamentals | RDS + AURORA + Elastic Cache)”</p><p name="7d2f" id="7d2f" class="graf graf--p graf-after--p">🔹 Episode 7: AWS Cloud Practitioner Quiz</p><p name="a03b" id="a03b" class="graf graf--p graf-after--p">🔹 Episode 7: AWS Solution Architect Preparation Quiz</p><figure name="10c0" id="10c0" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*KcFUP4dwhc7_bVu-P-l7tQ.png" data-width="1304" data-height="816" src="https://cdn-images-1.medium.com/max/800/1*KcFUP4dwhc7_bVu-P-l7tQ.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="964a" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="3c13" id="3c13" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="31ba" id="31ba" class="graf graf--p graf-after--h3 graf--trailing">In the world of cloud architecture, the database is often the “brain” of the application, and managing it effectively is critical for success. <strong class="markup--strong markup--p-strong">Amazon Relational Database Service (RDS)</strong> is a cornerstone of the AWS ecosystem, designed to take the heavy lifting out of database administration. By offering a fully managed environment for SQL-based databases, RDS allows developers and architects to focus on their data and application logic rather than the tedious tasks of hardware provisioning, software patching, or manual backups. Whether you are migrating a legacy SQL Server or building a modern application with PostgreSQL, understanding the capabilities and automation of RDS is essential for any aspiring AWS Certified Solutions Architect.</p></div></div></section><section name="f196" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="4000" id="4000" class="graf graf--h3 graf--leading">Supported Engines: A Database for Every Need</h3><p name="63f8" id="63f8" class="graf graf--p graf-after--h3">Amazon RDS isn’t just one database. It’s a managed platform that supports six popular community and commercial database engines:</p><ul class="postList"><li name="cbfd" id="cbfd" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">PostgreSQL &amp; MySQL:</strong> The open-source favorites for modern web apps.</li><li name="10b3" id="10b3" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">MariaDB:</strong> A popular community-developed fork of MySQL.</li><li name="b32c" id="b32c" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Oracle &amp; Microsoft SQL Server:</strong> Enterprise-grade engines for legacy and high-performance applications.</li><li name="dfe2" id="dfe2" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">IBM DB2:</strong> A robust choice for enterprise data management.</li><li name="2ab4" id="2ab4" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Amazon Aurora:</strong> AWS’s cloud-native, high-performance proprietary engine (compatible with MySQL and PostgreSQL).</li></ul></div></div></section><section name="e55a" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="42d9" id="42d9" class="graf graf--h3 graf--leading">Why Choose Managed RDS over EC2?</h3><p name="3088" id="3088" class="graf graf--p graf-after--h3">While you <em class="markup--em markup--p-em">could</em> install a database on a standard EC2 instance, doing so places the entire operational burden on your shoulders. Choosing RDS shifts the “undifferentiated heavy lifting” to AWS:</p><ul class="postList"><li name="4474" id="4474" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Automated Patching:</strong> AWS handles OS and database engine updates during your specified maintenance windows.</li><li name="15bd" id="15bd" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Continuous Backups:</strong> RDS automatically backs up your data, enabling <strong class="markup--strong markup--li-strong">Point-in-Time Restore (PITR)</strong> to any second within your retention period.</li><li name="6321" id="6321" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">High Availability:</strong> With a simple click, you can enable <strong class="markup--strong markup--li-strong">Multi-AZ</strong> deployments for automatic failover and disaster recovery.</li><li name="de12" id="de12" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Scalability:</strong> You can scale vertically (changing instance types) or horizontally (adding Read Replicas) to meet demand.</li><li name="1698" id="1698" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Monitoring:</strong> Integrated dashboards provide real-time metrics on CPU, memory, and disk usage.</li></ul><blockquote name="401b" id="401b" class="graf graf--blockquote graf-after--li graf--trailing"><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">Note:</em></strong><em class="markup--em markup--blockquote-em"> Because it is a managed service, you </em><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">cannot SSH</em></strong><em class="markup--em markup--blockquote-em"> into the underlying RDS instance. AWS manages the OS so you don’t have to.</em></blockquote></div></div></section><section name="8010" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="005d" id="005d" class="graf graf--h3 graf--leading">Feature Spotlight: RDS Storage Auto Scaling</h3><p name="3f7b" id="3f7b" class="graf graf--p graf-after--h3">One of the most powerful “set it and forget it” features in RDS is <strong class="markup--strong markup--p-strong">Storage Auto Scaling</strong>. In a traditional environment, running out of disk space means downtime and manual disk expansion. With this feature, RDS monitors your storage and expands it automatically when needed.</p><figure name="ebe4" id="ebe4" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*40hmXa9ygwbirRh9MZ8tlw.png" data-width="377" data-height="594" src="https://cdn-images-1.medium.com/max/800/1*40hmXa9ygwbirRh9MZ8tlw.png"></figure><p name="7409" id="7409" class="graf graf--p graf-after--figure"><strong class="markup--strong markup--p-strong">How it Works:</strong> RDS will automatically trigger a storage increase if the following conditions are met:</p><ol class="postList"><li name="f052" id="f052" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Free storage is less than 10%</strong> of the currently allocated space.</li><li name="fba2" id="fba2" class="graf graf--li graf-after--li">The low-storage condition persists for at least <strong class="markup--strong markup--li-strong">five minutes</strong>.</li><li name="eec0" id="eec0" class="graf graf--li graf-after--li">At least <strong class="markup--strong markup--li-strong">six hours</strong> have passed since the last storage modification.</li></ol><p name="e101" id="e101" class="graf graf--p graf-after--li graf--trailing">To prevent runaway costs, you simply set a <strong class="markup--strong markup--p-strong">Maximum Storage Threshold</strong>, and RDS takes care of the rest, ensuring your application remains online even during unpredictable spikes in data volume.</p></div></div></section><section name="6061" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="fc31" id="fc31" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="808e" id="808e" class="graf graf--p graf-after--h3 graf--trailing">Amazon RDS represents the ideal balance between the power of structured SQL and the convenience of cloud automation. By delegating the operational complexities — like storage scaling, patching, and backups — to AWS, you ensure your database remains performant, resilient, and secure with minimal manual intervention. As you prepare for the SAA-C03 exam, remember that RDS is the “go-to” recommendation for any relational workload that doesn’t require low-level OS access. It is a service designed to let you build faster, scale further, and sleep better knowing your data is in managed hands.</p></div></div></section><section name="cd63" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="f51d" id="f51d" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/52b2ddd8554f"><time class="dt-published" datetime="2026-03-29T02:40:57.445Z">March 29, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-an-introduction-to-amazon-rds-master-the-data-tier-52b2ddd8554f" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

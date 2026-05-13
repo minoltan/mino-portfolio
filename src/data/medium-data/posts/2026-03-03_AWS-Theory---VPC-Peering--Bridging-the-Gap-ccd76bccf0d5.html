@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | VPC Peering: Bridging the Gap</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | VPC Peering: Bridging the Gap</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="bf32" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="ea49" id="ea49" class="graf graf--h3 graf--leading graf--title">AWS Theory | VPC Peering: Bridging the Gap</h3><h3 name="8946" id="8946" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="13a9" id="13a9" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory </strong>blog accompanying the blog post:</p><p name="cc1b" id="cc1b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 25: Networking | VPC)”</p><p name="4013" id="4013" class="graf graf--p graf-after--p">🔹 Episode 25: AWS Cloud Practitioner Quiz</p><p name="620d" id="620d" class="graf graf--p graf-after--p">🔹 Episode 25: AWS Solution Architect Preparation Quiz</p><figure name="c342" id="c342" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*ujpZlh6iUOfyXL7Fwt2fQQ.png" data-width="1536" data-height="1024" src="https://cdn-images-1.medium.com/max/800/1*ujpZlh6iUOfyXL7Fwt2fQQ.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="a152" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="9895" id="9895" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="831c" id="831c" class="graf graf--p graf-after--h3 graf--trailing">In the world of AWS, isolation is the default setting. Your Virtual Private Cloud (VPC) is a walled garden. Keeping your resources safe and separate from everything else. But in the real world, businesses grow. You might acquire another company with its own AWS account, or you might need to connect your production environment in Northern Virginia to a backup site in Tokyo. <strong class="markup--strong markup--p-strong">VPC peering</strong> is the networking handshake that creates a direct, private bridge between two VPCs. It allows them to communicate using private IP addresses as if they were part of the same giant network. All without ever sending traffic over the public internet.</p></div></div></section><section name="f4db" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="7af5" id="7af5" class="graf graf--h3 graf--leading">1. The One-to-One Connection</h3><p name="c8e7" id="c8e7" class="graf graf--p graf-after--h3">VPC Peering is a direct relationship between exactly two VPCs. While it is incredibly powerful. The one golden rule is, i<strong class="markup--strong markup--p-strong">t is not transitive.</strong> Imagine you have three VPCs: A, B, and C.</p><figure name="1932" id="1932" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*IBHjrszXQ0oXiqkTQWgEsQ.png" data-width="655" data-height="924" src="https://cdn-images-1.medium.com/max/800/1*IBHjrszXQ0oXiqkTQWgEsQ.png"></figure><ul class="postList"><li name="c3d3" id="c3d3" class="graf graf--li graf-after--figure">You peer <strong class="markup--strong markup--li-strong">VPC A</strong> with <strong class="markup--strong markup--li-strong">VPC B</strong>.</li><li name="65e5" id="65e5" class="graf graf--li graf-after--li">You peer <strong class="markup--strong markup--li-strong">VPC B</strong> with <strong class="markup--strong markup--li-strong">VPC C</strong>.</li><li name="93ab" id="93ab" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Catch:</strong> Even though B can talk to both A and C, VPC A <strong class="markup--strong markup--li-strong">cannot</strong> talk to VPC C through B. If A needs to talk to C, you must create a direct peering connection between A and C.</li></div><div class="section-inner sectionLayout--outsetColumn"></ul><figure name="4470" id="4470" class="graf graf--figure graf--layoutOutsetCenter graf-after--li graf--trailing"><img class="graf-image" data-image-id="1*rmD7CiGzVz_PnS73ZatQUA.png" data-width="1456" data-height="712" src="https://cdn-images-1.medium.com/max/1200/1*rmD7CiGzVz_PnS73ZatQUA.png"></figure></div></div></section><section name="01f4" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="2322" id="2322" class="graf graf--h3 graf--leading">2. The Golden Rule: No Overlapping CIDRs</h3><p name="a0ba" id="a0ba" class="graf graf--p graf-after--h3 graf--trailing">Before you even send a peering request, you must check your address books. VPC Peering will only work if the two VPCs have <strong class="markup--strong markup--p-strong">distinct, non-overlapping IP address ranges (CIDR blocks).</strong> If both VPC A and VPC B are using <code class="markup--code markup--p-code">10.0.0.0/16</code>, your network routers won&#39;t know where to send a packet. It’s like having two houses on the same street with the exact same address. The mailman (the AWS router) would just get confused and drop the letter.</p></div></div></section><section name="2ff8" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="8745" id="8745" class="graf graf--h3 graf--leading">3. Updating the Map (Route Tables)</h3><p name="22b0" id="22b0" class="graf graf--p graf-after--h3">Creating the peering connection is only half the battle. Think of the peering connection as a new bridge. Even though the bridge exists, your instances don’t know it’s there until you update their maps.</p><ul class="postList"><li name="17c4" id="17c4" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">In VPC A:</strong> You must add a route that says, “If you want to reach VPC B’s IP range, go through this peering connection.&quot;”</li><li name="b682" id="b682" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">In VPC B:</strong> You must do the same for VPC A’s range.</li><li name="0fe0" id="0fe0" class="graf graf--li graf-after--li graf--trailing">Without these route table updates, your instances will still try to look for those IPs locally and fail to find them.</li></ul></div></div></section><section name="2047" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="8a5e" id="8a5e" class="graf graf--h3 graf--leading">4. Security Groups Across the Bridge</h3><p name="c691" id="c691" class="graf graf--p graf-after--h3">One of the coolest features of VPC peering (when both VPCs are in the same region) is that you can <strong class="markup--strong markup--p-strong">reference security groups</strong> from the peered VPC.</p><p name="2bfb" id="2bfb" class="graf graf--p graf-after--p graf--trailing">Instead of opening a port to a wide range of IP addresses (like <code class="markup--code markup--p-code">10.1.0.0/16</code>), you can tell your database security group, &quot;Onl<em class="markup--em markup--p-em">y allow incoming traffic from the web server security group in the other VPC.&quot;</em> This keeps your security tight and dynamic, even across different AWS accounts!</p></div></div></section><section name="2384" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="2e0a" id="2e0a" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="3ff7" id="3ff7" class="graf graf--p graf-after--h3 graf--trailing">VPC Peering is the simplest and most cost effective way to link your isolated cloud networks. It provides high performance, private connectivity that scales across accounts and regions. Just remember, it’s a direct bridge, not a transit hub. When your network grows to dozens or hundreds of VPCs, you might find the mesh of peering connections gets messy, and that’s exactly when you’ll want to look into <strong class="markup--strong markup--p-strong">AWS Transit Gateway</strong>.</p></div></div></section><section name="7630" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="17af" id="17af" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, you can connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">email</a>. I always welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/ccd76bccf0d5"><time class="dt-published" datetime="2026-03-03T01:33:30.109Z">March 3, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-vpc-peering-bridging-the-gap-ccd76bccf0d5" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

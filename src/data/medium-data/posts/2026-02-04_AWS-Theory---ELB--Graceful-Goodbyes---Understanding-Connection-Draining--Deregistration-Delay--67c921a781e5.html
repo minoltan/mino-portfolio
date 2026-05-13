@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | ELB: Graceful Goodbyes | Understanding Connection Draining (Deregistration Delay)</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | ELB: Graceful Goodbyes | Understanding Connection Draining (Deregistration Delay)</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="2e69" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e4ee" id="e4ee" class="graf graf--h3 graf--leading graf--title">AWS Theory | ELB: Graceful Goodbyes | Understanding Connection Draining (Deregistration Delay)</h3><h3 name="7e4a" id="7e4a" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="89f4" id="89f4" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory </strong>blog accompanying the blog post:</p><p name="b9cf" id="b9cf" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“<a href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-6-high-dc7ac178329a?postPublishedType=initial" data-href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-6-high-dc7ac178329a?postPublishedType=initial" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 6: High availability &amp; Scalability | ELB &amp; ASG)</a>”</p><p name="8c86" id="8c86" class="graf graf--p graf-after--p">🔹 Episode 6: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-high-availability-scalability-be3d3febd4e5?postPublishedType=initial" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-high-availability-scalability-be3d3febd4e5?postPublishedType=initial" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="37ab" id="37ab" class="graf graf--p graf-after--p">🔹 Episode 6: AWS Solution Architect Preparation Quiz</p><figure name="83bd" id="83bd" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*US2Ms_KwtHQd3L7jp0kesg.png" data-width="1536" data-height="1024" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*US2Ms_KwtHQd3L7jp0kesg.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="89d7" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="4110" id="4110" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="4444" id="4444" class="graf graf--p graf-after--h3 graf--trailing">Imagine you’re eating in a restaurant, and the waiter suddenly announces we are going to close the restaurant in 5 seconds, but everyone is in the middle of their meal. That would be a terrible experience, right? In the world of AWS, Connection Draining (or Deregistration Delay) is the polite waiter who says, “We’re closing the kitchen to new customers, but please, finish your meal at your own pace.”</p></div></div></section><section name="36bc" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="689f" id="689f" class="graf graf--h3 graf--leading">The Theory: What’s in a Name?</h3><p name="086b" id="086b" class="graf graf--p graf-after--h3">The names would be different depending on which load balancer you use. But they do the exact same thing:</p><ul class="postList"><li name="a67c" id="a67c" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Connection Draining:</strong> The name used for the <strong class="markup--strong markup--li-strong">Classic Load Balancer (CLB)</strong>.</li><li name="48f5" id="48f5" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Deregistration Delay:</strong> The term used for the <strong class="markup--strong markup--li-strong">Application (ALB)</strong> and <strong class="markup--strong markup--li-strong">Network (NLB)</strong> Load Balancers.</li></ul><figure name="d631" id="d631" class="graf graf--figure graf-after--li"><img class="graf-image" data-image-id="1*mlmc9ahiMQ-BwtEHU-MIdg.png" data-width="687" data-height="607" src="https://cdn-images-1.medium.com/max/800/1*mlmc9ahiMQ-BwtEHU-MIdg.png"></figure><h4 name="dc4c" id="dc4c" class="graf graf--h4 graf-after--figure">How It Works</h4><p name="5064" id="5064" class="graf graf--p graf-after--h4">When an instance is marked for <strong class="markup--strong markup--p-strong">deregistration</strong> (maybe you’re scaling in or doing a manual update) or it’s found <strong class="markup--strong markup--p-strong">unhealthy</strong> by a health check, the load balancer enters Draining Mode.</p><ol class="postList"><li name="6db3" id="6db3" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Stop New Requests:</strong> The ELB immediately stops sending <em class="markup--em markup--li-em">new</em> users to that specific instance.</li><li name="cf89" id="cf89" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Protect In-flight Requests:</strong> It keeps the existing in-flight connections open to allow the server to finish its work.</li><li name="47c7" id="47c7" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Final Shutdown:</strong> Once all active requests are finished or the timeout period hits, the instance is finally taken offline.</li></ol></div></div></section><section name="cc25" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="2672" id="2672" class="graf graf--h3 graf--leading">A Real-World Example: The File Upload</h3><p name="a7f2" id="a7f2" class="graf graf--p graf-after--h3">Let’s say you have a video sharing site. A user is 80% done uploading a massive 2GB 4K video. Suddenly, your Auto Scaling Group decides it’s time to scale in and remove that server.</p><ul class="postList"><li name="afe0" id="afe0" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Without Connection Draining:</strong> The connection is severed instantly. The user gets an “Upload Failed” error and has to start all over. (Very frustrating!)</li><li name="36f8" id="36f8" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">With Connection Draining:</strong> The load balancer stops sending <em class="markup--em markup--li-em">new</em> uploads to that server but keeps the connection open for your user. They finish their upload successfully, and <em class="markup--em markup--li-em">then</em> the server is retired.</li></ul></div></div></section><section name="b292" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="947d" id="947d" class="graf graf--h3 graf--leading">Hands-On: Setting the Delay</h3><p name="2ac6" id="2ac6" class="graf graf--p graf-after--h3">The draining period is a parameter you can set between <strong class="markup--strong markup--p-strong">1 and 3,600 seconds</strong> (1 hour). The default is <strong class="markup--strong markup--p-strong">300 seconds</strong> (5 minutes).</p><h4 name="0853" id="0853" class="graf graf--h4 graf-after--p">Step-by-Step Configuration</h4><ol class="postList"><li name="b58b" id="b58b" class="graf graf--li graf-after--h4">Open the <strong class="markup--strong markup--li-strong">Amazon EC2 console</strong>.</li><li name="fe7b" id="fe7b" class="graf graf--li graf-after--li">On the left navigation pane, under <strong class="markup--strong markup--li-strong">Load Balancing</strong>, choose <strong class="markup--strong markup--li-strong">Target Groups</strong>.</li><li name="6019" id="6019" class="graf graf--li graf-after--li">Select the <strong class="markup--strong markup--li-strong">Name</strong> of your target group to open its details.</li><li name="44ff" id="44ff" class="graf graf--li graf-after--li">Click on the <strong class="markup--strong markup--li-strong">Attributes</strong> tab and select <strong class="markup--strong markup--li-strong">Edit</strong>.</li><li name="9188" id="9188" class="graf graf--li graf-after--li">Look for the <strong class="markup--strong markup--li-strong">Target deregistration management</strong> section.</li><li name="6831" id="6831" class="graf graf--li graf-after--li">Adjust the <strong class="markup--strong markup--li-strong">Deregistration delay</strong> value:</li></ol><ul class="postList"><li name="aba6" id="aba6" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Short (e.g., 30s):</strong> Great for fast web pages where requests finish in milliseconds. It helps you cycle servers quickly.</li><li name="5baf" id="5baf" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Long (e.g., 600s+):</strong> Necessary for long-running processes like large data reports or file uploads.</li></ul><p name="9d27" id="9d27" class="graf graf--p graf-after--li graf--trailing">7. Click <strong class="markup--strong markup--p-strong">Save changes</strong>.</p></div></div></section><section name="a780" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="cc5e" id="cc5e" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="c87f" id="c87f" class="graf graf--p graf-after--h3 graf--trailing">Connection draining is the secret to zero downtime deployments and smooth scaling. By choosing a timeout that matches your application’s longest typical request, you ensure that your users never see a “Connection Reset” error just because your infrastructure is moving. For the SAA-C03 exam, remember that this happens at the <strong class="markup--strong markup--p-strong">target group</strong> level for modern balancers and is essential for maintaining a high-quality user experience during maintenance.</p></div></div></section><section name="5594" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="74d7" id="74d7" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/67c921a781e5"><time class="dt-published" datetime="2026-02-04T02:05:50.054Z">February 4, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-elb-graceful-goodbyes-understanding-connection-draining-deregistration-delay-67c921a781e5" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

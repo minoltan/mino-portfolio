@@ -17,6 +17,7 @@ const TopNavigationBar = () => {
         { label: 'projects', to: '/project' },
         { label: 'blogs', to: '/blogs', badge: 'New' },
         { label: 'aws_exam', to: '/aws-exam', badge: 'Hot' },
+        { label: 'medium', to: '/medium' },
     ];
 
     const [drawerState, setDrawerState] = useState(false);
@@ -51,6 +52,8 @@ const TopNavigationBar = () => {
             setActivePage(navOptions[2].to);
         } else if (location.endsWith('/aws-exam')) {
             setActivePage(navOptions[3].to);
+        } else if (location.endsWith('/medium')) {
+            setActivePage(navOptions[4].to);
         } else {
             setActivePage(navOptions[0].to);
         }

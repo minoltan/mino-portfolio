@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | AWS Access Methods Explained: Console, CLI &amp; SDK — Which One Do Pros Really Use?</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | AWS Access Methods Explained: Console, CLI &amp; SDK — Which One Do Pros Really Use?</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="9a43" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="21dc" id="21dc" class="graf graf--h3 graf--leading graf--title">AWS Theory | AWS Access Methods Explained: Console, CLI &amp; SDK — Which One Do Pros Really Use?</h3><h3 name="1ff1" id="1ff1" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="5854" id="5854" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="103e" id="103e" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03! (Episode 2: IAM &amp; CLI)”</p><p name="8032" id="8032" class="graf graf--p graf-after--p">🔹 Episode 2: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-iam-cli-353c1af260c5" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-iam-cli-353c1af260c5" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="d60c" id="d60c" class="graf graf--p graf-after--p">🔹 Episode 2: AWS Solution Architect Preparation Quiz</p><figure name="6f85" id="6f85" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*lZ2z3Ar-pJGNsxCfRw3zgw.png" data-width="999" data-height="542" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*lZ2z3Ar-pJGNsxCfRw3zgw.png"></figure></div></div></section><section name="4557" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="ce7a" id="ce7a" class="graf graf--h3 graf--leading">Introduction — The Three Doors Into AWS</h3><p name="157b" id="157b" class="graf graf--p graf-after--h3">Every AWS service can be reached in <strong class="markup--strong markup--p-strong">exactly three ways</strong> — and real cloud professionals don’t rely on just one.<br>The <strong class="markup--strong markup--p-strong">AWS Management Console</strong> is perfect for learning and occasional tasks, but the moment you need speed, automation, or integration into code, you switch to the <strong class="markup--strong markup--p-strong">Command Line Interface (CLI)</strong> or the <strong class="markup--strong markup--p-strong">Software Development Kit (SDK)</strong>. In this short, crystal-clear guide you’ll discover:</p><ul class="postList"><li name="5ae4" id="5ae4" class="graf graf--li graf-after--p">The three official ways to talk to AWS</li><li name="9956" id="9956" class="graf graf--li graf-after--li">How each is secured (password + MFA vs. access keys)</li><li name="e06a" id="e06a" class="graf graf--li graf-after--li">Why the CLI is the daily driver for most DevOps engineers and architects</li><li name="be59" id="be59" class="graf graf--li graf-after--li">How the SDK powers every modern cloud application</li></ul><p name="b54b" id="b54b" class="graf graf--p graf-after--li graf--trailing">By the end, you’ll know exactly when to click, when to type, and when to code — and you’ll be ready to set up the AWS CLI in the next hands-on lab.</p></div></div></section><section name="3793" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="fe8a" id="fe8a" class="graf graf--h3 graf--leading">The Three Ways to Control AWS</h3><figure name="13eb" id="13eb" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*hy0DeGdIUeAVY-PdJx6l9g.png" data-width="903" data-height="292" src="https://cdn-images-1.medium.com/max/800/1*hy0DeGdIUeAVY-PdJx6l9g.png"></figure><h4 name="4fd9" id="4fd9" class="graf graf--h4 graf-after--figure">1. AWS Management Console</h4><ul class="postList"><li name="006f" id="006f" class="graf graf--li graf-after--h4">What you’ve been using so far</li><li name="fab9" id="fab9" class="graf graf--li graf-after--li">Great for visual learners</li><li name="4505" id="4505" class="graf graf--li graf-after--li">Zero setup</li><li name="b632" id="b632" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Limitation</strong>: impossible to automate or script</li></ul><figure name="6c65" id="6c65" class="graf graf--figure graf-after--li"><img class="graf-image" data-image-id="1*E9LyUMGO24IePf_v43EL6w.png" data-width="1315" data-height="851" src="https://cdn-images-1.medium.com/max/800/1*E9LyUMGO24IePf_v43EL6w.png"></figure><h4 name="af07" id="af07" class="graf graf--h4 graf-after--figure">2. AWS Command Line Interface (CLI)</h4><ul class="postList"><li name="7ec3" id="7ec3" class="graf graf--li graf-after--h4">Single unified tool: aws</li><li name="19eb" id="19eb" class="graf graf--li graf-after--li">Direct access to every public AWS API</li><li name="af8d" id="af8d" class="graf graf--li graf-after--li">Open-source, built on the Python SDK (Boto3)</li><li name="b73d" id="b73d" class="graf graf--li graf-after--li">Lets you write shell scripts that create VPCs, spin up EC2 fleets, upload terabytes to S3 — all in seconds</li><li name="4bb4" id="4bb4" class="graf graf--li graf-after--li">Loved by DevOps, architects, and anyone who values speed and repeatability</li></ul><figure name="f218" id="f218" class="graf graf--figure graf-after--li"><img class="graf-image" data-image-id="1*PdFmSGEeg7iVpzigCoh3tA.png" data-width="990" data-height="238" src="https://cdn-images-1.medium.com/max/800/1*PdFmSGEeg7iVpzigCoh3tA.png"></figure><h4 name="3b91" id="3b91" class="graf graf--h4 graf-after--figure">3. AWS Software Development Kit (SDK)</h4><ul class="postList"><li name="b86a" id="b86a" class="graf graf--li graf-after--h4">Language-specific libraries</li><li name="1692" id="1692" class="graf graf--li graf-after--li">Official SDKs for: Python (boto3), JavaScript, Java, Go, .NET, Ruby, PHP, C++, Node.js</li><li name="e85b" id="e85b" class="graf graf--li graf-after--li">Mobile SDKs (iOS/Android) and IoT Device SDKs</li><li name="e29c" id="e29c" class="graf graf--li graf-after--li">Powers everything from Lambda functions to enterprise backend systems</li><li name="db03" id="db03" class="graf graf--li graf-after--li">Fun fact: the AWS CLI itself is just a Python application using the SDK!</li></ul><figure name="7d67" id="7d67" class="graf graf--figure graf-after--li graf--trailing"><img class="graf-image" data-image-id="1*aMuxRLFzkM4opIskQ8kJIg.png" data-width="368" data-height="373" src="https://cdn-images-1.medium.com/max/800/1*aMuxRLFzkM4opIskQ8kJIg.png"></figure></div></div></section><section name="b74d" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="682c" id="682c" class="graf graf--h3 graf--leading">Access Keys — The “Password” for CLI &amp; SDK</h3><p name="78f3" id="78f3" class="graf graf--p graf-after--h3">Every IAM user can create up to <strong class="markup--strong markup--p-strong">2 active access key pairs</strong></p><p name="d74c" id="d74c" class="graf graf--p graf-after--p">Consist of:</p><ul class="postList"><li name="20e1" id="20e1" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Access Key ID</strong> → acts like a username (public)</li><li name="0c79" id="0c79" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Secret Access Key</strong> → acts like a password (never share, never log)</li></ul><p name="4e42" id="4e42" class="graf graf--p graf-after--li">Downloaded <strong class="markup--strong markup--p-strong">only once</strong> as a CSV — treat them like private keys</p><p name="ae8f" id="ae8f" class="graf graf--p graf-after--p">Can be deactivated or rotated anytime</p><p name="78e7" id="78e7" class="graf graf--p graf-after--p graf--trailing"><strong class="markup--strong markup--p-strong">Security rule</strong>: One human = one IAM user = their own access keys. Never share.</p></div></div></section><section name="b49f" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="05c3" id="05c3" class="graf graf--h3 graf--leading">Real-World Usage</h3><figure name="8320" id="8320" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*ZZnccaPkckKlnOL3iBfjyQ.png" data-width="889" data-height="315" src="https://cdn-images-1.medium.com/max/800/1*ZZnccaPkckKlnOL3iBfjyQ.png"></figure><h4 name="0f2d" id="0f2d" class="graf graf--h4 graf-after--figure">Example (Fake) Access Keys</h4><figure name="4230" id="4230" class="graf graf--figure graf-after--h4 graf--trailing"><img class="graf-image" data-image-id="1*7F22xLsoiImAJEGeLJj-NA.png" data-width="1492" data-height="390" src="https://cdn-images-1.medium.com/max/800/1*7F22xLsoiImAJEGeLJj-NA.png"></figure></div></div></section><section name="14df" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="b820" id="b820" class="graf graf--h3 graf--leading">Conclusion — Choose the Right Tool for the Job</h3><p name="ba34" id="ba34" class="graf graf--p graf-after--h3">The AWS Management Console is your training wheels — excellent for learning and occasional clicks.<br>The <strong class="markup--strong markup--p-strong">AWS CLI</strong> is your daily life — fast, scriptable, repeatable, and the secret behind every impressive demo you’ve ever seen.<br>The <strong class="markup--strong markup--p-strong">AWS SDK</strong> is production — it’s how real applications securely talk to AWS at scale.</p><p name="4fc1" id="4fc1" class="graf graf--p graf-after--p">In the next hands-on lab you’ll generate your own access keys, install the AWS CLI, and run your very first aws s3 ls command. Once you feel that instant feedback loop in your terminal, you’ll understand why so many of us rarely open the browser anymore. Three doors, one cloud — master all three and you’ll work like a pro.</p><p name="d7cb" id="d7cb" class="graf graf--p graf-after--p graf--trailing">See you in the terminal!</p></div></div></section><section name="c7ba" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="b925" id="b925" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">LinkedIn</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/02a7fac0abe3"><time class="dt-published" datetime="2025-11-19T02:55:24.201Z">November 19, 2025</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-aws-access-methods-explained-console-cli-sdk-which-one-do-pros-really-use-02a7fac0abe3" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

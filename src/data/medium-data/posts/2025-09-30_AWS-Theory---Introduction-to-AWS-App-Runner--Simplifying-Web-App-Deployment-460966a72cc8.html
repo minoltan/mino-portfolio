@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | Introduction to AWS App Runner: Simplifying Web App Deployment</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | Introduction to AWS App Runner: Simplifying Web App Deployment</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="c395" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e1ef" id="e1ef" class="graf graf--h3 graf--leading graf--title">AWS Theory | Introduction to AWS App Runner: Simplifying Web App Deployment</h3><h3 name="82e3" id="82e3" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="348f" id="348f" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory </strong>blog accompanying the blog post:</p><p name="4e89" id="4e89" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“<a href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-16-containers-aa719c3e1688" data-href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-16-containers-aa719c3e1688" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 16: Containers on AWS | ECS, Farget, ECR, EKS)</a>”</p><p name="f374" id="f374" class="graf graf--p graf-after--p">🔹 Episode 16: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-containers-in-aws-58a2a6fddf40" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-containers-in-aws-58a2a6fddf40" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="1919" id="1919" class="graf graf--p graf-after--p graf--trailing">🔹 Episode 16: <a href="https://issackpaul95.medium.com/aws-solution-architect-associate-questions-containers-in-aws-232a085cff60" data-href="https://issackpaul95.medium.com/aws-solution-architect-associate-questions-containers-in-aws-232a085cff60" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Solution Architect Preparation Quiz</a></p></div></div></section><section name="3f89" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="3ce1" id="3ce1" class="graf graf--h3 graf--leading">Introduction</h3><p name="5208" id="5208" class="graf graf--p graf-after--h3">In this post, we’ll explore <strong class="markup--strong markup--p-strong">AWS App Runner</strong>, a fully managed service designed to make deploying web applications and APIs at scale effortless. Whether you’re a developer or a non-technical user, App Runner eliminates the need for infrastructure expertise, allowing anyone to deploy to AWS with ease.</p><figure name="a188" id="a188" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*4bfVmxNk0t2gRMWbI-ibJQ.png" data-width="458" data-height="866" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*4bfVmxNk0t2gRMWbI-ibJQ.png"></figure><h3 name="3d3f" id="3d3f" class="graf graf--h3 graf-after--figure">What is AWS App Runner?</h3><p name="3271" id="3271" class="graf graf--p graf-after--h3">AWS App Runner is a service that streamlines the deployment process. You start with either your source code or a Docker container image and configure basic settings, such as:</p><ul class="postList"><li name="41a1" id="41a1" class="graf graf--li graf-after--p">Number of vCPUs.</li><li name="dc34" id="dc34" class="graf graf--li graf-after--li">Memory allocation for containers.</li><li name="c7ab" id="c7ab" class="graf graf--li graf-after--li">Autoscaling preferences.</li><li name="f979" id="f979" class="graf graf--li graf-after--li">Health check configurations.</li></ul><p name="6c00" id="6c00" class="graf graf--p graf-after--li">Once configured, App Runner automatically builds, deploys, and launches your web app or API. Within moments, you’ll have a URL to access your application — no need to understand the underlying infrastructure, which leverages AWS services behind the scenes.</p><h3 name="1f75" id="1f75" class="graf graf--h3 graf-after--p">Key Benefits of App Runner</h3><p name="753c" id="753c" class="graf graf--p graf-after--h3">App Runner packs a punch with its features:</p><ul class="postList"><li name="e71e" id="e71e" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Automatic Scaling</strong>: Adjusts resources based on demand.</li><li name="3d19" id="3d19" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">High Availability</strong>: Ensures your app remains accessible.</li><li name="ba35" id="ba35" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Load Balancing</strong>: Distributes traffic efficiently.</li><li name="ff3c" id="ff3c" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Encryption</strong>: Secures your application and data.</li><li name="62dc" id="62dc" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">VPC Integration</strong>: Allows connections to databases, caches, and message queues within your Virtual Private Cloud (VPC).</li></ul><h3 name="3336" id="3336" class="graf graf--h3 graf-after--li">Use Cases</h3><p name="c4d5" id="c4d5" class="graf graf--p graf-after--h3">App Runner shines for:</p><ul class="postList"><li name="a97f" id="a97f" class="graf graf--li graf-after--p">Rapid deployment of web applications and APIs.</li><li name="1380" id="1380" class="graf graf--li graf-after--li">Building microservices with minimal setup.</li><li name="a785" id="a785" class="graf graf--li graf-after--li">Implementing best practices for production environments without deep infrastructure knowledge.</li></ul><h3 name="7c79" id="7c79" class="graf graf--h3 graf-after--li">Why It’s Powerful</h3><p name="6bd8" id="6bd8" class="graf graf--p graf-after--h3 graf--trailing">Despite its simplicity, App Runner is a game-changer. It abstracts complex container and infrastructure management, making it ideal for quick deployments while still supporting scalable, secure, and connected applications.</p></div></div></section><section name="61c3" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="09fe" id="09fe" class="graf graf--h3 graf--leading">Conclusion</h3><p name="3184" id="3184" class="graf graf--p graf-after--h3 graf--trailing">AWS App Runner is a straightforward yet powerful tool for deploying web apps and APIs without the overhead of managing infrastructure. Its ease of use and robust features make it perfect for rapid development and production-ready solutions. Give it a try with your next project and experience the simplicity firsthand!</p></div></div></section><section name="46be" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="09f2" id="09f2" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a> and <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">LinkedIn</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/460966a72cc8"><time class="dt-published" datetime="2025-09-30T14:49:22.882Z">September 30, 2025</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-introduction-to-aws-app-runner-simplifying-web-app-deployment-460966a72cc8" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

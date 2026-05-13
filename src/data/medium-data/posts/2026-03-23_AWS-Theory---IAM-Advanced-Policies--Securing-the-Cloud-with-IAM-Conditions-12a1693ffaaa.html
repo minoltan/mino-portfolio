@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | IAM Advanced Policies: Securing the Cloud with IAM Conditions</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | IAM Advanced Policies: Securing the Cloud with IAM Conditions</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="5448" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="1e46" id="1e46" class="graf graf--h3 graf--leading graf--title">AWS Theory | IAM Advanced Policies: Securing the Cloud with IAM Conditions</h3><h3 name="cbf6" id="cbf6" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="af56" id="af56" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="0c0b" id="0c0b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 23: IAM Advanced)”</p><p name="7d2f" id="7d2f" class="graf graf--p graf-after--p">🔹 Episode 23: AWS Cloud Practitioner Quiz</p><p name="a03b" id="a03b" class="graf graf--p graf-after--p">🔹 Episode 23: AWS Solution Architect Preparation Quiz</p><figure name="8364" id="8364" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*cxvD9V28HuWtDRdn0Ewiwg.png" data-width="1409" data-height="736" src="https://cdn-images-1.medium.com/max/800/1*cxvD9V28HuWtDRdn0Ewiwg.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="f0e9" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="9438" id="9438" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="a612" id="a612" class="graf graf--p graf-after--h3 graf--trailing">In the world of AWS, having a username and password is just the beginning. To truly secure an enterprise environment, you need to look beyond <em class="markup--em markup--p-em">who</em> is accessing a resource and start looking at <em class="markup--em markup--p-em">how</em>, <em class="markup--em markup--p-em">where</em>, and <em class="markup--em markup--p-em">when</em> they are doing it. <strong class="markup--strong markup--p-strong">IAM Conditions</strong> allow you to add a layer of “if-then” logic to your security policies, transforming them from simple on/off switches into intelligent gatekeepers. By leveraging global condition keys like <code class="markup--code markup--p-code">aws:SourceIP</code> or service-specific keys like <code class="markup--code markup--p-code">ec2:ResourceTag</code>, administrators can enforce granular rules such as ensuring a database is only accessed from the office network or preventing developers from launching expensive resources in unauthorized geographic regions.</p></div></div></section><section name="0d54" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e61c" id="e61c" class="graf graf--h3 graf--leading">Key IAM Condition Keys and Their Roles</h3><p name="6756" id="6756" class="graf graf--p graf-after--h3">Conditions make your policies dynamic. Here are some of the most powerful keys discussed in the lecture:</p></div><div class="section-inner sectionLayout--outsetColumn"><figure name="8465" id="8465" class="graf graf--figure graf--layoutOutsetCenter graf-after--p"><img class="graf-image" data-image-id="1*N4_TMM_9Lf0N9w2jtcjhng.png" data-width="1432" data-height="549" src="https://cdn-images-1.medium.com/max/1200/1*N4_TMM_9Lf0N9w2jtcjhng.png"></figure><figure name="9ca5" id="9ca5" class="graf graf--figure graf--layoutOutsetCenter graf-after--figure"><img class="graf-image" data-image-id="1*ko60hm1jrxFIz0DGS4S_PA.png" data-width="1432" data-height="549" src="https://cdn-images-1.medium.com/max/1200/1*ko60hm1jrxFIz0DGS4S_PA.png"></figure></div><div class="section-inner sectionLayout--insetColumn"><figure name="c60f" id="c60f" class="graf graf--figure graf-after--figure graf--trailing"><img class="graf-image" data-image-id="1*ZGfoGjthAePTy3JOBNSBwQ.png" data-width="723" data-height="458" src="https://cdn-images-1.medium.com/max/800/1*ZGfoGjthAePTy3JOBNSBwQ.png"></figure></div></div></section><section name="1144" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="36ac" id="36ac" class="graf graf--h3 graf--leading">Real-World Example: The Secure Financial Sandbox</h3><p name="67ba" id="67ba" class="graf graf--p graf-after--h3">Imagine a FinTech company called <strong class="markup--strong markup--p-strong">SafeVault</strong>. They have a strict compliance requirement: sensitive data stored in S3 must only be accessed by employees within the corporate office, and only if those employees have logged in with Multi-Factor Authentication (MFA).</p><p name="2c6b" id="2c6b" class="graf graf--p graf-after--p">To solve this, SafeVault uses a combination of conditions:</p><ol class="postList"><li name="5f5a" id="5f5a" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Network Boundary:</strong> They use <code class="markup--code markup--li-code">aws:SourceIP</code> to ensure that even if an employee&#39;s credentials are stolen, the hacker cannot access the data from a home or public network.</li><li name="051f" id="051f" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">MFA Enforcement:</strong> They use <code class="markup--code markup--li-code">aws:MultiFactorAuthPresent</code> to ensure that high-privilege actions, like deleting financial records, require a hardware token.</li><li name="4073" id="4073" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Cross-Account Trust:</strong> They use <code class="markup--code markup--li-code">aws:PrincipalOrgID</code> on their central logging bucket. This allows any account within the &quot;SafeVault Family&quot; to drop off logs, while automatically rejecting any upload requests from outside the organization.</li></ol></div></div></section><section name="dc2c" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="ef05" id="ef05" class="graf graf--h3 graf--leading">Distinguishing Bucket vs. Object Permissions</h3><p name="1f38" id="1f38" class="graf graf--p graf-after--h3">One common pitfall in AWS security is confusing the <strong class="markup--strong markup--p-strong">Bucket level</strong> with the <strong class="markup--strong markup--p-strong">Object level</strong>. When writing policies, the Resource ARN (Amazon Resource Name) must match the Action:</p><ul class="postList"><li name="4e1d" id="4e1d" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Bucket Level:</strong> Actions like <code class="markup--code markup--li-code">s3:ListBucket</code> require the ARN <code class="markup--code markup--li-code">arn:aws:s3:::my-bucket</code>.</li><li name="f6da" id="f6da" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Object Level:</strong> Actions like <code class="markup--code markup--li-code">s3:GetObject</code> or <code class="markup--code markup--li-code">s3:PutObject</code> require the ARN to include the contents, typically <code class="markup--code markup--li-code">arn:aws:s3:::my-bucket/*</code>.</li></ul><figure name="979a" id="979a" class="graf graf--figure graf-after--li graf--trailing"><img class="graf-image" data-image-id="1*ldEuIbwo4FAgcn4Fl_eedw.png" data-width="631" data-height="611" src="https://cdn-images-1.medium.com/max/800/1*ldEuIbwo4FAgcn4Fl_eedw.png"></figure></div></div></section><section name="237a" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="b6da" id="b6da" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="e68f" id="e68f" class="graf graf--p graf-after--h3 graf--trailing">Mastering IAM Conditions is the difference between a “good” security posture and an “impenetrable” one. By moving away from broad, static permissions and embracing context-aware policies, you significantly reduce your attack surface. Whether you are using <code class="markup--code markup--p-code">PrincipalTag</code> to match a user’s department to a project or using <code class="markup--code markup--p-code">RequestedRegion</code> to keep your infrastructure compliant with local laws, these conditions provide the surgical precision required for modern cloud governance. As you move forward, try to think of every permission not just as &quot;Allow,&quot; but as &quot;Allow, <em class="markup--em markup--p-em">provided that</em> the context is safe.&quot;</p></div></div></section><section name="475d" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="a42d" id="a42d" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/12a1693ffaaa"><time class="dt-published" datetime="2026-03-23T14:12:17.390Z">March 23, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-iam-advanced-policies-securing-the-cloud-with-iam-conditions-12a1693ffaaa" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

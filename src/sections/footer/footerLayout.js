@@ -1,5 +1,5 @@
 import { Box, Container, Grid, Typography, Link, Stack, IconButton, useTheme, Dialog } from "@mui/material";
-import { ArrowUpward } from "@mui/icons-material";
+import ArrowUpward from "@mui/icons-material/ArrowUpward";
 import { useState } from "react";
 import ConnectWithMeLogos from "../connectWithMe/connectWithMeLogos";
 

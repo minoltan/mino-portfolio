@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | AWS Site-to-Site VPN: Extending Your Network</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | AWS Site-to-Site VPN: Extending Your Network</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="4962" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="ee64" id="ee64" class="graf graf--h3 graf--leading graf--title">AWS Theory | AWS Site-to-Site VPN: Extending Your Network</h3><h3 name="8946" id="8946" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="13a9" id="13a9" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory </strong>blog accompanying the blog post:</p><p name="cc1b" id="cc1b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 25: Networking | VPC)”</p><p name="4013" id="4013" class="graf graf--p graf-after--p">🔹 Episode 25: AWS Cloud Practitioner Quiz</p><p name="620d" id="620d" class="graf graf--p graf-after--p">🔹 Episode 25: AWS Solution Architect Preparation Quiz</p><figure name="ba2c" id="ba2c" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*qxxnlUdLnYzgyeWvylj8dg.png" data-width="1408" data-height="736" src="https://cdn-images-1.medium.com/max/800/1*qxxnlUdLnYzgyeWvylj8dg.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="18a4" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e666" id="e666" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="f351" id="f351" class="graf graf--p graf-after--h3">Connecting your office to the cloud shouldn’t feel like building a bridge across an ocean. <strong class="markup--strong markup--p-strong">AWS Site-to-Site VPN</strong> is the tool that makes your corporate data center and your AWS VPC feel like they are sitting in the same room. It creates a secure, encrypted tunnel over the public internet, allowing your on-premises servers to talk to your EC2 instances using their private IP addresses. It’s like having a <strong class="markup--strong markup--p-strong">private extension cord</strong> that stretches from your desk all the way to an AWS data center.</p></div><div class="section-inner sectionLayout--outsetColumn"><figure name="8401" id="8401" class="graf graf--figure graf--layoutOutsetCenter graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*2aMWAVpgwNT7XAUODf_RYg.png" data-width="1730" data-height="713" src="https://cdn-images-1.medium.com/max/1200/1*2aMWAVpgwNT7XAUODf_RYg.png"></figure></div></div></section><section name="1557" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="c85c" id="c85c" class="graf graf--h3 graf--leading">1. The Two Pillars: VGW and CGW</h3><p name="ba3b" id="ba3b" class="graf graf--p graf-after--h3">To build this bridge, you need an anchor on both sides:</p><ul class="postList"><li name="b858" id="b858" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Virtual Private Gateway (VGW):</strong> This is the “VPN Concentrator” on the <strong class="markup--strong markup--li-strong">AWS side</strong>. You create it, attach it to your VPC, and it acts as the gateway for all VPN traffic entering or leaving the cloud.</li><li name="1cd3" id="1cd3" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Customer Gateway (CGW):</strong> This is the “Anchor” on <strong class="markup--strong markup--li-strong">your side</strong> (on-premises). It can be a physical firewall (like a Cisco or Juniper device) or even a software appliance.</li></ul></div></div></section><section name="fa3a" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="65fe" id="65fe" class="graf graf--h3 graf--leading">2. Establishing the Connection</h3><p name="0b14" id="0b14" class="graf graf--p graf-after--h3">When setting up the connection, the IP address of your Customer Gateway matters:</p><figure name="d977" id="d977" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*spmAGqACFhKiylx2tQg3Tg.png" data-width="538" data-height="873" src="https://cdn-images-1.medium.com/max/800/1*spmAGqACFhKiylx2tQg3Tg.png"></figure><ul class="postList"><li name="833b" id="833b" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">Public CGW:</strong> If your device has a direct public IP, use that to establish the tunnel.</li><li name="e8d9" id="e8d9" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Private CGW (Behind NAT):</strong> If your device is behind a router, use the <strong class="markup--strong markup--li-strong">Public IP of the NAT device</strong>. Ensure “NAT-T” (NAT Traversal) is enabled on port <strong class="markup--strong markup--li-strong">UDP 4500</strong> so the encrypted traffic can pass through.</li></ul></div></div></section><section name="ebcd" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="6a60" id="6a60" class="graf graf--h3 graf--leading">3. Two Gotchas for the Exam</h3><p name="9d0e" id="9d0e" class="graf graf--p graf-after--h3">Even if the tunnel is technically up, traffic might not flow. There are two common reasons for this:</p><ol class="postList"><li name="77db" id="77db" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Route Propagation:</strong> You must go into your VPC Route Table and enable <strong class="markup--strong markup--li-strong">Route Propagation</strong>. This tells your subnets, “Hey, if you see traffic for the office’s IP range, send it through the VGW!”</li><li name="bfa1" id="bfa1" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Security Group Rules:</strong> If you are trying to ping an instance from your office to test the connection, you must explicitly allow <strong class="markup--strong markup--li-strong">ICMP</strong> traffic in the EC2 instance’s Security Group. Without this, the instance will simply ignore the request.</li></ol></div></div></section><section name="3751" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="b320" id="b320" class="graf graf--h3 graf--leading">4. AWS VPN CloudHub: Connecting the Spokes</h3><p name="cffb" id="cffb" class="graf graf--p graf-after--h3">If you have multiple branch offices (e.g., New York, London, and Tokyo) and you want them to talk to <strong class="markup--strong markup--p-strong">each other</strong> as well as to AWS, you use <strong class="markup--strong markup--p-strong">AWS VPN CloudHub</strong>.</p><figure name="cf17" id="cf17" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*ESBJDkbwzJzLgtJ_1UCTiw.png" data-width="885" data-height="733" src="https://cdn-images-1.medium.com/max/800/1*ESBJDkbwzJzLgtJ_1UCTiw.png"></figure><p name="0c10" id="0c10" class="graf graf--p graf-after--figure graf--trailing">Instead of building a messy web of separate VPNs between every office, you connect every office to a single <strong class="markup--strong markup--p-strong">Virtual Private Gateway</strong>. This creates a “hub-and-spoke” model where the VGW acts as the central hub, relaying encrypted traffic between all your branch offices securely.</p></div></div></section><section name="984e" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="54aa" id="54aa" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="17c7" id="17c7" class="graf graf--p graf-after--h3 graf--trailing">AWS Site-to-Site VPN is a reliable, low-cost way to create a hybrid cloud environment. By using encrypted IPsec tunnels, you get the security of a private network with the convenience of using the existing public internet. Whether you are connecting one office or building a global network with CloudHub, the key is always in the routing and the gateways.</p></div></div></section><section name="667c" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="4933" id="4933" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/9781dca26281"><time class="dt-published" datetime="2026-03-07T09:10:21.878Z">March 7, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-aws-site-to-site-vpn-extending-your-network-9781dca26281" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

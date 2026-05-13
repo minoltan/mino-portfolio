@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Creating a Maven project</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">Creating a Maven project</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+These blogs are sub-blogs of the main series blogs to reduce the reading time if they already know these things.
+</section>
+<section data-field="body" class="e-content">
+<section name="217e" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="8491" id="8491" class="graf graf--h3 graf--leading graf--title">Creating a Maven project</h3><p name="4231" id="4231" class="graf graf--p graf-after--h3">These blogs are sub-blogs of the main series blogs to reduce the reading time if they already know these things.</p><p name="ade9" id="ade9" class="graf graf--p graf-after--p">Maven is one of the most used building tools for Spring projects in real-world scenarios. Because Maven’s such a well-known tool, you may already know how to create a project and add dependencies to it using its configuration.</p><p name="2c22" id="2c22" class="graf graf--p graf-after--p">In this blog, we’ll discuss creating a Maven project. Maven is not a subject directly related to Spring, but it’s a tool you use to easily manage an app’s build process regardless of the framework you use.</p><p name="3f68" id="3f68" class="graf graf--p graf-after--p">A build tool is a software we use to build apps more easily. You configure a build tool to do the tasks that are part of building the app instead of manually doing them. Some examples of tasks that are often part of building the app are as follows:</p><ol class="postList"><li name="32e9" id="32e9" class="graf graf--li graf-after--p">Downloading the dependencies needed by your app</li><li name="63fb" id="63fb" class="graf graf--li graf-after--li">Compiling the app</li><li name="63e3" id="63e3" class="graf graf--li graf-after--li">Running tests</li><li name="93bd" id="93bd" class="graf graf--li graf-after--li">Validating that the syntax follows rules that you define</li><li name="9e22" id="9e22" class="graf graf--li graf-after--li">Checking for security vulnerabilities</li><li name="de0f" id="de0f" class="graf graf--li graf-after--li">Packaging the app in an executable archive</li></ol><h4 name="c40a" id="c40a" class="graf graf--h4 graf-after--li">Steps to follow</h4><figure name="3323" id="3323" class="graf graf--figure graf-after--h4"><img class="graf-image" data-image-id="1*a_NGh0Qad7rWFzlF6V1d3w.png" data-width="744" data-height="544" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*a_NGh0Qad7rWFzlF6V1d3w.png"></figure><figure name="bd61" id="bd61" class="graf graf--figure graf-after--figure"><img class="graf-image" data-image-id="1*QAGPzZz7ZlLteegVCFql-Q.png" data-width="743" data-height="535" src="https://cdn-images-1.medium.com/max/800/1*QAGPzZz7ZlLteegVCFql-Q.png"></figure><figure name="411c" id="411c" class="graf graf--figure graf-after--figure"><img class="graf-image" data-image-id="1*8TunojQszMRp7WVpiePd6w.png" data-width="793" data-height="490" src="https://cdn-images-1.medium.com/max/800/1*8TunojQszMRp7WVpiePd6w.png"></figure><figure name="9968" id="9968" class="graf graf--figure graf-after--figure"><img class="graf-image" data-image-id="1*KYvCqUYJcxbhRl5aBYqccQ.png" data-width="773" data-height="421" src="https://cdn-images-1.medium.com/max/800/1*KYvCqUYJcxbhRl5aBYqccQ.png"></figure><figure name="722b" id="722b" class="graf graf--figure graf-after--figure"><img class="graf-image" data-image-id="1*1c3_wexUzqrNZnakAIzvhg.png" data-width="668" data-height="499" src="https://cdn-images-1.medium.com/max/800/1*1c3_wexUzqrNZnakAIzvhg.png"></figure><h4 name="c2bf" id="c2bf" class="graf graf--h4 graf-after--figure">pom.xml</h4><pre data-code-block-mode="1" spellcheck="false" data-code-block-lang="xml" name="2bf0" id="2bf0" class="graf graf--pre graf-after--h4 graf--preV2"><span class="pre--content"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><br /><span class="hljs-tag">&lt;<span class="hljs-name">project</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span><br />         <span class="hljs-attr">xmlns:xsi</span>=<span class="hljs-string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br />         <span class="hljs-attr">xsi:schemaLocation</span>=<span class="hljs-string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span><br />    <span class="hljs-tag">&lt;<span class="hljs-name">modelVersion</span>&gt;</span>4.0.0<span class="hljs-tag">&lt;/<span class="hljs-name">modelVersion</span>&gt;</span><br /><br />    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.book<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br />    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-book<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br />    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.0-SNAPSHOT<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br /><br />    <span class="hljs-tag">&lt;<span class="hljs-name">properties</span>&gt;</span><br />        <span class="hljs-tag">&lt;<span class="hljs-name">maven.compiler.source</span>&gt;</span>11<span class="hljs-tag">&lt;/<span class="hljs-name">maven.compiler.source</span>&gt;</span><br />        <span class="hljs-tag">&lt;<span class="hljs-name">maven.compiler.target</span>&gt;</span>11<span class="hljs-tag">&lt;/<span class="hljs-name">maven.compiler.target</span>&gt;</span><br />    <span class="hljs-tag">&lt;/<span class="hljs-name">properties</span>&gt;</span><br />    <br />    <span class="hljs-comment">&lt;!-- For the sample we added this dependency--&gt;</span><br />    <span class="hljs-tag">&lt;<span class="hljs-name">dependencies</span>&gt;</span><br />          <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br />            <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br />            <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-jdbc<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br />            <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>5.2.6.RELEASE<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br />        <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br />    <span class="hljs-tag">&lt;/<span class="hljs-name">dependencies</span>&gt;</span><br /><br /><span class="hljs-tag">&lt;/<span class="hljs-name">project</span>&gt;</span></span></pre><figure name="db1b" id="db1b" class="graf graf--figure graf-after--pre"><img class="graf-image" data-image-id="1*dNwKYFPlWyWIJjbyph18VA.png" data-width="657" data-height="500" src="https://cdn-images-1.medium.com/max/800/1*dNwKYFPlWyWIJjbyph18VA.png"></figure><p name="84a1" id="84a1" class="graf graf--p graf-after--figure graf--trailing">When you add a new dependency to the pom.xml file, Maven downloads the jar files representing that dependency. You find these jar files in the External Libraries folder of the project.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/8d8ba105bfed"><time class="dt-published" datetime="2022-12-03T03:06:07.991Z">December 3, 2022</time></a>.</p><p><a href="https://medium.com/@issackpaul95/creating-a-maven-project-8d8ba105bfed" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

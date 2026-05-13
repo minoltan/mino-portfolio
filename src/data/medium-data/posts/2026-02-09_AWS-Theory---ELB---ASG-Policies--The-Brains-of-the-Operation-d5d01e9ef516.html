@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | ELB | ASG Policies: The Brains of the Operation</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | ELB | ASG Policies: The Brains of the Operation</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="7d2f" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="a1da" id="a1da" class="graf graf--h3 graf--leading graf--title">AWS Theory | ELB | ASG Policies: The Brains of the Operation</h3><h3 name="7e4a" id="7e4a" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="89f4" id="89f4" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory </strong>blog accompanying the blog post:</p><p name="b9cf" id="b9cf" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“<a href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-6-high-dc7ac178329a?postPublishedType=initial" data-href="https://issackpaul95.medium.com/pass-the-aws-certified-solutions-architect-associate-certification-saa-c03-episode-6-high-dc7ac178329a?postPublishedType=initial" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 6: High availability &amp; Scalability | ELB &amp; ASG)</a>”</p><p name="8c86" id="8c86" class="graf graf--p graf-after--p">🔹 Episode 6: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-high-availability-scalability-be3d3febd4e5?postPublishedType=initial" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-high-availability-scalability-be3d3febd4e5?postPublishedType=initial" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="37ab" id="37ab" class="graf graf--p graf-after--p">🔹 Episode 6: AWS Solution Architect Preparation Quiz</p><figure name="1168" id="1168" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*Jj_uzb9GmxwT5YJwVSRgkw.png" data-width="1536" data-height="1024" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*Jj_uzb9GmxwT5YJwVSRgkw.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="78ce" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="c078" id="c078" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="60bf" id="60bf" class="graf graf--p graf-after--h3 graf--trailing">Setting up an Auto Scaling Group (ASG) is only half the battle. The real magic happens when you tell it <strong class="markup--strong markup--p-strong">when</strong> and <strong class="markup--strong markup--p-strong">how</strong> to grow or shrink. Without a scaling policy, your ASG is just a static group of servers. By using the right policy, it becomes an intelligent system. This keeps your app fast during a surge and cheap during a lull.</p></div></div></section><section name="0ceb" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="1a2c" id="1a2c" class="graf graf--h3 graf--leading">1. Dynamic Scaling: Responding to Live Traffic</h3><p name="083b" id="083b" class="graf graf--p graf-after--h3">Dynamic scaling is reactive. It watches your metrics in real-time and acts accordingly.</p><ul class="postList"><li name="d431" id="d431" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Target Tracking Scaling:</strong> This is the easiest and most recommended policy. Think of it like a <strong class="markup--strong markup--li-strong">thermostat</strong>. You set a target, for example, “I want average CPU to stay at 40%,” and AWS handles the math. If the CPU hits 60%, it adds instances. If it drops to 20%, it removes them.</li><li name="f3fd" id="f3fd" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Simple/Step Scaling:</strong> This is more like a <strong class="markup--strong markup--li-strong">manual override</strong>. You define specific steps using CloudWatch Alarms.</li><li name="2cfc" id="2cfc" class="graf graf--li graf-after--li graf--trailing"><em class="markup--em markup--li-em">Example:</em> If CPU &gt; 70%, add 1 instance. If CPU &gt; 90%, add 3 instances. This step approach helps you react much faster to massive spikes than a gradual target tracking policy might.</li></ul></div></div></section><section name="9cbd" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="798d" id="798d" class="graf graf--h3 graf--leading">2. Anticipating the Crowd: Scheduled &amp; Predictive Scaling</h3><p name="7692" id="7692" class="graf graf--p graf-after--h3">Sometimes, waiting for a metric to spike is too late. You want the servers ready <em class="markup--em markup--p-em">before</em> the users arrive.</p><figure name="8a8e" id="8a8e" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*hJLc8LGLoQ4OILDC1__D-A.png" data-width="1312" data-height="466" src="https://cdn-images-1.medium.com/max/800/1*hJLc8LGLoQ4OILDC1__D-A.png"></figure><ul class="postList"><li name="400d" id="400d" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">Scheduled Scaling:</strong> Best for known events. If you run a gym app, you know everyone logs in at 6:00 AM on Monday. You can schedule your ASG to scale up to 10 instances at 5:55 AM so the system is warm and ready.</li><li name="a867" id="a867" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Predictive Scaling:</strong> This is the <strong class="markup--strong markup--li-strong">AI</strong> version of scaling. AWS analyzes your last 14 days of traffic to find patterns. It then creates a forecast and automatically schedules scaling actions for you. It’s perfect for cyclical businesses like e-commerce or streaming.</li></ul></div></div></section><section name="ea80" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="07f3" id="07f3" class="graf graf--h3 graf--leading">3. Choosing the Right Metric</h3><p name="368a" id="368a" class="graf graf--p graf-after--h3">Scaling is only as good as the data you give it. Here are the Big Three metrics:</p><figure name="a1b3" id="a1b3" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*y82RGxww80LlKBaF6CKKFw.png" data-width="648" data-height="768" src="https://cdn-images-1.medium.com/max/800/1*y82RGxww80LlKBaF6CKKFw.png"></figure><ol class="postList"><li name="e3d1" id="e3d1" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">CPU Utilization:</strong> The standard. If your servers are sweating, add more.</li><li name="ef04" id="ef04" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">RequestCountPerTarget:</strong> Great for ALBs. If you know one server can safely handle 1,000 requests, scale when that average is reached.</li><li name="d5d1" id="d5d1" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Network In/Out:</strong> Perfect for data-heavy apps (like file sharing or video streaming) where the bottleneck is bandwidth, not brainpower (CPU).</li></ol></div></div></section><section name="e57f" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="47b7" id="47b7" class="graf graf--h3 graf--leading">4. The Scaling Cooldown: Avoiding the Seesaw Effect</h3><p name="c80c" id="c80c" class="graf graf--p graf-after--h3">A common mistake is scaling too fast. Imagine your CPU spikes, the ASG adds a server, but while that server is still booting up, the CPU stays high. Without a cooldown, the ASG might freak out and add <em class="markup--em markup--p-em">another</em> five servers unnecessarily.</p><figure name="6274" id="6274" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*PXKIAnUK4fhU5j_0NzOFQw.png" data-width="640" data-height="689" src="https://cdn-images-1.medium.com/max/800/1*PXKIAnUK4fhU5j_0NzOFQw.png"></figure><p name="1f95" id="1f95" class="graf graf--p graf-after--figure">The <strong class="markup--strong markup--p-strong">Cooldown Period</strong> (default 300 seconds) tells the ASG, “I just performed a scaling action. Let’s wait 5 minutes for the metrics to stabilize before we do anything else.”</p><blockquote name="bfb1" id="bfb1" class="graf graf--blockquote graf-after--p graf--trailing"><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">Pro Tip:</em></strong><em class="markup--em markup--blockquote-em"> To make your scaling snappier, use a </em><strong class="markup--strong markup--blockquote-strong"><em class="markup--em markup--blockquote-em">pre-baked AMI</em></strong><em class="markup--em markup--blockquote-em"> (Amazon Machine Image). If your server takes 1 minute to start instead of 5, you can safely lower your cooldown period and save more money.</em></blockquote></div></div></section><section name="4e7c" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="894a" id="894a" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="7c3d" id="7c3d" class="graf graf--p graf-after--h3 graf--trailing">Mastering scaling policies is about balancing <strong class="markup--strong markup--p-strong">performance</strong> and <strong class="markup--strong markup--p-strong">cost</strong>. Start with <strong class="markup--strong markup--p-strong">Target Tracking</strong> for its simplicity, use <strong class="markup--strong markup--p-strong">Scheduled Scaling</strong> for your known rush hours, and always respect the <strong class="markup--strong markup--p-strong">Cooldown</strong> to keep your infrastructure stable. By picking the right metric, be it CPU, Network, or Custom. You ensure your users always have a smooth experience.</p></div></div></section><section name="f1ea" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="2427" id="2427" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/d5d01e9ef516"><time class="dt-published" datetime="2026-02-09T01:50:27.343Z">February 9, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-elb-asg-policies-the-brains-of-the-operation-d5d01e9ef516" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | Public vs Private IP on EC2: Why Elastic IPs Are Usually a Bad Idea</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | Public vs Private IP on EC2: Why Elastic IPs Are Usually a Bad Idea</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="d4c2" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="352d" id="352d" class="graf graf--h3 graf--leading graf--title">AWS Theory | Public vs Private IP on EC2: Why Elastic IPs Are Usually a Bad Idea</h3><h3 name="48a7" id="48a7" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="6bf7" id="6bf7" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="249e" id="249e" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03! (Episode 4: EC2 SAA Level)”</p><p name="32f8" id="32f8" class="graf graf--p graf-after--p">🔹 Episode 4: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-ec2-fundamentals-620cfabac582" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-ec2-fundamentals-620cfabac582" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="b8b3" id="b8b3" class="graf graf--p graf-after--p">🔹 Episode 4: AWS Solution Architect Preparation Quiz</p><figure name="668d" id="668d" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*rXxi7uQ8TmNs-wbk9ohWgw.png" data-width="1280" data-height="800" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*rXxi7uQ8TmNs-wbk9ohWgw.png"></figure></div></div></section><section name="e3bc" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="fcab" id="fcab" class="graf graf--h3 graf--leading">Introduction</h3><p name="f62d" id="f62d" class="graf graf--p graf-after--h3 graf--trailing">Every EC2 instance comes with <em class="markup--em markup--p-em">two</em> IP addresses, and confusing them is responsible for about 90% of those “why can’t I SSH into this thing?!” moments. It seems quite frustrating. In this blog, I will break down—easily and painlessly—the difference between a <strong class="markup--strong markup--p-strong">public IP</strong>, a <strong class="markup--strong markup--p-strong">private IP</strong>, and the often misunderstood <strong class="markup--strong markup--p-strong">Elastic IP</strong>. We’ll also cover a rule experienced AWS engineers live by: <strong class="markup--strong markup--p-strong">almost never use Elastic IPs in real-world architectures</strong>. By the end, you’ll know exactly which IP to use in each situation and why your public IP seems to vanish every time you stop and start an instance.</p></div></div></section><section name="cacf" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e4d8" id="e4d8" class="graf graf--h3 graf--leading">The Two IPs Every EC2 Instance Gets (Automatically)</h3><figure name="7227" id="7227" class="graf graf--figure graf-after--h3"><img class="graf-image" data-image-id="1*REjcNrafqTTx_lQgQ11-Ig.png" data-width="786" data-height="200" src="https://cdn-images-1.medium.com/max/800/1*REjcNrafqTTx_lQgQ11-Ig.png"></figure><p name="0944" id="0944" class="graf graf--p graf-after--figure">Think of it like a house:</p><ul class="postList"><li name="e669" id="e669" class="graf graf--li graf-after--p">Private IP = your apartment number inside a giant building (the VPC)</li><li name="4d65" id="4d65" class="graf graf--li graf-after--li graf--trailing">Public IP = the building’s street address that delivery drivers see</li></ul></div></div></section><section name="7e08" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="8c8b" id="8c8b" class="graf graf--h3 graf--leading">Real-World Example You Already Experienced</h3><ul class="postList"><li name="6e57" id="6e57" class="graf graf--li graf-after--h3">When you SSH from your laptop, you use the <strong class="markup--strong markup--li-strong">public IP</strong> (you’re outside the building).</li><li name="7d5c" id="7d5c" class="graf graf--li graf-after--li graf--trailing">When two EC2 instances in the same VPC talk to each other, they use <strong class="markup--strong markup--li-strong">private IPs</strong> (they’re in the same building).</li></ul></div></div></section><section name="6168" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="4713" id="4713" class="graf graf--h3 graf--leading">Elastic IP: The “Fixed” Public IP (and Why Pros Hate It)</h3><p name="7335" id="7335" class="graf graf--p graf-after--h3">An <strong class="markup--strong markup--p-strong">Elastic IP</strong> is a static public IPv4 address you own. You can move it from one instance to another like a sticky label.</p><p name="4fb3" id="4fb3" class="graf graf--p graf-after--p">Sounds great, right? Here’s why it’s usually a code smell in 2025:</p><ul class="postList"><li name="784e" id="784e" class="graf graf--li graf-after--p">You’re limited to <strong class="markup--strong markup--li-strong">5 per region</strong> (hard limit for most accounts)</li><li name="fd7e" id="fd7e" class="graf graf--li graf-after--li">Costs money if not attached to a running instance</li><li name="6078" id="6078" class="graf graf--li graf-after--li">Real architectures use <strong class="markup--strong markup--li-strong">DNS names</strong> (Route 53) or <strong class="markup--strong markup--li-strong">load balancers instead—both</strong> scale infinitely and survive instance failures automatically</li><li name="ae5c" id="ae5c" class="graf graf--li graf-after--li">Elastic IPs hide failures instead of fixing them</li></ul><p name="644e" id="644e" class="graf graf--p graf-after--li graf--trailing"><strong class="markup--strong markup--p-strong">Golden Rule in Modern AWS</strong>: Never use Elastic IP : use a random public IP + DNS name (or better: put a load balancer in front and keep instances 100% private).</p></div></div></section><section name="7d4e" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e895" id="e895" class="graf graf--h3 graf--leading">Quick Demo You Can Try Right Now</h3><ol class="postList"><li name="2f05" id="2f05" class="graf graf--li graf-after--h3">Launch any EC2 instance (default settings)</li><li name="c44e" id="c44e" class="graf graf--li graf-after--li">Note the <strong class="markup--strong markup--li-strong">Public IPv4 address</strong> → SSH works with this</li><li name="1c86" id="1c86" class="graf graf--li graf-after--li">Stop the instance → Start it again → Public IP changed!</li><li name="0936" id="0936" class="graf graf--li graf-after--li">Private IP stays exactly the same</li></ol><h3 name="0a62" id="0a62" class="graf graf--h3 graf-after--li">Cheat Sheet</h3><figure name="4ff4" id="4ff4" class="graf graf--figure graf-after--h3 graf--trailing"><img class="graf-image" data-image-id="1*pfUynCkksrUyGwNMpQa8zw.png" data-width="782" data-height="173" src="https://cdn-images-1.medium.com/max/800/1*pfUynCkksrUyGwNMpQa8zw.png"></figure></div></div></section><section name="6440" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="b37c" id="b37c" class="graf graf--h3 graf--leading">Conclusion</h3><p name="6675" id="6675" class="graf graf--p graf-after--h3 graf--trailing">Now the problem is clear, you know why your public IP disappears after a restart, why private IPs stay put, and why Elastic IPs are usually on an AWS architect’s “use only if you must” list. From here onwards, you can SSH with confidence and build networks the way the pros do. No more Elastic IP guilt or late-night panic. Now, we can put a real domain name in front of your instance, so even if the IP changes as often as it wants, no one will ever notice. 🚀</p></div></div></section><section name="0dd1" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="f276" id="f276" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">LinkedIn</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/cf21a73f3c25"><time class="dt-published" datetime="2026-01-15T13:32:50.232Z">January 15, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-public-vs-private-ip-on-ec2-why-elastic-ips-are-usually-a-bad-idea-cf21a73f3c25" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

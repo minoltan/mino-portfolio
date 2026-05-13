@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | AWS WAF: Guarding the Gates</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | AWS WAF: Guarding the Gates</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="f676" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="2dac" id="2dac" class="graf graf--h3 graf--leading graf--title">AWS Theory | AWS WAF: Guarding the Gates</h3><h3 name="5552" id="5552" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="af56" id="af56" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="0c0b" id="0c0b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 24: Security &amp; Encryption | KMS, SSM Parameter Store, Shield, WAF)”</p><p name="7d2f" id="7d2f" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Cloud Practitioner Quiz</p><p name="a03b" id="a03b" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Solution Architect Preparation Quiz</p><figure name="62fb" id="62fb" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*YTNZqhgpW0kCkeL0MgjPyg.png" data-width="1376" data-height="768" src="https://cdn-images-1.medium.com/max/800/1*YTNZqhgpW0kCkeL0MgjPyg.png"></figure></div></div></section><section name="964a" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d78e" id="d78e" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="12f9" id="12f9" class="graf graf--p graf-after--h3 graf--trailing">In the modern threat landscape, securing your application at the network level is no longer enough; you must protect the very language your applications speak: HTTP. <strong class="markup--strong markup--p-strong">AWS WAF (Web Application Firewall)</strong> is a specialized security service designed to protect your web applications from common Layer 7 exploits that could affect availability, compromise security, or consume excessive resources. Unlike traditional firewalls that operate at the network layer (Layer 4), WAF sits higher up the stack, inspecting the actual content of web requests. By deploying WAF on key entry points like Application Load Balancers (ALB), CloudFront, or API Gateway, you gain the ability to block sophisticated attacks — such as SQL injection and Cross-Site Scripting (XSS) — before they ever reach your servers. It acts as an intelligent filter, allowing you to define precise rules that distinguish between legitimate users and malicious bots.</p></div></div></section><section name="fb33" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="fa67" id="fa67" class="graf graf--h3 graf--leading">Key Capabilities of AWS WAF</h3><p name="7bf1" id="7bf1" class="graf graf--p graf-after--h3">AWS WAF operates through <strong class="markup--strong markup--p-strong">Web ACLs (Access Control Lists)</strong>, which are composed of rules that inspect various parts of the incoming web request:</p><ul class="postList"><li name="7a68" id="7a68" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">IP Sets:</strong> Block or allow traffic from specific IP addresses (up to 10,000 per set).</li><li name="413f" id="413f" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">SQL Injection &amp; XSS Protection:</strong> Built-in filters to detect malicious code patterns in URI strings, headers, or request bodies.</li><li name="5a2c" id="5a2c" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Geo-Match:</strong> Allow or deny access based on the country of origin.</li><li name="c986" id="c986" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Rate-Based Rules:</strong> Protect against brute-force attacks and DDoS by limiting the number of requests an individual IP can send (e.g., blocking an IP if it exceeds 100 requests per minute).</li><li name="0cca" id="0cca" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Size Constraints:</strong> Ensure requests don’t exceed specific sizes (e.g., preventing a 100MB file upload if your app only expects small JSON snippets).</li></ul></div></div></section><section name="3569" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="f486" id="f486" class="graf graf--h3 graf--leading">Target Services: Where Can You Deploy WAF?</h3><p name="114d" id="114d" class="graf graf--p graf-after--h3">It is crucial to remember that WAF is a <strong class="markup--strong markup--p-strong">Layer 7</strong> service. It cannot be deployed on a Network Load Balancer (NLB) because the NLB operates at Layer 4 (TCP/UDP) and does not “read” the HTTP data. WAF is supported on:</p><ol class="postList"><li name="2c23" id="2c23" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Application Load Balancer (ALB)</strong></li><li name="0949" id="0949" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Amazon CloudFront</strong> (Global deployment)</li><li name="3e81" id="3e81" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Amazon API Gateway</strong></li><li name="5c09" id="5c09" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">AWS AppSync</strong> (GraphQL APIs)</li><li name="6343" id="6343" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Amazon Cognito User Pools</strong></li></ol><figure name="f050" id="f050" class="graf graf--figure graf-after--li graf--trailing"><img class="graf-image" data-image-id="1*5JYtDuvBCoXJ4kVpMNCq8Q.png" data-width="1263" data-height="443" src="https://cdn-images-1.medium.com/max/800/1*5JYtDuvBCoXJ4kVpMNCq8Q.png"></figure></div></div></section><section name="3618" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d243" id="d243" class="graf graf--h3 graf--leading">Real-World Example: Protecting a Global Voting App</h3><p name="31cf" id="31cf" class="graf graf--p graf-after--h3">Imagine you are running <strong class="markup--strong markup--p-strong">“VoteNow,”</strong> a high-traffic web application for a national singing competition. You face two major challenges: ensuring only people within your country can vote and preventing bot-nets from “stuffing the ballot box” with thousands of fake entries.</p><p name="4596" id="4596" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">The Solution:</strong> To solve this, you deploy your application on an <strong class="markup--strong markup--p-strong">ALB</strong> and attach an <strong class="markup--strong markup--p-strong">AWS WAF Web ACL</strong>.</p><ol class="postList"><li name="e5bb" id="e5bb" class="graf graf--li graf-after--p">You create a <strong class="markup--strong markup--li-strong">Geo-Match Rule</strong> to block all traffic coming from outside your country.</li><li name="d099" id="d099" class="graf graf--li graf-after--li">You implement a <strong class="markup--strong markup--li-strong">Rate-Based Rule</strong> that limits any single IP to 5 requests every 5 minutes.</li><li name="2934" id="2934" class="graf graf--li graf-after--li">Because you want a professional, easy-to-remember branded entry point, you front the ALB with <strong class="markup--strong markup--li-strong">AWS Global Accelerator</strong> to provide a <strong class="markup--strong markup--li-strong">Fixed IP</strong> for your voters, even though the ALB’s IPs might change behind the scenes.</li></ol><p name="994b" id="994b" class="graf graf--p graf-after--li graf--trailing"><strong class="markup--strong markup--p-strong">The Result:</strong> The WAF successfully filters out millions of international bot requests, while the rate-limiting ensures that no single user can unfairly influence the results. The legitimate voters enjoy a fast, reliable experience via the fixed IPs provided by Global Accelerator.</p></div></div></section><section name="5763" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="ede0" id="ede0" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="1875" id="1875" class="graf graf--p graf-after--h3 graf--trailing">AWS WAF is an essential pillar of a “Defense in Depth” strategy, providing the granular visibility and control needed to fight off application-level threats. By moving security to the edge and automating the rejection of malicious traffic, you not only protect your sensitive data but also improve your application’s overall stability and performance. Whether you are using Managed Rule Groups for quick setup or crafting custom rate-based rules for specific DDoS protection, WAF gives you the flexibility to adapt to an ever-changing security environment. As you scale your architecture, remember that protecting your code is only half the battle — guarding the gates with a robust Web Application Firewall is what keeps your digital kingdom truly secure.</p></div></div></section><section name="1592" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="7c71" id="7c71" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/e2b176d2a15a"><time class="dt-published" datetime="2026-04-30T11:03:47.477Z">April 30, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-aws-waf-guarding-the-gates-e2b176d2a15a" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

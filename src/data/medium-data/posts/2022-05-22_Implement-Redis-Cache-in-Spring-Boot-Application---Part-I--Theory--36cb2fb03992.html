@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Implement Redis Cache in Spring Boot Application — Part I (Theory)</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">Implement Redis Cache in Spring Boot Application — Part I (Theory)</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+Hello Everyone…!
+</section>
+<section data-field="body" class="e-content">
+<section name="e9e6" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="1e77" id="1e77" class="graf graf--h3 graf--leading graf--title">Implement Redis Cache in Spring Boot Application — Part I (Theory)</h3><p name="a829" id="a829" class="graf graf--p graf-after--h3">Hello Everyone…!</p><figure name="3292" id="3292" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*kweAChrF5o0hO83KK2fQHQ.png" data-width="1544" data-height="500" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*kweAChrF5o0hO83KK2fQHQ.png"></figure><h3 name="53d3" id="53d3" class="graf graf--h3 graf-after--figure">Why?</h3><p name="c3be" id="c3be" class="graf graf--p graf-after--h3">Most of the time if we are looking for the best performance from out application we are looking into many techniques. Apart from several other solutions, we also look for a caching technique to make DB calls faster. In order to achieve, we have <strong class="markup--strong markup--p-strong">Redis Cache technique</strong> in place. Redis cache helps us by minimizing the number of network calls while accessing the data from DB.</p><h3 name="16d9" id="16d9" class="graf graf--h3 graf-after--p">How?</h3><p name="2122" id="2122" class="graf graf--p graf-after--h3">Spring Boot supports this feature via the dependency ‘<strong class="markup--strong markup--p-strong">Spring Data Redis</strong>’. In addition, we need to download Redis Server to make Redis Cache functional in the Spring Boot Application. Moreover, apart from <strong class="markup--strong markup--p-strong">Cache</strong>, Redis can also be used as a <strong class="markup--strong markup--p-strong">database and Message Broker</strong>. However, in a real time application, Redis is popular for a Cache Manager as compared to database &amp; Message Broker. Let’s start discussing the topic of our article ‘How to implement Redis Cache in Spring Boot Application’ and its related concepts.</p><h3 name="ebd2" id="ebd2" class="graf graf--h3 graf-after--p">Where we can use?</h3><p name="306d" id="306d" class="graf graf--p graf-after--h3">We can use Redis from most programming languages. Redis is written in <strong class="markup--strong markup--p-strong">ANSI C</strong> and works in most POSIX systems like Linux, *BSD, and OS X, without external dependencies. Linux and OS X are the two operating systems where Redis is developed and tested the most.</p><h3 name="76e0" id="76e0" class="graf graf--h3 graf-after--p">What is Redis?</h3><p name="7639" id="7639" class="graf graf--p graf-after--h3">Redis is an open source(BSD licensed) in-memory remote data structure store(database) that offers high performance, replication, and a unique data model. The full form of Redis is <strong class="markup--strong markup--p-strong">Remote Directory Server</strong>. Moreover, we are using it in multiple forms.</p><h4 name="9fa1" id="9fa1" class="graf graf--h4 graf-after--p">Multiple forms</h4><p name="9913" id="9913" class="graf graf--p graf-after--h4">We can use Redis in the following forms.</p><ol class="postList"><li name="db4b" id="db4b" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">In-Memory Database</strong> : As an In-Memory database, We will get some empty memory to perform database operations. Moreover, it acts as No-SQL database and there are No Tables, No Sequences, No Joins concept. We can store data in the form of String, Hash Operations***, List, Set etc. In-built services will be available.</li><li name="eb1b" id="eb1b" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Cache</strong> : We can also use Redis as a Cache to increase our application performance.</li><li name="b592" id="b592" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Message Broker(MQ)</strong> : Another use of Redis is as a Message Broker.</li></ol><p name="f981" id="f981" class="graf graf--p graf-after--li">In real time application, Redis is popular for a Cache Manager as compared to database. As a cache manager, It reduces network calls and improves the performance of an application.</p><h3 name="6774" id="6774" class="graf graf--h3 graf-after--p">What is Redis Cache?</h3><p name="40d6" id="40d6" class="graf graf--p graf-after--h3">Redis Cache is nothing but a Cache Management feature offered by Redis. Redis is normally used as a cache to store repeatedly accessed data in memory so that the user can feel the better performance of the application. The Redis Cache offers various features like how long you want to keep data, and which data to remove first, and some other bright caching models.</p><h3 name="38af" id="38af" class="graf graf--h3 graf-after--p">What is the advantage of using Redis Cache in your application?</h3><p name="f0bd" id="f0bd" class="graf graf--p graf-after--h3">Like any other Caching Technique, Redis Cache also minimizes the number of network calls made by your application, which in return improves performance of the application as a whole. One request from an application to the DB is similar to one network call.</p><h3 name="8b81" id="8b81" class="graf graf--h3 graf-after--p">How does the Redis Cache work in the Application?</h3><p name="7867" id="7867" class="graf graf--p graf-after--h3">When we perform a DB retrieve operation via an Application, the Redis Cache stores the result in it’s cache. Further, when we perform the same retrieve operation, it returns the result from the cache itself and <strong class="markup--strong markup--p-strong">ignore the second call </strong>to database. Similarly, when we perform a DB update operation, the Redis Cache also updated the result in its cache. Needless to say, for delete operation also it deleted the data from the cache accordingly. In this way, there are no chances of getting incorrect data.</p><h3 name="f8ed" id="f8ed" class="graf graf--h3 graf-after--p">What is Redis Database?</h3><p name="b1c6" id="b1c6" class="graf graf--p graf-after--h3">Redis Database is an in-memory database that persists on disk. It means when we use Redis Database, we occupy a memory on the disk to use as a Database. The data model is key-value, but many several kind of values are supported such as Strings, Lists, Sets, Sorted Sets, Hashes, Streams, HyperLogLogs, Bitmaps etc.</p><h3 name="7ac0" id="7ac0" class="graf graf--h3 graf-after--p">What is Redis Server?</h3><p name="4f51" id="4f51" class="graf graf--p graf-after--h3">The full form of Redis is <strong class="markup--strong markup--p-strong">RE</strong>mote <strong class="markup--strong markup--p-strong">DI</strong>ctionary <strong class="markup--strong markup--p-strong">S</strong>erver. When we use Redis in any form such as database, cache or Message Broker, we need to <a href="https://redis.io/download/" data-href="https://redis.io/download/" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank"><strong class="markup--strong markup--p-strong">download</strong></a> a Redis Server in our system. People in the industry just call it Redis Server. Also we can use the <a href="https://hub.docker.com/_/redis" data-href="https://hub.docker.com/_/redis" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank"><strong class="markup--strong markup--p-strong">docker</strong></a> and pull the redis image rather than download.</p><p name="7199" id="7199" class="graf graf--p graf-after--p">Note : To pull using docker you have to install docker and run it on your local machine. To learn more about docker, visit <a href="https://issackpaul95.medium.com/docker-and-docker-compose-2fdb14c24766" data-href="https://issackpaul95.medium.com/docker-and-docker-compose-2fdb14c24766" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank"><strong class="markup--strong markup--p-strong">Introduction to Docker</strong></a><strong class="markup--strong markup--p-strong">.</strong></p><h3 name="6e07" id="6e07" class="graf graf--h3 graf-after--p">What are the important annotations to enable Redis Cache in the Application?</h3><p name="0854" id="0854" class="graf graf--p graf-after--h3">Generally, there are four important annotations that we apply to implement Redis Cache feature in our application. They are as below:</p><h3 name="b64d" id="b64d" class="graf graf--h3 graf-after--p">@EnableCaching</h3><p name="4e7a" id="4e7a" class="graf graf--p graf-after--h3">We apply this annotation at the main class (starter class) of our application in order to tell Spring Container that we need Caching feature in our application.</p><h3 name="6e79" id="6e79" class="graf graf--h3 graf-after--p">@Cacheable</h3><p name="684b" id="684b" class="graf graf--p graf-after--h3">@Cacheable is used to fetch(retrieve) data from the DB to application and store in Redis Cache. We apply it on the methods that get (retrieve) data from DB.</p><h3 name="fa40" id="fa40" class="graf graf--h3 graf-after--p">@CachePut</h3><p name="b195" id="b195" class="graf graf--p graf-after--h3">We use @CachePut in order to update data in the Redis Cache while there is any update of data in DB. We apply it on the methods that make modifications in DB.</p><h3 name="4e3a" id="4e3a" class="graf graf--h3 graf-after--p">@CacheEvict</h3><p name="f2d5" id="f2d5" class="graf graf--p graf-after--h3">We use @CacheEvict in order to remove data in the Redis Cache while there is any removal of data in DB. We apply it on the methods that delete data from DB.</p><h3 name="a9b2" id="a9b2" class="graf graf--h3 graf-after--p">Conclusion</h3><p name="befc" id="befc" class="graf graf--p graf-after--h3">I hope that after going through all the theoretical concepts, you got better understanding about Redis Cache in a Spring Boot Application. To get practical experience please look in to <a href="https://medium.com/p/4567adbed321/edit" data-href="https://medium.com/p/4567adbed321/edit" class="markup--anchor markup--p-anchor" target="_blank">Implement Redis Cache in Spring Boot Application — Part II</a></p><p name="7cbb" id="7cbb" class="graf graf--p graf-after--p graf--trailing">Cheers…! Bye..!</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/36cb2fb03992"><time class="dt-published" datetime="2022-05-22T01:41:38.992Z">May 22, 2022</time></a>.</p><p><a href="https://medium.com/@issackpaul95/implement-redis-cache-in-spring-boot-application-part-i-theory-36cb2fb03992" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

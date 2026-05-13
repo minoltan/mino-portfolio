@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>JAVA RPC (Remote Procedure Call)</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">JAVA RPC (Remote Procedure Call)</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+RPC (Remote Procedure Call) is the protocol that one program request a service from an another computer(program located computer) on a…
+</section>
+<section data-field="body" class="e-content">
+<section name="aa00" class="section section--body section--first section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e79f" id="e79f" class="graf graf--h3 graf--leading graf--title">JAVA RPC (Remote Procedure Call)</h3><p name="a262" id="a262" class="graf graf--p graf-after--h3">RPC (Remote Procedure Call) is the protocol that one program request a service from an another computer(program located computer) on a network without knowing the details of network.</p><p name="2968" id="2968" class="graf graf--p graf-after--p">In distributed system, the RPC is the two processes may be on the same system, or they may be on different systems with a network connecting them.</p><p name="d5c6" id="d5c6" class="graf graf--p graf-after--p">RPC is used to request other processes on the remote systems like a local system. A procedure call is also sometimes known as a function call or a subroutine call.</p><p name="e6cc" id="e6cc" class="graf graf--p graf-after--p">RPC is the client server architecture. The requesting system is client and the service providing program is the server.</p><p name="f32b" id="f32b" class="graf graf--p graf-after--p">RPC is a synchronous operation requiring the requesting program to be suspended until the results of the remote procedure are returned.</p><p name="70d7" id="70d7" class="graf graf--p graf-after--p">However, the use of lightweight processes or threads that share the same address space enables multiple RPC to be performed concurrently.</p><p name="e96a" id="e96a" class="graf graf--p graf-after--p">During an RPC, the following steps take place:</p><ol class="postList"><li name="4957" id="4957" class="graf graf--li graf-after--p">The calling stub is suspended when parameters are transferred across the network to the stub where the procedure is to execute. The call is a local procedure call with parameters pushed onto the stack in the normal way.</li><li name="0f6f" id="0f6f" class="graf graf--li graf-after--li">The client stub packs the procedure parameters into a message and makes a system call to send the message. The packing of the procedure parameters is called <a href="https://whatis.techtarget.com/definition/marshalling" data-href="https://whatis.techtarget.com/definition/marshalling" class="markup--anchor markup--li-anchor" rel="noopener" target="_blank"><em class="markup--em markup--li-em">marshalling</em></a>.</li><li name="2386" id="2386" class="graf graf--li graf-after--li">The client’s local OS sends the message from the client machine to the remote server machine.</li><li name="9758" id="9758" class="graf graf--li graf-after--li">The server OS passes the incoming packets to the server stub.</li><li name="9955" id="9955" class="graf graf--li graf-after--li">The server stub unpacks the parameters called <em class="markup--em markup--li-em">unmarshalling</em></li><li name="d846" id="d846" class="graf graf--li graf-after--li">When the server procedure is finished, it returns to the server stub, which marshals the return values into a message. The server stub then hands the message to the transport layer.</li><li name="9966" id="9966" class="graf graf--li graf-after--li">The transport layer sends the resulting message back to the client transport layer, which hands the message back to the client stub.</li><li name="89f2" id="89f2" class="graf graf--li graf-after--li">The client stub unmarshalls the return parameters, and execution returns to the caller.</li></ol><h3 name="b477" id="b477" class="graf graf--h3 graf-after--li">Advantages of Remote Procedure Call</h3><p name="b08e" id="b08e" class="graf graf--p graf-after--h3">Can be used in a distributed environment and local environment.</p><p name="08d7" id="08d7" class="graf graf--p graf-after--p">supports thread-oriented models and process-oriented.</p><p name="aa1b" id="aa1b" class="graf graf--p graf-after--p">Hides the internal message-passing mechanism from the user.</p><p name="ad11" id="ad11" class="graf graf--p graf-after--p">Omits many of the protocol layers to improve performance.</p><p name="7f26" id="7f26" class="graf graf--p graf-after--p">Helps clients to communicate with servers , use of procedure calls in high-level languages.</p><h3 name="5dbd" id="5dbd" class="graf graf--h3 graf-after--p">Disadvantages of Remote Procedure Call</h3><p name="62a3" id="62a3" class="graf graf--p graf-after--h3">There is no uniform standard for RPC -It can be implemented in a variety of ways.</p><p name="8ecd" id="8ecd" class="graf graf--p graf-after--p">Highly vulnerable to failure -It involves a communication system, another machine and another process.</p><h3 name="9e40" id="9e40" class="graf graf--h3 graf-after--p">Implementation</h3><p name="9924" id="9924" class="graf graf--p graf-after--h3">There are 4 files. The first 3 files are created for server side and 1 application for client side.</p><h3 name="84ec" id="84ec" class="graf graf--h3 graf-after--p">Server Side</h3><ol class="postList"><li name="9c41" id="9c41" class="graf graf--li graf-after--h3">HelloWorld.java</li></ol><ul class="postList"><li name="884d" id="884d" class="graf graf--li graf-after--li">import javax.jws.WebMethod;</li><li name="f16c" id="f16c" class="graf graf--li graf-after--li">import javax.jws.WebService;</li><li name="a124" id="a124" class="graf graf--li graf-after--li">import javax.jws.soap.SOAPBinding;</li><li name="bc3a" id="bc3a" class="graf graf--li graf-after--li">import javax.jws.soap.SOAPBinding.Style;</li></ul><figure name="21b4" id="21b4" class="graf graf--figure graf-after--li"><img class="graf-image" data-image-id="1*rX874m6F9ONDFIMtiJMX7w.png" data-width="678" data-height="381" data-is-featured="true" src="https://cdn-images-1.medium.com/max/800/1*rX874m6F9ONDFIMtiJMX7w.png"></figure><p name="52dc" id="52dc" class="graf graf--p graf-after--figure">In this Interface we declare all the methods with required parameters to the web service</p><p name="2988" id="2988" class="graf graf--p graf-after--p">2. HelloWorldImpl.java</p><p name="fd18" id="fd18" class="graf graf--p graf-after--p">import javax.jws.WebService;</p><figure name="5b5b" id="5b5b" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*vlBDcQRMkPXUYRfafweSaw.png" data-width="681" data-height="383" src="https://cdn-images-1.medium.com/max/800/1*vlBDcQRMkPXUYRfafweSaw.png"></figure><p name="8fac" id="8fac" class="graf graf--p graf-after--figure">3. Publisher.java</p><p name="72c6" id="72c6" class="graf graf--p graf-after--p">import javax.xml.ws.Endpoint;</p><figure name="3ccd" id="3ccd" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*I95cssW7djX6ZA9aSV6mhA.png" data-width="643" data-height="362" src="https://cdn-images-1.medium.com/max/800/1*I95cssW7djX6ZA9aSV6mhA.png"></figure><h3 name="c814" id="c814" class="graf graf--h3 graf-after--figure">Client Side</h3><p name="9feb" id="9feb" class="graf graf--p graf-after--h3">4. HelloWorldClient.java</p><ul class="postList"><li name="e236" id="e236" class="graf graf--li graf-after--p">import java.net.URL;</li><li name="05c9" id="05c9" class="graf graf--li graf-after--li">import javax.xml.namespace.QName;</li><li name="4b1b" id="4b1b" class="graf graf--li graf-after--li">import javax.xml.ws.Service;</li></ul><figure name="addb" id="addb" class="graf graf--figure graf-after--li"><img class="graf-image" data-image-id="1*gdQXh2GoTAu0DuXg25VmDQ.png" data-width="1058" data-height="595" src="https://cdn-images-1.medium.com/max/800/1*gdQXh2GoTAu0DuXg25VmDQ.png"></figure><p name="ef4a" id="ef4a" class="graf graf--p graf-after--figure">Visit the following git repository to see the project file <a href="https://github.com/minoltan/rpc/tree/master/SE-2015-021/RPC" data-href="https://github.com/minoltan/rpc/tree/master/SE-2015-021/RPC" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">https://github.com/minoltan/rpc/tree/master/SE-2015-021/RPC</a></p><p name="fc2f" id="fc2f" class="graf graf--p graf-after--p">JAX-WS API is inbuilt in JDK, so we don’t need to add any extra jar file.</p><p name="215b" id="215b" class="graf graf--p graf-after--p graf--trailing">The End..!</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/93809d07a947"><time class="dt-published" datetime="2020-07-18T04:20:07.736Z">July 18, 2020</time></a>.</p><p><a href="https://medium.com/@issackpaul95/java-rpc-remote-procedure-call-93809d07a947" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

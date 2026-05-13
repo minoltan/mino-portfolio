@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | AWS Shield: Digital Bodyguards</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | AWS Shield: Digital Bodyguards</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="7746" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="aca2" id="aca2" class="graf graf--h3 graf--leading graf--title">AWS Theory | AWS Shield: Digital Bodyguards</h3><h3 name="5552" id="5552" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="af56" id="af56" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="0c0b" id="0c0b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 24: Security &amp; Encryption | KMS, SSM Parameter Store, Shield, WAF)”</p><p name="7d2f" id="7d2f" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Cloud Practitioner Quiz</p><p name="a03b" id="a03b" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Solution Architect Preparation Quiz</p><figure name="929f" id="929f" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*Byqge5NKzJd2qw0jnXaU4g.png" data-width="1376" data-height="768" src="https://cdn-images-1.medium.com/max/800/1*Byqge5NKzJd2qw0jnXaU4g.png"></figure></div></div></section><section name="964a" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d78e" id="d78e" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="9060" id="9060" class="graf graf--p graf-after--h3 graf--trailing">In the vast landscape of the internet, availability is the lifeblood of any business, but it is constantly under threat from Distributed Denial of Service (DDoS) attacks. A <strong class="markup--strong markup--p-strong">DDoS attack</strong> is like a digital flash mob where thousands of compromised computers (a “botnet”) flood your website with traffic simultaneously, overwhelming your servers and locking out legitimate customers. To counter this, AWS provides <strong class="markup--strong markup--p-strong">AWS Shield</strong>, a managed protection service that acts as a 24/7 security detail for your application. Whether you are a small startup or a global enterprise, Shield ensures that your infrastructure remains resilient against the “digital sieges” that aim to take your services offline.</p></div></div></section><section name="4219" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="bcde" id="bcde" class="graf graf--h3 graf--leading">The Two Tiers of Protection</h3><p name="f34a" id="f34a" class="graf graf--p graf-after--h3">AWS Shield is structured into two tiers, designed to scale with your organization’s risk profile and budget.</p><figure name="ddcb" id="ddcb" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*OUusrnongh3-nqcCpVSEiw.png" data-width="238" data-height="175" src="https://cdn-images-1.medium.com/max/800/1*OUusrnongh3-nqcCpVSEiw.png"></figure></div></div></section><section name="b2f5" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="e4a1" id="e4a1" class="graf graf--h3 graf--leading">Why Go Advanced?</h3><p name="ab8e" id="ab8e" class="graf graf--p graf-after--h3">While <strong class="markup--strong markup--p-strong">Shield Standard</strong> is a fantastic baseline that protects all AWS customers from the most common infrastructure attacks (like SYN or UDP floods), <strong class="markup--strong markup--p-strong">Shield Advanced</strong> is for mission-critical workloads.</p><ul class="postList"><li name="0c12" id="0c12" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">The Human Element:</strong> If your site comes under a sophisticated, never-before-seen attack, Shield Advanced gives you direct access to the <strong class="markup--strong markup--li-strong">AWS DDoS Response Team (SRT)</strong>. These experts can join your incident bridge to apply custom mitigations in real-time.</li><li name="0a4a" id="0a4a" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Smart WAF Integration:</strong> Advanced can automatically create and deploy <strong class="markup--strong markup--li-strong">AWS WAF</strong> rules. If it detects a Layer 7 HTTP flood, it builds the “shield” for you, evaluating traffic patterns and blocking the malicious requests before they exhaust your application resources.</li><li name="92d2" id="92d2" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Wallet Protection:</strong> One of the scariest parts of a DDoS attack is the “Economic Denial of Service” — where your Auto Scaling groups expand to meet the fake traffic, leaving you with a massive bill. Shield Advanced provides <strong class="markup--strong markup--li-strong">Cost Protection</strong>, ensuring that AWS provides credits for these attack-related scaling charges.</li></ul></div></div></section><section name="ef9b" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="5e22" id="5e22" class="graf graf--h3 graf--leading">Real-World Example: Weathering the 2.3 Tbps Storm</h3><p name="c2b0" id="c2b0" class="graf graf--p graf-after--h3">In February 2020, AWS successfully mitigated one of the largest DDoS attacks in history. The attack peaked at a staggering <strong class="markup--strong markup--p-strong">2.3 Terabits per second (Tbps)</strong>.</p><p name="d092" id="d092" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">The Scenario:</strong> A high-profile AWS customer was targeted by a “CLDAP reflection” attack. The attackers sent small requests to misconfigured third-party servers, which then “reflected” much larger responses toward the victim’s AWS resources, attempting to saturate their network bandwidth.</p><p name="0d7c" id="0d7c" class="graf graf--p graf-after--p graf--trailing"><strong class="markup--strong markup--p-strong">The Solution:</strong> Because the customer was protected by the AWS edge network (Route 53 and CloudFront) and backed by Shield’s automated mitigation systems, the attack was largely absorbed at the edge. The traffic never reached the customer’s origin servers. For organizations utilizing Shield Advanced during such events, the <strong class="markup--strong markup--p-strong">SRT</strong> would have been on standby to manage any shifts in attack vectors, and any extra bandwidth costs incurred during the three-day siege would have been covered by the service’s cost protection.</p></div></div></section><section name="3414" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="7ab4" id="7ab4" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="2050" id="2050" class="graf graf--p graf-after--h3 graf--trailing">AWS Shield is the silent engine that keeps the internet running smoothly on the world’s largest cloud provider. For the vast majority of users, <strong class="markup--strong markup--p-strong">Shield Standard</strong> provides invisible, always-on protection that handles 96% of common threats without any configuration. However, for enterprises where even a few minutes of downtime translates to millions in lost revenue, <strong class="markup--strong markup--p-strong">Shield Advanced</strong> is an essential investment. It provides the “peace of mind” triad: technical expertise through the SRT, automated mitigation through WAF, and financial insurance through cost protection. By layering Shield into your architecture, you aren’t just building a server; you’re building a fortress.</p></div></div></section><section name="27db" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="9ef8" id="9ef8" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/d5f141431bcb"><time class="dt-published" datetime="2026-04-30T11:04:13.871Z">April 30, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-aws-shield-digital-bodyguards-d5f141431bcb" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

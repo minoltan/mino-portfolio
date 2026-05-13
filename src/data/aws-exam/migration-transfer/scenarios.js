@@ -969,6 +969,244 @@ export class MarketplaceNfsToEfsStack extends cdk.Stack {
             },
         ],
     },
+    {
+        id: 8,
+        analogy: "Think of it like a customs checkpoint at an international port — instead of issuing each shipping company a permanent employee badge to walk into the warehouse (service-managed user), the port uses a passport control system (identity federation). Each vendor presents their own passport (Cognito / SAML IdP credentials), the control system validates it and issues a temporary visitor pass (STS assumed role), and that pass restricts them to only the loading bay assigned to their company — not the whole warehouse.",
+        icon: "🔐",
+        color: ACCENT.slate,
+        tag: "SCENARIO 8",
+        title: "Transfer Family — Federated Identity Provider (Multi-Vendor SFTP)",
+        subtitle: "Legacy SFTP uploads to S3 data lake with Cognito / custom IdP federation and per-vendor IAM role isolation",
+        useCase: {
+            title: "Logistics company — Transfer Family SFTP endpoint with federated identity provider for external carriers and vendors uploading supply chain data to S3 data lake",
+            story: "A multinational logistics company has built an Amazon S3-based data lake (logistics-datalake-raw) to ingest supply chain data from external carriers and vendors. While modern vendors use REST APIs to PUT files directly to S3, legacy vendors operate SFTP-only ERP systems and refuse to change their workflows. The company deploys an AWS Transfer Family SFTP endpoint (logistics-sftp-server) configured with a CUSTOM identity provider backed by an AWS Lambda function that authenticates users against Amazon Cognito user pools. When a vendor logs in via SFTP, Transfer Family calls the Lambda identity provider, which verifies the Cognito credentials and returns a dynamically scoped IAM role and a logical home directory mapping the vendor to their own S3 prefix (e.g. s3://logistics-datalake-raw/vendors/carrier-alpha/). Each IAM role is constrained to only that prefix via S3 bucket policy conditions. This model supports hundreds of vendors without creating individual Transfer Family users — new vendors are added to Cognito, not to Transfer Family.",
+            diagram: [
+                { actor: "Legacy Carrier / Vendor ERP system (SFTP client, port 22)", icon: "🏢" },
+                { arrow: "SFTP connect + username/password credentials" },
+                { actor: "Transfer Family SFTP Server — logistics-sftp-server (VPC endpoint)", icon: "📤" },
+                { arrow: "calls Lambda identity provider with username + password" },
+                { actor: "Lambda Custom Identity Provider — validates against Cognito user pool", icon: "⚡" },
+                { arrow: "returns IAM role ARN + home directory mapping for this vendor" },
+                { actor: "STS AssumeRole → scoped IAM role (vendor-specific S3 prefix only)", icon: "🔐" },
+                { arrow: "vendor SFTP session active — home dir mapped to vendor S3 prefix" },
+                { actor: "S3 logistics-datalake-raw/vendors/carrier-alpha/ (isolated per vendor)", icon: "🪣" },
+            ],
+        },
+        buildSystem: [
+            "Create Amazon Cognito user pool logistics-vendor-pool: configure username/password authentication; create user groups per vendor (group name = vendor slug, e.g. carrier-alpha); add each vendor's SFTP users to their group",
+            "Create IAM role logistics-transfer-vendor-role (one per vendor group): trust policy allows transfer.amazonaws.com to assume it; permission policy: s3:PutObject, s3:GetObject, s3:ListBucket on logistics-datalake-raw with condition StringLike s3:prefix=[vendors/${vendor-slug}/*]",
+            "Create Lambda function logistics-transfer-idp (Node.js 20.x): receives {serverId, username, password} from Transfer Family; authenticates user against Cognito using adminInitiateAuth; looks up user's Cognito group to determine the IAM role ARN and home directory mapping; returns the Transfer Family expected JSON response with Role, HomeDirectoryType=LOGICAL, HomeDirectoryDetails",
+            "Deploy Lambda with environment variables: COGNITO_USER_POOL_ID, COGNITO_CLIENT_ID, ROLE_MAP (JSON mapping Cognito group → IAM role ARN); grant Lambda cognito-idp:AdminInitiateAuth permission",
+            "Create Transfer Family server logistics-sftp-server: protocols=SFTP, endpointType=VPC, identityProviderType=AWS_LAMBDA, function=logistics-transfer-idp ARN; endpointDetails with VPC, subnets, Elastic IPs",
+            "Configure S3 bucket policy on logistics-datalake-raw: deny any s3:PutObject or s3:GetObject where the IAM role's assumed-role session name does not match the prefix being accessed — enforces that carrier-alpha role cannot write to carrier-beta/ even if the Lambda misconfigures the home directory",
+            "Enable Transfer Family server-side logging to CloudWatch Logs group /aws/transfer/logistics-sftp-server: log every session event (OPEN, UPLOAD, CLOSE, AUTH_FAILURE) with the username and S3 object key for compliance auditing",
+            "Test the federated flow: sftp vendor-user@<Elastic-IP>; verify the user lands in /vendors/carrier-alpha/, can PUT files; verify they cannot navigate to /vendors/carrier-beta/; verify a bad password returns an AUTH_FAILURE in CloudWatch Logs",
+        ],
+        flow: ["Vendor SFTP connects with Cognito credentials", "Transfer Family calls Lambda IdP", "Lambda verifies Cognito + resolves IAM role", "STS scopes session to vendor S3 prefix", "Files land in isolated vendor prefix"],
+        examTips: [
+            "Transfer Family supports three identity provider types: SERVICE_MANAGED (users stored in Transfer Family), AWS_LAMBDA (custom Lambda IdP — most flexible, supports Cognito/SAML/LDAP/Active Directory), and AWS_DIRECTORY_SERVICE (AWS Managed AD / AD Connector directly)",
+            "The Lambda custom identity provider receives {serverId, username, password, sourceIp, protocol} and must return {Role, HomeDirectoryType, HomeDirectoryDetails, Policy (optional scoped-down policy)} — an empty or error response denies authentication",
+            "LOGICAL home directory type is mandatory for multi-tenant isolation — without it, vendors can navigate the bucket root and access other vendors' prefixes; LOGICAL maps / to a specific S3 bucket/prefix so the vendor only sees their own folder",
+            "Identity federation via Cognito allows adding new vendors by creating a Cognito user — no Transfer Family CreateUser API call needed; this is the key scalability advantage over SERVICE_MANAGED for large numbers of vendors",
+            "Exam pattern: 'legacy SFTP' + 'S3 data lake' + 'no infrastructure to manage' + 'identity federation' = AWS Transfer Family + SFTP + custom Lambda identity provider + Cognito/SAML + scoped IAM roles; the wrong answers are EC2 SFTP server (requires management) or S3 pre-signed URLs (not SFTP)",
+            "Combining Transfer Family with S3 bucket policies (deny unless prefix matches) adds a defence-in-depth layer — even if the Lambda IdP returns a wrong home directory, the bucket policy blocks cross-vendor access at the S3 layer",
+        ],
+        roleJson: [
+            {
+                label: "Lambda identity provider — Cognito-backed SFTP authentication returning per-vendor IAM role",
+                note: "💡 The Lambda response must include HomeDirectoryType: LOGICAL and HomeDirectoryDetails as a JSON string (not object) — Transfer Family will reject the authentication if either field is missing or malformed.",
+                code: `// Lambda: logistics-transfer-idp (Node.js 20.x)
+// Triggered by Transfer Family for every SFTP authentication attempt
+const {
+  CognitoIdentityProviderClient,
+  AdminInitiateAuthCommand,
+  AdminGetUserCommand,
+} = require("@aws-sdk/client-cognito-identity-provider");
+
+const cognito = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION });
+
+const ROLE_MAP = {
+  "carrier-alpha": "arn:aws:iam::111122223333:role/logistics-transfer-carrier-alpha",
+  "carrier-beta":  "arn:aws:iam::111122223333:role/logistics-transfer-carrier-beta",
+  "vendor-omega":  "arn:aws:iam::111122223333:role/logistics-transfer-vendor-omega",
+};
+
+exports.handler = async (event) => {
+  const { username, password, serverId } = event;
+
+  try {
+    // Authenticate user against Cognito user pool
+    await cognito.send(new AdminInitiateAuthCommand({
+      UserPoolId: process.env.COGNITO_USER_POOL_ID,
+      ClientId:   process.env.COGNITO_CLIENT_ID,
+      AuthFlow:   "ADMIN_NO_SRP_AUTH",
+      AuthParameters: { USERNAME: username, PASSWORD: password },
+    }));
+
+    // Determine vendor group from Cognito user attributes
+    const user = await cognito.send(new AdminGetUserCommand({
+      UserPoolId: process.env.COGNITO_USER_POOL_ID,
+      Username:   username,
+    }));
+    const vendorSlug = user.UserAttributes.find(a => a.Name === "custom:vendor_slug")?.Value;
+
+    if (!vendorSlug || !ROLE_MAP[vendorSlug]) {
+      return {};  // empty response = deny authentication
+    }
+
+    // Return Transfer Family response — LOGICAL home dir scopes vendor to their prefix
+    return {
+      Role: ROLE_MAP[vendorSlug],
+      HomeDirectoryType: "LOGICAL",
+      HomeDirectoryDetails: JSON.stringify([
+        { Entry: "/", Target: \`/logistics-datalake-raw/vendors/\${vendorSlug}\` },
+      ]),
+    };
+
+  } catch (err) {
+    console.error("Auth failed for", username, err.message);
+    return {};  // empty response = deny authentication
+  }
+};`,
+            },
+            {
+                label: "AWS CLI — create Transfer Family server with Lambda custom identity provider",
+                note: "💡 Grant Transfer Family permission to invoke the Lambda by adding a resource-based policy on the Lambda function — Transfer Family calls it synchronously and needs lambda:InvokeFunction permission.",
+                code: `# Create Transfer Family server with Lambda custom identity provider
+aws transfer create-server \\
+  --protocols SFTP \\
+  --endpoint-type VPC \\
+  --endpoint-details '{
+    "VpcId": "vpc-logistics123",
+    "SubnetIds": ["subnet-public-1a", "subnet-public-1b"],
+    "SecurityGroupIds": ["sg-sftp-logistics"]
+  }' \\
+  --identity-provider-type AWS_LAMBDA \\
+  --identity-provider-details '{
+    "Function": "arn:aws:lambda:ap-southeast-1:111122223333:function:logistics-transfer-idp"
+  }' \\
+  --logging-role arn:aws:iam::111122223333:role/TransferLoggingRole \\
+  --region ap-southeast-1
+
+# Grant Transfer Family permission to invoke the Lambda IdP
+aws lambda add-permission \\
+  --function-name logistics-transfer-idp \\
+  --statement-id AllowTransferFamilyInvoke \\
+  --action lambda:InvokeFunction \\
+  --principal transfer.amazonaws.com \\
+  --source-arn arn:aws:transfer:ap-southeast-1:111122223333:server/s-xxxxxxxxxxxx
+
+# S3 bucket policy — deny cross-vendor access even if IdP misconfigures home dir
+aws s3api put-bucket-policy --bucket logistics-datalake-raw --policy '{
+  "Statement": [{
+    "Effect": "Deny",
+    "Principal": "*",
+    "Action": ["s3:GetObject","s3:PutObject"],
+    "Resource": "arn:aws:s3:::logistics-datalake-raw/vendors/*",
+    "Condition": {
+      "StringNotLike": {
+        "aws:userid": "*:\${aws:PrincipalTag/vendor_slug}*"
+      }
+    }
+  }]
+}'`,
+            },
+        ],
+        cdkCode: [
+            {
+                label: "CDK (TypeScript) — Transfer Family server with Lambda custom IdP, Cognito user pool, and per-vendor IAM roles",
+                note: "💡 Transfer Family CfnServer with identityProviderType=AWS_LAMBDA requires the Lambda ARN in identityProviderDetails.Function — the Lambda must already exist (or be in the same stack) before the server is created.",
+                code: `import * as cdk from 'aws-cdk-lib';
+import * as transfer from 'aws-cdk-lib/aws-transfer';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { Construct } from 'constructs';
+
+export class LogisticsSftpFederatedStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    const vpc = ec2.Vpc.fromLookup(this, 'Vpc', { vpcName: 'logistics-vpc' });
+
+    // Cognito user pool — one pool, vendor groups map to IAM roles
+    const vendorPool = new cognito.UserPool(this, 'VendorPool', {
+      userPoolName: 'logistics-vendor-pool',
+      selfSignUpEnabled: false,
+      standardAttributes: { email: { required: true } },
+      customAttributes: {
+        'vendor_slug': new cognito.StringAttribute({ mutable: false }),
+      },
+      passwordPolicy: { minLength: 12, requireSymbols: true },
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
+    const poolClient = vendorPool.addClient('TransferIdpClient', {
+      authFlows: { adminUserPassword: true },
+      generateSecret: false,
+    });
+
+    // Lambda custom identity provider
+    const idpFn = new lambda.Function(this, 'TransferIdp', {
+      functionName: 'logistics-transfer-idp',
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('lambda/transfer-idp'),
+      environment: {
+        COGNITO_USER_POOL_ID: vendorPool.userPoolId,
+        COGNITO_CLIENT_ID:    poolClient.userPoolClientId,
+      },
+      timeout: cdk.Duration.seconds(10),
+    });
+
+    // Lambda needs to authenticate users against Cognito
+    idpFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['cognito-idp:AdminInitiateAuth', 'cognito-idp:AdminGetUser'],
+      resources: [vendorPool.userPoolArn],
+    }));
+
+    // Per-vendor IAM role (repeat pattern for each vendor)
+    const carrierAlphaRole = new iam.Role(this, 'CarrierAlphaRole', {
+      roleName: 'logistics-transfer-carrier-alpha',
+      assumedBy: new iam.ServicePrincipal('transfer.amazonaws.com'),
+    });
+    carrierAlphaRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['s3:PutObject', 's3:GetObject', 's3:ListBucket'],
+      resources: [
+        'arn:aws:s3:::logistics-datalake-raw',
+        'arn:aws:s3:::logistics-datalake-raw/vendors/carrier-alpha/*',
+      ],
+    }));
+
+    // Transfer Family SFTP server — Lambda custom IdP
+    const sftpServer = new transfer.CfnServer(this, 'SftpServer', {
+      protocols: ['SFTP'],
+      endpointType: 'VPC',
+      endpointDetails: {
+        vpcId: vpc.vpcId,
+        subnetIds: vpc.publicSubnets.map(s => s.subnetId),
+      },
+      identityProviderType: 'AWS_LAMBDA',
+      identityProviderDetails: {
+        function: idpFn.functionArn,
+      },
+      loggingRole: new iam.Role(this, 'TransferLoggingRole', {
+        assumedBy: new iam.ServicePrincipal('transfer.amazonaws.com'),
+        managedPolicies: [iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSTransferLoggingAccess')],
+      }).roleArn,
+    });
+
+    // Allow Transfer Family to invoke the Lambda IdP
+    idpFn.addPermission('AllowTransferInvoke', {
+      principal: new iam.ServicePrincipal('transfer.amazonaws.com'),
+      sourceArn: \`arn:aws:transfer:\${this.region}:\${this.account}:server/\${sftpServer.attrServerId}\`,
+    });
+  }
+}`,
+            },
+        ],
+    },
 ];
 
 export default scenarios;

@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | Amazon RDS Custom Oracle &amp; Microsoft SQL Server: Breaking the Glass</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | Amazon RDS Custom Oracle &amp; Microsoft SQL Server: Breaking the Glass</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="f8d4" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="f118" id="f118" class="graf graf--h3 graf--leading graf--title">AWS Theory | Amazon RDS Custom Oracle &amp; Microsoft SQL Server: Breaking the Glass</h3><h3 name="553d" id="553d" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="af56" id="af56" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="0c0b" id="0c0b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 7: Fundamentals | RDS + AURORA + Elastic Cache)”</p><p name="7d2f" id="7d2f" class="graf graf--p graf-after--p">🔹 Episode 7: AWS Cloud Practitioner Quiz</p><p name="a03b" id="a03b" class="graf graf--p graf-after--p">🔹 Episode 7: AWS Solution Architect Preparation Quiz</p><figure name="9e85" id="9e85" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*oE4-O-iHCaiajWldbMSnFg.png" data-width="1368" data-height="768" src="https://cdn-images-1.medium.com/max/800/1*oE4-O-iHCaiajWldbMSnFg.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="964a" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="3c13" id="3c13" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="9856" id="9856" class="graf graf--p graf-after--h3 graf--trailing">While the standard Amazon RDS provides a “hands-off” managed experience that handles everything from patching to backups, certain legacy applications require a level of control that a typical managed service cannot offer. <strong class="markup--strong markup--p-strong">Amazon RDS Custom</strong> is the specialized answer for organizations that need the automation of RDS but still require administrative access to the underlying operating system and database environment. Specifically designed for <strong class="markup--strong markup--p-strong">Oracle</strong> and <strong class="markup--strong markup--p-strong">Microsoft SQL Server</strong>, RDS Custom allows you to “break the glass” and access the EC2 instance via SSH or SSM Session Manager. This hybrid approach offers a “best of both worlds” scenario. You retain the heavy-lifting benefits of AWS automation for setup and scaling, yet you gain the freedom to install custom patches, modify the file system, and support legacy applications that have specific, hard-coded requirements.</p></div></div></section><section name="2d62" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="b8fb" id="b8fb" class="graf graf--h3 graf--leading">RDS vs. RDS Custom: The Power of Access</h3><p name="13fe" id="13fe" class="graf graf--p graf-after--h3">The fundamental difference lies in where the “responsibility line” is drawn. In standard RDS, the OS is a black box; in RDS Custom, you hold the keys to the kingdom.</p><figure name="02cd" id="02cd" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*2_T_7TbnN16pNrzeJy-_dQ.png" data-width="643" data-height="229" src="https://cdn-images-1.medium.com/max/800/1*2_T_7TbnN16pNrzeJy-_dQ.png"></figure></div></div></section><section name="9553" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="5275" id="5275" class="graf graf--h3 graf--leading">Crucial Safeguards: Automation Mode &amp; Snapshots</h3><p name="c0a4" id="c0a4" class="graf graf--p graf-after--h3">Because RDS Custom gives you the power to change internal settings, you could accidentally interfere with the RDS management software. AWS provides two key features to prevent this:</p><figure name="8ea3" id="8ea3" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*5LICLrYf_DuXD3h_lYHD-A.png" data-width="206" data-height="347" src="https://cdn-images-1.medium.com/max/800/1*5LICLrYf_DuXD3h_lYHD-A.png"></figure><ul class="postList"><li name="6018" id="6018" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">Deactivating Automation Mode:</strong> Before you start installing custom software or changing OS configurations, you should pause the automation mode. This prevents AWS from trying to “fix” your changes or perform maintenance while you are in the middle of a customization.</li><li name="2791" id="2791" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Mandatory Snapshots:</strong> Since you have the power to break the OS or the database. It is critical to take a manual snapshot before making changes. Unlike standard RDS, where AWS is the safety net, in RDS Custom, you are responsible for ensuring you have a recovery point.</li></ul></div></div></section><section name="4ef8" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="0e11" id="0e11" class="graf graf--h3 graf--leading">Real-World Example: Migrating a Legacy Healthcare System</h3><p name="4ca9" id="4ca9" class="graf graf--p graf-after--h3">Imagine a healthcare provider, <strong class="markup--strong markup--p-strong">“MedCore Systems,”</strong> that uses an older version of <strong class="markup--strong markup--p-strong">Oracle Database</strong> for its patient records. This specific software requires a custom third-party security plugin to be installed directly into the operating system’s kernel — something a standard RDS instance simply won’t allow.</p><p name="bc02" id="bc02" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">The Solution:</strong> Instead of managing a raw EC2 instance (which would mean MedCore has to handle all backups and scaling manually), they choose <strong class="markup--strong markup--p-strong">Amazon RDS Custom for Oracle</strong>.</p><ol class="postList"><li name="2275" id="2275" class="graf graf--li graf-after--p">They provision the database using the RDS console.</li><li name="e8ff" id="e8ff" class="graf graf--li graf-after--li">They <strong class="markup--strong markup--li-strong">deactivate Automation Mode</strong> temporarily.</li><li name="87c2" id="87c2" class="graf graf--li graf-after--li">The Lead DBA <strong class="markup--strong markup--li-strong">SSHs into the underlying EC2 instance</strong> and installs the required legacy security plugin.</li><li name="50f2" id="50f2" class="graf graf--li graf-after--li">Once verified, they re-enable automation.</li></ol><p name="ce85" id="ce85" class="graf graf--p graf-after--li graf--trailing"><strong class="markup--strong markup--p-strong">The Result:</strong> MedCore gets the benefits of RDS automated backups and high availability, but they successfully met the strict technical requirements of their legacy software that previously forced them to stay on-premises.</p></div></div></section><section name="7167" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="c611" id="c611" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="ab00" id="ab00" class="graf graf--p graf-after--h3 graf--trailing">Amazon RDS Custom serves as a vital bridge for enterprises caught between the convenience of the cloud and the rigid requirements of legacy software. By granting full administrative access to Oracle and Microsoft SQL Server environments, AWS has eliminated the final hurdle for migrating complex, “picky” applications that require deep OS-level integration. However, with great power comes great responsibility; the shift to RDS Custom means your team must be diligent about taking snapshots and managing automation pauses to avoid configuration drift. Ultimately, RDS Custom ensures that even your most complex legacy workloads can benefit from the scalability and durability of the AWS cloud without sacrificing the granular control your business requires.</p></div></div></section><section name="d681" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="af2a" id="af2a" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/c11e503d286d"><time class="dt-published" datetime="2026-04-03T00:34:38.660Z">April 3, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-amazon-rds-custom-oracle-microsoft-sql-server-breaking-the-glass-c11e503d286d" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

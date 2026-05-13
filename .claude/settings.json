@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Bash(git commit -m ' *)",
-      "Bash(grep -E \"code: \\\\`|--|\\\\`,$|\\\\`,\")"
+      "Bash(grep -E \"code: \\\\`|--|\\\\`,$|\\\\`,\")",
+      "Bash(sed 's/-[a-f0-9]*\\\\.html$//')",
+      "Bash(awk '{sum+=$1} END {print \"Total claps from claps-0001.html: \" sum}')",
+      "Bash(awk '{sum+=$1} END {print \"Total claps from claps-0002.html: \" sum}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(npm start *)",
+      "Bash(echo \"Started PID $!\")",
+      "Bash(curl -s http://localhost:3000/mino-portfolio/medium)",
+      "Bash(grep -n \"medium\" /tmp/medium-dev.log | head -20)",
+      "Read(//tmp/**)"
     ]
   }
 }

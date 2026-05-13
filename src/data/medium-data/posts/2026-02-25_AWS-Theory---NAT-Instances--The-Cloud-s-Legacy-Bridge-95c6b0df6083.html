@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | NAT Instances: The Cloud’s Legacy Bridge</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | NAT Instances: The Cloud’s Legacy Bridge</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="35d7" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="0048" id="0048" class="graf graf--h3 graf--leading graf--title">AWS Theory | NAT Instances: The Cloud’s Legacy Bridge</h3><h3 name="8946" id="8946" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="13a9" id="13a9" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Hands-On </strong>blog accompanying the blog post:</p><p name="cc1b" id="cc1b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 25: Networking | VPC)”</p><p name="4013" id="4013" class="graf graf--p graf-after--p">🔹 Episode 25: <a href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-networking-vpc-8eba6abe2f1e" data-href="https://issackpaul95.medium.com/aws-cloud-practitioner-questions-networking-vpc-8eba6abe2f1e" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">AWS Cloud Practitioner Quiz</a></p><p name="620d" id="620d" class="graf graf--p graf-after--p">🔹 Episode 25: AWS Solution Architect Preparation Quiz</p><figure name="f70c" id="f70c" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*GptmONCwOpZ7B7ehS8NwbA.png" data-width="1536" data-height="1024" src="https://cdn-images-1.medium.com/max/800/1*GptmONCwOpZ7B7ehS8NwbA.png"><figcaption class="imageCaption">AI-Generated Image</figcaption></figure></div></div></section><section name="72e5" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="a50c" id="a50c" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="8aac" id="8aac" class="graf graf--p graf-after--h3 graf--trailing">In our AWS journey, we’ve built a secure private room (private subnet) for our instances. But what happens when those instances need to talk to the outside world? Perhaps to download a security patch or a software update? Since they don’t have public IPs, they are effectively stranded. Enter the <strong class="markup--strong markup--p-strong">NAT Instance</strong>. But this solution is only considered from the exam perspective (it is a legacy solution, still in the exam), and it is replaced by the modern NAT Gateway. The NAT instance is the original bridge that taught us how private traffic reaches the public internet. Think of it like a <strong class="markup--strong markup--p-strong">specialized translator</strong> standing at the border of your private neighborhood. He is rewriting your outgoing mail so the world knows how to send a reply back.</p></div></div></section><section name="9781" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="5701" id="5701" class="graf graf--h3 graf--leading">How NAT Instances Work</h3><p name="affe" id="affe" class="graf graf--p graf-after--h3">An NAT instance is just a standard EC2 instance running a specific Amazon Linux AMI configured to act as a router. <strong class="markup--strong markup--p-strong">NAT</strong> stands for <strong class="markup--strong markup--p-strong">Network Address Translation.</strong></p><figure name="5bb5" id="5bb5" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*POjXO9zDIjgYFVROJAZaMg.png" data-width="644" data-height="787" src="https://cdn-images-1.medium.com/max/800/1*POjXO9zDIjgYFVROJAZaMg.png"></figure><ol class="postList"><li name="9f50" id="9f50" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">Placement:</strong> The NAT instance must live in a <strong class="markup--strong markup--li-strong">public subnet</strong> because it needs its own front door to the internet (an internet gateway).</li><li name="7090" id="7090" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Identity:</strong> You must attach an <strong class="markup--strong markup--li-strong">Elastic IP</strong> (a fixed, static public IP) to the NAT instance so its address never changes.</li><li name="fd2d" id="fd2d" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Flow:</strong> When a private instance wants to reach the internet, it sends its request to the NAT instance. The NAT instance strips away the private source IP, replaces it with its own public elastic IP, and sends it to the server. When the server replies, the NAT instance remembers who asked for the data and passes it back.</li></div><div class="section-inner sectionLayout--outsetColumn"></ol><figure name="bfa3" id="bfa3" class="graf graf--figure graf--layoutOutsetCenter graf-after--li graf--trailing"><img class="graf-image" data-image-id="1*PB06biYN0EQYfIwOsfm4iQ.png" data-width="1469" data-height="724" src="https://cdn-images-1.medium.com/max/1200/1*PB06biYN0EQYfIwOsfm4iQ.png"></figure></div></div></section><section name="cd0e" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="838f" id="838f" class="graf graf--h3 graf--leading">The “Secret Sauce”: Disabling Source/Destination Checks</h3><p name="b000" id="b000" class="graf graf--p graf-after--h3">This is the most common concept on the AWS exam. By default, every EC2 instance checks if the traffic it receives is actually meant for its own IP. If it isn’t, the instance drops the packet.</p><p name="ba17" id="ba17" class="graf graf--p graf-after--p graf--trailing">Because a NAT instance’s entire job is to receive traffic meant for <em class="markup--em markup--p-em">other</em> destinations and forward it. You <strong class="markup--strong markup--p-strong">must disable the Source/Destination Check</strong> attribute. If you forget this step, your NAT instance will receive the “mail” from your private instances and simply throw it in the trash!</p></div></div></section><section name="d98b" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="2d65" id="2d65" class="graf graf--h3 graf--leading">Why NAT Instances are “Outdated”</h3><p name="70d8" id="70d8" class="graf graf--p graf-after--h3">Even if they work, NAT instances come with several real-world headaches that make them less ideal than the newer NAT Gateway:</p><ul class="postList"><li name="85be" id="85be" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Not Highly Available:</strong> If your NAT instance crashes, your entire private subnet loses internet access. Making them resilient requires complex scripts and Auto Scaling Groups.</li><li name="cb9a" id="cb9a" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Performance Bottlenecks:</strong> Bandwidth is tied to the instance size. A small <code class="markup--code markup--li-code">t2.micro</code> NAT instance will struggle under heavy traffic.</li><li name="b206" id="b206" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Manual Management:</strong> You are responsible for patching the OS, managing the security groups, and ensuring the instance stays healthy.</li></ul></div></div></section><section name="38dc" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="bbf8" id="bbf8" class="graf graf--h3 graf--leading">Security Group Requirements</h3><p name="bcd6" id="bcd6" class="graf graf--p graf-after--h3">To make a NAT instance work, your security group rules must be precise:</p><ul class="postList"><li name="9efe" id="9efe" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Inbound:</strong> Allow HTTP/HTTPS traffic coming from your <strong class="markup--strong markup--li-strong">Private Subnet’s IP range</strong>.</li><li name="9358" id="9358" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Outbound:</strong> Allow traffic to go out to the internet (<code class="markup--code markup--li-code">0.0.0.0/0</code>) so it can reach the destination servers.</li></ul></div></div></section><section name="6ea1" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="0280" id="0280" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="2b76" id="2b76" class="graf graf--p graf-after--h3 graf--trailing">The NAT Instance is a classic piece of AWS history. It serves as a great educational tool for understanding how network packets are rewritten to maintain privacy while allowing connectivity. However, in a production environment, the manual overhead and lack of built-in high availability make it a risky choice. In the next section, we’ll look at the <strong class="markup--strong markup--p-strong">NAT Gateway</strong>, which takes all these concepts and turns them into a “set it and forget it” managed service.</p></div></div></section><section name="1422" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="7a15" id="7a15" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com" data-href="http://issackpaul95@gmail.com" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/95c6b0df6083"><time class="dt-published" datetime="2026-02-25T03:11:23.538Z">February 25, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-nat-instances-the-clouds-legacy-bridge-95c6b0df6083" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>

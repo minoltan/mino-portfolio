@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Box, Card, CardContent, Chip, Collapse, Grid, Stack, Typography, Button, useTheme, alpha, Badge, Divider } from "@mui/material";
-import { Cloud, School, WorkspacePremium, EmojiEvents, CheckCircleOutline, KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
+import Cloud from "@mui/icons-material/Cloud";
+import School from "@mui/icons-material/School";
+import WorkspacePremium from "@mui/icons-material/WorkspacePremium";
+import EmojiEvents from "@mui/icons-material/EmojiEvents";
+import CheckCircleOutline from "@mui/icons-material/CheckCircleOutline";
+import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
 import { Helmet } from "react-helmet";
 import TopNavigationLayout from "../sections/topNavigation/topNavigationLayout";
 import SpeedScroll from "../components/speedScroll";

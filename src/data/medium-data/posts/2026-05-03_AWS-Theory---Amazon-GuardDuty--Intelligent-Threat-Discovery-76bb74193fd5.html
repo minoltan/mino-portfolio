@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>AWS Theory | Amazon GuardDuty: Intelligent Threat Discovery</title><style>
+      * {
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 50px;
+        margin-bottom: 17px;
+        color: #333;
+      }
+      h2 {
+        font-size: 24px;
+        line-height: 1.6;
+        margin: 30px 0 0 0;
+        margin-bottom: 18px;
+        margin-top: 33px;
+        color: #333;
+      }
+      h3 {
+        font-size: 30px;
+        margin: 10px 0 20px 0;
+        color: #333;
+      }
+      header {
+        width: 640px;
+        margin: auto;
+      }
+      section {
+        width: 640px;
+        margin: auto;
+      }
+      section p {
+        margin-bottom: 27px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #333;
+      }
+      section img {
+        max-width: 640px;
+      }
+      footer {
+        padding: 0 20px;
+        margin: 50px 0;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aspectRatioPlaceholder {
+        max-width: auto !important;
+        max-height: auto !important;
+      }
+      .aspectRatioPlaceholder-fill {
+        padding-bottom: 0 !important;
+      }
+      header,
+      section[data-field=subtitle],
+      section[data-field=description] {
+        display: none;
+      }
+      </style></head><body><article class="h-entry">
+<header>
+<h1 class="p-name">AWS Theory | Amazon GuardDuty: Intelligent Threat Discovery</h1>
+</header>
+<section data-field="subtitle" class="p-summary">
+📌 Notice
+</section>
+<section data-field="body" class="e-content">
+<section name="94ef" class="section section--body section--first"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="c87c" id="c87c" class="graf graf--h3 graf--leading graf--title">AWS Theory | Amazon GuardDuty: Intelligent Threat Discovery</h3><h3 name="5552" id="5552" class="graf graf--h3 graf-after--h3">📌 Notice</h3><p name="af56" id="af56" class="graf graf--p graf-after--h3">This is a <strong class="markup--strong markup--p-strong">Theory</strong> blog accompanying the blog post:</p><p name="0c0b" id="0c0b" class="graf graf--p graf--startsWithDoubleQuote graf-after--p">“Pass the AWS Certified Solutions Architect Associate Certification SAA-C03-(Episode 24: Security &amp; Encryption | KMS, SSM Parameter Store, Shield, WAF)”</p><p name="7d2f" id="7d2f" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Cloud Practitioner Quiz</p><p name="a03b" id="a03b" class="graf graf--p graf-after--p">🔹 Episode 24: AWS Solution Architect Preparation Quiz</p><figure name="e4de" id="e4de" class="graf graf--figure graf-after--p graf--trailing"><img class="graf-image" data-image-id="1*Mnkxpd3jKjpudhkHTDUZAg.png" data-width="1376" data-height="768" src="https://cdn-images-1.medium.com/max/800/1*Mnkxpd3jKjpudhkHTDUZAg.png"></figure></div></div></section><section name="964a" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d78e" id="d78e" class="graf graf--h3 graf--leading">🌟 Introduction</h3><p name="4f86" id="4f86" class="graf graf--p graf-after--h3 graf--trailing">Securing a dynamic cloud environment requires more than just static firewalls; it requires an intelligent, always-on observer that can spot subtle patterns of malicious behavior. <strong class="markup--strong markup--p-strong">Amazon GuardDuty</strong> is a managed threat detection service that acts as your cloud’s “Security Operations Center” (SOC) in a box. By using machine learning, anomaly detection, and integrated threat intelligence, GuardDuty analyzes billions of events across your AWS accounts to identify everything from compromised credentials to stealthy data exfiltration. The beauty of GuardDuty lies in its simplicity: it is a one-click enablement with no software to install or agents to manage for foundational monitoring. It works silently in the background, consuming massive streams of log data and distilling them into actionable “findings” so you can focus on remediation instead of searching for needles in a haystack.</p></div></div></section><section name="db8e" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="5752" id="5752" class="graf graf--h3 graf--leading">How GuardDuty Sees Your Infrastructure</h3><p name="40bd" id="40bd" class="graf graf--p graf-after--h3">GuardDuty builds a baseline of “normal” behavior for your accounts and then looks for deviations. It ingests three foundational data sources automatically:</p><figure name="afb9" id="afb9" class="graf graf--figure graf-after--p"><img class="graf-image" data-image-id="1*gKD2gsnn8nRKjsXcgO8cng.png" data-width="1354" data-height="613" src="https://cdn-images-1.medium.com/max/800/1*gKD2gsnn8nRKjsXcgO8cng.png"></figure><ul class="postList"><li name="5980" id="5980" class="graf graf--li graf-after--figure"><strong class="markup--strong markup--li-strong">VPC Flow Logs:</strong> Analyzes network traffic patterns to spot unusual communication or “beaconing” to known malicious IP addresses.</li><li name="aab4" id="aab4" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">AWS CloudTrail Logs:</strong> Monitors both management events (like unauthorized VPC changes) and data events (like suspicious S3 object access).</li><li name="a5b6" id="a5b6" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">DNS Query Logs:</strong> Inspects DNS requests from your EC2 instances to detect if they are communicating with command-and-control (C&amp;C) servers or tunneling data out through DNS.</li></ul></div></div></section><section name="3c5b" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="6c11" id="6c11" class="graf graf--h3 graf--leading">Advanced Protection and Evolving Capabilities</h3><p name="e59b" id="e59b" class="graf graf--p graf-after--h3">Beyond the foundational logs, GuardDuty has expanded significantly to protect modern cloud-native architectures. You can enable optional protection plans for:</p><ul class="postList"><li name="0588" id="0588" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">Runtime Monitoring (EKS &amp; ECS):</strong> Monitors on-host, operating system-level behavior like file access and process execution to catch container-level compromises.</li><li name="77c0" id="77c0" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Malware Protection:</strong> Automatically scans EBS volumes for malware if an instance or container is behaving suspiciously.</li><li name="8201" id="8201" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Database &amp; Serverless Protection:</strong> Includes dedicated monitoring for <strong class="markup--strong markup--li-strong">Amazon Aurora (RDS)</strong> login activity and <strong class="markup--strong markup--li-strong">AWS Lambda</strong> network behavior.</li><li name="1912" id="1912" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Generative AI Security:</strong> In 2026, GuardDuty now includes specialized detections for <strong class="markup--strong markup--li-strong">Amazon Bedrock and SageMaker</strong>, identifying “multi-stage” attacks like the removal of AI guardrails or model misuse.</li><li name="54eb" id="54eb" class="graf graf--li graf-after--li graf--trailing"><strong class="markup--strong markup--li-strong">Extended Threat Detection:</strong> This feature automatically correlates multiple low-severity signals over time into a single “Attack Sequence” finding, helping you see the full story of an attack rather than just isolated alerts.</li></ul></div></div></section><section name="985d" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="c67e" id="c67e" class="graf graf--h3 graf--leading">Real-World Example: Detecting a “Stealth” Crypto-Miner</h3><p name="9ad4" id="9ad4" class="graf graf--p graf-after--h3">Imagine a developer’s credentials are leaked. An attacker uses them to log in to <strong class="markup--strong markup--p-strong">Account A</strong> and launches a high-powered EC2 instance in a region you rarely use, like <strong class="markup--strong markup--p-strong">ap-southeast-2 (Sydney)</strong>, to mine cryptocurrency.</p><p name="6880" id="6880" class="graf graf--p graf-after--p"><strong class="markup--strong markup--p-strong">The GuardDuty Detection:</strong></p><ol class="postList"><li name="5c59" id="5c59" class="graf graf--li graf-after--p"><strong class="markup--strong markup--li-strong">CloudTrail Analysis:</strong> GuardDuty notices the <code class="markup--code markup--li-code">RunInstances</code> API call coming from a &quot;Tor&quot; exit node (a known anonymizing proxy).</li><li name="09c4" id="09c4" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">VPC Flow Logs:</strong> It detects the new instance communicating with a known crypto-mining pool.</li><li name="6dd0" id="6dd0" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">The Finding:</strong> GuardDuty generates a “High Severity” finding: <code class="markup--code markup--li-code">CryptoCurrency:EC2/BitcoinTool.B!dns</code>.</li><li name="ae1b" id="ae1b" class="graf graf--li graf-after--li"><strong class="markup--strong markup--li-strong">Automation:</strong> This finding triggers an <strong class="markup--strong markup--li-strong">Amazon EventBridge</strong> rule. The rule fires an <strong class="markup--strong markup--li-strong">AWS Lambda</strong> function that immediately isolates the instance by changing its Security Group to block all outbound traffic and sends a “Critical” alert to the security team via <strong class="markup--strong markup--li-strong">Amazon SNS</strong>.</li></ol><p name="1f50" id="1f50" class="graf graf--p graf-after--li graf--trailing"><strong class="markup--strong markup--p-strong">The Result:</strong> The attack is neutralized within seconds of starting, preventing a massive bill and protecting your account reputation.</p></div></div></section><section name="b6f4" class="section section--body"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><h3 name="d001" id="d001" class="graf graf--h3 graf--leading">🧾 Conclusion</h3><p name="cff9" id="cff9" class="graf graf--p graf-after--h3 graf--trailing">Amazon GuardDuty is the “silent guardian” of the AWS cloud, providing a level of visibility that would be nearly impossible to achieve manually. By consolidating logs from across your network, compute, and data layers, it transforms raw data into intelligent security insights. In today’s landscape — where threats like ransomware and crypto-jacking are constantly evolving — GuardDuty’s ability to learn and adapt ensures your defense stays one step ahead. It’s not just about knowing <em class="markup--em markup--p-em">what</em> happened; it’s about having the intelligence to stop an attack before it becomes a breach. For any production AWS environment, GuardDuty isn’t just a best practice — it’s a security necessity.</p></div></div></section><section name="ff6a" class="section section--body section--last"><div class="section-divider"><hr class="section-divider"></div><div class="section-content"><div class="section-inner sectionLayout--insetColumn"><p name="164c" id="164c" class="graf graf--p graf--leading graf--trailing">To stay informed on the latest technical insights and tutorials, connect with me on <a href="https://medium.com/@issackpaul95" data-href="https://medium.com/@issackpaul95" class="markup--anchor markup--p-anchor" rel="noopener" target="_blank">Medium</a>, <a href="https://www.linkedin.com/in/minoltan/" data-href="https://www.linkedin.com/in/minoltan/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">LinkedIn,</a> and <a href="https://dev.to/minoltan" data-href="https://dev.to/minoltan" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">Dev.to</a>. For professional inquiries or technical discussions, please contact me via <a href="http://issackpaul95@gmail.com/" data-href="http://issackpaul95@gmail.com/" class="markup--anchor markup--p-anchor" rel="noopener ugc nofollow noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener noopener" target="_blank">email</a>. I welcome the opportunity to engage with fellow professionals and address any questions you may have. All blogs in this series will be optimized, fine-tuned, developed, and updated in a timely manner to reflect the latest AWS changes, exam updates, and real-world best practices.</p></div></div></section>
+</section>
+<footer><p>By <a href="https://medium.com/@issackpaul95" class="p-author h-card">Minoltan Issack</a> on <a href="https://medium.com/p/76bb74193fd5"><time class="dt-published" datetime="2026-05-03T00:10:03.727Z">May 3, 2026</time></a>.</p><p><a href="https://medium.com/@issackpaul95/aws-theory-amazon-guardduty-intelligent-threat-discovery-76bb74193fd5" class="p-canonical">Canonical link</a></p><p>Exported from <a href="https://medium.com">Medium</a> on May 6, 2026.</p></footer></article></body></html>
